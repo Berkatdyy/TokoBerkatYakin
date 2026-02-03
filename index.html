@@ -137,6 +137,66 @@
             align-items: center;
         }
 
+        /* Hamburger Menu */
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            background: transparent;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .hamburger:hover {
+            transform: scale(1.05);
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 3px;
+            background: var(--dark);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* Mobile Dropdown Menu */
+        .nav-links.mobile-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(37,99,235,0.15);
+            border-radius: 14px;
+            padding: 1rem;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .nav-links.mobile-menu.active {
+            display: flex;
+        }
+
+        .nav-links.mobile-menu a {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-links.mobile-menu a:hover {
+            background: var(--gray-100);
+        }
+
+        .nav-links.mobile-menu .nav-cta {
+            text-align: center;
+        }
+
         .nav-links a {
             color: var(--gray-700);
             text-decoration: none;
@@ -276,13 +336,13 @@
         }
 
         .btn-white {
-            background: var(--white);
-            color: var(--dark);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            background: linear-gradient(135deg, #25D366, #1DAA57);
+            color: var(--white);
+            box-shadow: 0 4px 20px rgba(37,211,102,0.35);
         }
         .btn-white:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+            box-shadow: 0 8px 28px rgba(37,211,102,0.45);
         }
 
         .btn-ghost {
@@ -750,7 +810,6 @@
 
         @media (max-width: 600px) {
             .navbar { top: 0.5rem; width: calc(100% - 1rem); padding: 0.65rem 1rem; border-radius: 14px; }
-            .nav-links { display: none; }
             .hero { padding: 5.5rem 1.2rem 3rem; }
             .hero-title { font-size: 2.3rem; letter-spacing: -1.5px; }
             .section { padding: 4.5rem 1.2rem; }
@@ -780,10 +839,19 @@
             <a href="#" class="logo">
                 <span class="logo-text">Toko Berkat Yakin</span>
             </a>
-            <ul class="nav-links">
-                <li><a href="#produk">Produk</a></li>
-                <li><a href="#layanan">Layanan</a></li>
-                <li><a href="#kontak">Kontak</a></li>
+            
+            <!-- Hamburger Icon -->
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <!-- Dropdown Menu -->
+            <ul class="nav-links mobile-menu" id="navMenu">
+                <li><a href="#produk">📦 Produk</a></li>
+                <li><a href="#layanan">💳 Layanan</a></li>
+                <li><a href="#kontak">📍 Kontak</a></li>
                 <li><a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin" class="nav-cta">Pesan Sekarang</a></li>
             </ul>
         </div>
@@ -999,8 +1067,31 @@
 <!-- ─── Scripts ─── -->
 <script>
 const navbar = document.getElementById('navbar');
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('navMenu');
+
 window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 70);
+});
+
+// Toggle hamburger menu
+hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navMenu.classList.toggle('active');
+});
+
+// Close menu when clicking menu items
+navMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        navMenu.classList.remove('active');
+    });
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        navMenu.classList.remove('active');
+    }
 });
 
 document.querySelectorAll('a[href^="#"]').forEach(a => {
