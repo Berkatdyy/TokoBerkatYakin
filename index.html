@@ -15,6 +15,8 @@
             --primary-dark: #0066cc;
             --accent-green: #34c759;
             --accent-green-light: #30d158;
+            --accent-orange: #ff9500;
+            --accent-red: #ff3b30;
             --text: #1d1d1f;
             --text-secondary: #86868b;
             --bg: #fbfbfd;
@@ -84,6 +86,15 @@
             }
             50% {
                 box-shadow: 0 0 0 8px rgba(52, 199, 89, 0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
             }
         }
 
@@ -157,7 +168,6 @@
             opacity: 0.6;
         }
 
-        /* Dropdown */
         .dropdown {
             position: relative;
         }
@@ -454,6 +464,276 @@
             line-height: 1.2;
         }
 
+        .section-description {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 1rem auto 0;
+            line-height: 1.6;
+        }
+
+        /* Enhanced Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 0.5px solid var(--border);
+            transition: all 0.3s var(--transition);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(0, 113, 227, 0.2);
+        }
+
+        /* Product Badge */
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .badge-bestseller {
+            background: linear-gradient(135deg, #ff9500 0%, #ff6b00 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #34c759 0%, #30b350 100%);
+            color: white;
+        }
+
+        .badge-promo {
+            background: linear-gradient(135deg, #ff3b30 0%, #e5342a 100%);
+            color: white;
+            animation: bounce 1s infinite;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 320px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            padding: 1.5rem;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s var(--transition);
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-category {
+            font-size: 0.8125rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-name {
+            font-size: 1.375rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .product-desc {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .star {
+            color: var(--accent-orange);
+            font-size: 0.875rem;
+        }
+
+        .rating-text {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .product-price-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        .product-stock {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stock-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        .stock-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .btn-buy {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            padding: 1rem 1.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s var(--transition);
+            border: none;
+            cursor: pointer;
+            margin-top: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-buy::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-buy:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-buy:hover {
+            background: var(--primary-light);
+            transform: scale(1.03);
+            box-shadow: 0 6px 24px rgba(0, 113, 227, 0.4);
+        }
+
+        .btn-buy svg {
+            width: 20px;
+            height: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-buy span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.75rem 1.75rem;
+            border: 1.5px solid var(--border);
+            background: var(--card-bg);
+            border-radius: var(--radius-pill);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s var(--transition);
+        }
+
+        .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0, 113, 227, 0.25);
+        }
+
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -717,6 +997,10 @@
                 min-height: 500px;
             }
 
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
             .card-grid,
             .contact-grid {
                 grid-template-columns: 1fr;
@@ -724,6 +1008,15 @@
 
             .section {
                 padding: 4rem 1.5rem;
+            }
+
+            .filter-tabs {
+                gap: 0.75rem;
+            }
+
+            .filter-tab {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.875rem;
             }
         }
 
@@ -827,6 +1120,312 @@
                 </div>
                 <span class="stat-number">100%</span>
                 <span class="stat-label">Kepuasan Pelanggan</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- BEST SELLER SECTION WITH NEW PRODUCTS -->
+    <section class="section" style="background: white;">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-subtitle">⭐ Paling Laris</div>
+                <h2 class="section-title">Best Seller Produk Pilihan</h2>
+                <p class="section-description">Produk-produk favorit pelanggan dengan kualitas terbaik dan harga terjangkau</p>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">Semua Produk</button>
+                <button class="filter-tab" data-filter="mie">Mie Instan</button>
+                <button class="filter-tab" data-filter="rokok">Rokok</button>
+            </div>
+
+            <div class="product-grid">
+                <!-- Product 1: Indomie Soto Banjar -->
+                <div class="product-card animate-on-scroll" data-category="mie">
+                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
+                    <div class="product-image">
+                        <img src="indomie-soto-banjar.png" alt="Indomie Soto Banjar">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Mie Instan</div>
+                        <h3 class="product-name">Indomie Soto Banjar</h3>
+                        <p class="product-desc">Mi instan khas Banjarmasin dengan rasa soto yang otentik dan bumbu lengkap</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.9/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 3.000</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Tersedia</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Indomie%20Soto%20Banjar" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 2: Indomie Soto Banjar Limau Kuit -->
+                <div class="product-card animate-on-scroll" data-category="mie">
+                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
+                    <div class="product-image">
+                        <img src="indomie-soto-limau.png" alt="Indomie Soto Banjar Limau Kuit">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Mie Instan</div>
+                        <h3 class="product-name">Indomie Soto Banjar Limau Kuit</h3>
+                        <p class="product-desc">Varian terbaru! Soto Banjar dengan sensasi segar jeruk limau kuit yang khas</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.9/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 3.000</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Tersedia</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Indomie%20Soto%20Banjar%20Limau%20Kuit" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 3: Indomie Mi Goreng -->
+                <div class="product-card animate-on-scroll" data-category="mie">
+                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
+                    <div class="product-image">
+                        <img src="indomie-goreng.png" alt="Indomie Mi Goreng">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Mie Instan</div>
+                        <h3 class="product-name">Indomie Mi Goreng</h3>
+                        <p class="product-desc">Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(5.0/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 3.000</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Melimpah</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Indomie%20Mi%20Goreng" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 4: Sarimi Ayam Kecap -->
+                <div class="product-card animate-on-scroll" data-category="mie">
+                    <div class="product-badge badge-new">✨ PILIHAN HEMAT</div>
+                    <div class="product-image">
+                        <img src="sarimi-ayam-kecap.png" alt="Sarimi Ayam Kecap">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Mie Instan</div>
+                        <h3 class="product-name">Sarimi Isi 2 - Ayam Kecap</h3>
+                        <p class="product-desc">Mie instant isi 2 dengan rasa ayam kecap yang gurih dan nikmat</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.8/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 4.000</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Tersedia</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sarimi%20Ayam%20Kecap" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 5: Sarimi Ayam Kremess -->
+                <div class="product-card animate-on-scroll" data-category="mie">
+                    <div class="product-badge badge-new">✨ PILIHAN HEMAT</div>
+                    <div class="product-image">
+                        <img src="sarimi-ayam-kremess.png" alt="Sarimi Ayam Kremess">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Mie Instan</div>
+                        <h3 class="product-name">Sarimi Isi 2 - Ayam Kremess</h3>
+                        <p class="product-desc">Mie instant isi 2 dengan rasa ayam kremess yang creamy dan mantap</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.8/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 4.000</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Tersedia</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sarimi%20Ayam%20Kremess" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 6: Sampoerna Mild -->
+                <div class="product-card animate-on-scroll" data-category="rokok">
+                    <div class="product-image">
+                        <img src="sampoerna-mild.png" alt="Sampoerna A Mild">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Rokok</div>
+                        <h3 class="product-name">Sampoerna A Mild</h3>
+                        <p class="product-desc">Rokok mild berkualitas premium - 16 batang per bungkus</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.7/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Hubungi Kami</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Tersedia</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sampoerna%20A%20Mild" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 7: Surya 12 -->
+                <div class="product-card animate-on-scroll" data-category="rokok">
+                    <div class="product-image">
+                        <img src="surya-12.png" alt="Surya Gudang Garam 12">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Rokok</div>
+                        <h3 class="product-name">Surya Gudang Garam 12</h3>
+                        <p class="product-desc">Rokok kretek berkualitas - 12 batang per bungkus</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.6/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 28.000</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Stok Tersedia</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Surya%2012" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Product 8: Surya Kaleng -->
+                <div class="product-card animate-on-scroll" data-category="rokok">
+                    <div class="product-badge badge-promo">🔥 ECERAN</div>
+                    <div class="product-image">
+                        <img src="surya-kaleng.png" alt="Surya Gudang Garam Kaleng">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Rokok</div>
+                        <h3 class="product-name">Surya Gudang Garam Kaleng</h3>
+                        <p class="product-desc">Rokok kretek premium dalam kemasan kaleng - Tersedia eceran per batang</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-text">(4.7/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">Rp 2.500</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">Per Batang</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Surya%20Kaleng" class="btn-buy">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1059,6 +1658,7 @@
     </footer>
 
     <script>
+        // Navbar scroll effect
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 50) {
@@ -1068,6 +1668,7 @@
             }
         });
 
+        // Mobile menu toggle
         const menuToggle = document.getElementById('menuToggle');
         const navMenu = document.getElementById('navMenu');
 
@@ -1083,6 +1684,7 @@
             });
         });
 
+        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1096,6 +1698,7 @@
             });
         });
 
+        // Scroll animation observer
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -1111,6 +1714,46 @@
 
         document.querySelectorAll('.animate-on-scroll').forEach(el => {
             observer.observe(el);
+        });
+
+        // Product filter functionality
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const productCards = document.querySelectorAll('.product-card');
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                filterTabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+
+                const filterValue = tab.getAttribute('data-filter');
+
+                productCards.forEach(card => {
+                    if (filterValue === 'all') {
+                        card.style.display = 'flex';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 10);
+                    } else {
+                        const category = card.getAttribute('data-category');
+                        if (category === filterValue) {
+                            card.style.display = 'flex';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 10);
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                            }, 300);
+                        }
+                    }
+                });
+            });
         });
     </script>
 </body>
