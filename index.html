@@ -13,6 +13,8 @@
             --primary: #0071e3;
             --primary-light: #0077ed;
             --primary-dark: #0066cc;
+            --accent-green: #34c759;
+            --accent-green-light: #30d158;
             --text: #1d1d1f;
             --text-secondary: #86868b;
             --bg: #fbfbfd;
@@ -73,6 +75,15 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(52, 199, 89, 0);
             }
         }
 
@@ -164,21 +175,44 @@
 
         .hero {
             padding: 140px 2rem 80px;
-            background: var(--bg);
             position: relative;
             overflow: hidden;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
         }
 
         .hero::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.06) 0%, transparent 70%);
-            pointer-events: none;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('warung.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 0;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 113, 227, 0.92) 0%,
+                rgba(0, 113, 227, 0.88) 25%,
+                rgba(52, 199, 89, 0.85) 75%,
+                rgba(52, 199, 89, 0.82) 100%
+            );
+            z-index: 1;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
 
         .hero-container {
@@ -186,21 +220,61 @@
             margin: 0 auto;
             text-align: center;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: var(--bg-secondary);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
             padding: 0.5rem 1.25rem;
             border-radius: var(--radius-pill);
             font-size: 0.8125rem;
-            color: var(--text-secondary);
-            border: 0.5px solid var(--border);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
             margin-bottom: 1.5rem;
-            animation: slideDown 0.6s var(--transition);
+            animation: slideDown 0.6s var(--transition), pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .hero-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .hero-badge svg {
+            color: white;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .hero h1 {
@@ -208,18 +282,20 @@
             font-weight: 700;
             letter-spacing: -0.04em;
             line-height: 1.1;
-            color: var(--text);
+            color: white;
             margin-bottom: 1.5rem;
             animation: fadeInUp 0.6s var(--transition) 0.1s backwards;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
 
         .hero-description {
             font-size: 1.25rem;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.95);
             max-width: 700px;
             margin: 0 auto 2.5rem;
             line-height: 1.5;
             animation: fadeInUp 0.6s var(--transition) 0.2s backwards;
+            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
         }
 
         .hero-buttons {
@@ -238,7 +314,7 @@
             padding: 0.875rem 1.75rem;
             border-radius: var(--radius-pill);
             font-size: 1rem;
-            font-weight: 400;
+            font-weight: 500;
             text-decoration: none;
             border: none;
             cursor: pointer;
@@ -246,24 +322,28 @@
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: white;
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.95);
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
         }
 
         .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
         }
 
         .stats-section {
@@ -581,6 +661,7 @@
 
             .hero {
                 padding: 120px 1.5rem 60px;
+                min-height: 500px;
             }
 
             .hero-buttons {
@@ -669,7 +750,7 @@
                         <line x1="3" y1="6" x2="21" y2="6"/>
                     </svg>
                 </div>
-                <span class="stat-number">500+</span>
+                <span class="stat-number">200+</span>
                 <span class="stat-label">Produk Berkualitas</span>
             </div>
             <div class="stat-item animate-on-scroll">
@@ -735,7 +816,7 @@
                         </svg>
                     </div>
                     <h3 class="card-title">Aneka Snack</h3>
-                    <p class="card-description">Camilan favorit untuk semua usia — keripik tradisional.</p>
+                    <p class="card-description">Camilan favorit untuk semua usia — keripik tradisional hingga cokelat.</p>
                     <div class="card-tags">
                         <span class="tag">Keripik</span>
                         <span class="tag">Biskuit</span>
@@ -773,7 +854,7 @@
                     <h3 class="card-title">Makanan Instan</h3>
                     <p class="card-description">Mie instan berbagai rasa, bumbu masak, saus, kecap, dan makanan siap saji.</p>
                     <div class="card-tags">
-                        <span class="tag">Mi Instan</span>
+                        <span class="tag">Mie Instan</span>
                         <span class="tag">Bumbu Masak</span>
                         <span class="tag">Saus & Kecap</span>
                     </div>
