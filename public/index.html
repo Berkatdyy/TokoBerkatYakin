@@ -2089,6 +2089,9 @@
                 <button class="filter-tab active" data-filter="all">Semua Produk</button>
                 <button class="filter-tab" data-filter="mie">Mie Instan</button>
                 <button class="filter-tab" data-filter="rokok">Rokok</button>
+                <button class="filter-tab" data-filter="sembako">Sembako</button>
+                <button class="filter-tab" data-filter="minuman">Minuman</button>
+                <button class="filter-tab" data-filter="snack">Snack</button>
             </div>
 
             <div class="product-grid" id="productGrid"></div>
@@ -2337,16 +2340,25 @@
 
     <script>
         // ===== JSONBIN CONFIGURATION =====
-        // ===== GANTI DENGAN DATA ANDA =====
-        const BIN_ID = "6986547aae596e708f16b404"; // 
-        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OVOCMyX3gP0sxM7qI5LA6jEsXz3n/K7a"; // 
-        const ADMIN_TOKEN = "75354e17";  // <- Inilah token Anda
-        // ===== AKHIR CONFIGURATION =====
+        const BIN_ID = "6986547aae596e708f16b404"; // Bin ID yang sudah ada
+        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OVOCMyX3gP0sxM7qI5LA6jEsXz3n/K7a"; // Master Key
+        const ADMIN_TOKEN = "75354e17";  // Token admin
+        
+        // ===== BACKUP BIN ID UNTUK DATA LAMA =====
+        const BACKUP_BIN_ID = "6985dd39ae596e708f0f4cd5"; // Bin ID data lama
+        const BACKUP_API_KEY = "$2a$10$pt1sJHY.8NJVkX.eRMBYK.Q4MnirzJ9BQ/L5xfvWUqSOgN4rVquNe"; // Master Key backup
 
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         const JSONBIN_HEADERS = {
             "Content-Type": "application/json",
             "X-Master-Key": API_KEY,
+            "X-Bin-Versioning": "false"
+        };
+
+        const BACKUP_URL = `https://api.jsonbin.io/v3/b/${BACKUP_BIN_ID}`;
+        const BACKUP_HEADERS = {
+            "Content-Type": "application/json",
+            "X-Master-Key": BACKUP_API_KEY,
             "X-Bin-Versioning": "false"
         };
 
@@ -2538,7 +2550,7 @@
         // ===== DATABASE FUNCTIONS =====
         async function loadFromDatabase() {
             try {
-                console.log("📡 Mengambil data dari JSONBin...");
+                console.log("📡 Mengambil data dari JSONBin utama...");
                 const response = await fetch(JSONBIN_URL, {
                     method: 'GET',
                     headers: JSONBIN_HEADERS
@@ -2549,11 +2561,40 @@
                 }
                 
                 const data = await response.json();
-                console.log("✅ Data berhasil diambil dari JSONBin");
+                console.log("✅ Data berhasil diambil dari JSONBin utama");
                 
-                // Jika bin kosong, inisialisasi dengan data default
+                // Jika bin kosong, coba ambil dari backup
                 if (!data.record || Object.keys(data.record).length === 0) {
-                    console.log("📦 Bin kosong, menginisialisasi dengan data default...");
+                    console.log("📦 Bin utama kosong, mencoba ambil dari backup...");
+                    return await loadFromBackup();
+                }
+                
+                return data.record;
+            } catch (error) {
+                console.error("❌ Error mengambil data utama:", error);
+                console.log("🔄 Mencoba ambil dari backup karena error...");
+                return await loadFromBackup();
+            }
+        }
+
+        async function loadFromBackup() {
+            try {
+                console.log("📡 Mengambil data dari JSONBin backup...");
+                const response = await fetch(BACKUP_URL, {
+                    method: 'GET',
+                    headers: BACKUP_HEADERS
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log("✅ Data berhasil diambil dari JSONBin backup");
+                
+                // Jika backup juga kosong, inisialisasi dengan data default
+                if (!data.record || Object.keys(data.record).length === 0) {
+                    console.log("📦 Backup juga kosong, menginisialisasi dengan data default...");
                     return {
                         products: defaultProducts,
                         categories: defaultCategories,
@@ -2563,7 +2604,7 @@
                 
                 return data.record;
             } catch (error) {
-                console.error("❌ Error mengambil data:", error);
+                console.error("❌ Error mengambil data backup:", error);
                 console.log("🔄 Menggunakan data default karena error...");
                 return {
                     products: defaultProducts,
@@ -2596,13 +2637,45 @@
             }
         }
 
-        // ===== LOAD PRODUCTS & CATEGORIES FROM JSONBIN =====
+        // ===== MERGE PRODUCTS - GABUNGKAN DATA LAMA DAN BARU =====
+        function mergeProducts(oldProducts, newProducts) {
+            // Buat array untuk hasil merge
+            let mergedProducts = [...oldProducts];
+            
+            // Tambahkan produk baru jika belum ada berdasarkan id
+            newProducts.forEach(newProduct => {
+                const exists = mergedProducts.some(oldProduct => oldProduct.id === newProduct.id);
+                if (!exists) {
+                    mergedProducts.push(newProduct);
+                }
+            });
+            
+            // Pastikan id unik dan terurut
+            mergedProducts.forEach((product, index) => {
+                product.id = index + 1;
+            });
+            
+            return mergedProducts;
+        }
+
+        // ===== MERGE CATEGORIES - GABUNGKAN KATEGORI LAMA DAN BARU =====
+        function mergeCategories(oldCategories, newCategories) {
+            // Gabungkan array dan hapus duplikat
+            return [...new Set([...oldCategories, ...newCategories])];
+        }
+
+        // ===== LOAD PRODUCTS & CATEGORIES =====
         async function loadProducts() {
             const dbData = await loadFromDatabase();
             
             if (dbData) {
-                allProducts = dbData.products || [...defaultProducts];
-                allCategories = dbData.categories || [...defaultCategories];
+                // Gabungkan produk lama dan baru
+                const oldProducts = dbData.products || [];
+                allProducts = mergeProducts(oldProducts, defaultProducts);
+                
+                // Gabungkan kategori lama dan baru
+                const oldCategories = dbData.categories || [];
+                allCategories = mergeCategories(oldCategories, defaultCategories);
             } else {
                 allProducts = [...defaultProducts];
                 allCategories = [...defaultCategories];
@@ -2612,9 +2685,12 @@
             renderProducts();
             renderAdminProductList();
             updateCategoryLists();
+            
+            // Simpan data yang sudah digabungkan
+            await saveProducts();
         }
 
-        // ===== SAVE PRODUCTS & CATEGORIES TO JSONBIN =====
+        // ===== SAVE PRODUCTS & CATEGORIES =====
         async function saveProducts() {
             const data = {
                 products: allProducts,
@@ -2678,17 +2754,36 @@
             const tabsContainer = document.querySelector('.filter-tabs');
             if (!tabsContainer) return;
             
-            // Keep existing tabs but update based on categories
-            const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
-            const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
+            // Simpan tab yang aktif
+            const activeTab = tabsContainer.querySelector('.filter-tab.active');
+            const activeFilter = activeTab ? activeTab.dataset.filter : 'all';
             
-            // Add new categories as tabs if they don't exist
+            // Kosongkan tabs
+            tabsContainer.innerHTML = '';
+            
+            // Tambah tab "Semua Produk"
+            const allTab = document.createElement('button');
+            allTab.className = 'filter-tab';
+            allTab.dataset.filter = 'all';
+            allTab.textContent = 'Semua Produk';
+            if (activeFilter === 'all') allTab.classList.add('active');
+            allTab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                allTab.classList.add('active');
+                filterProducts('all');
+            });
+            tabsContainer.appendChild(allTab);
+            
+            // Tambah tab untuk setiap kategori yang memiliki produk
             allCategories.forEach(category => {
-                if (!existingFilters.includes(category) && category !== 'all') {
+                // Cek apakah ada produk dengan kategori ini
+                const hasProducts = allProducts.some(product => product.category === category);
+                if (hasProducts) {
                     const tab = document.createElement('button');
                     tab.className = 'filter-tab';
                     tab.dataset.filter = category;
                     tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    if (activeFilter === category) tab.classList.add('active');
                     tab.addEventListener('click', () => {
                         document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
                         tab.classList.add('active');
@@ -2944,17 +3039,6 @@
                     firstNewProduct.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             }, 100);
-        });
-
-        // ===== FILTER TABS =====
-        const filterTabs = document.querySelectorAll('.filter-tab');
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                filterTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                const filterValue = tab.getAttribute('data-filter');
-                filterProducts(filterValue);
-            });
         });
 
         // ===== NAVBAR SCROLL EFFECT =====
@@ -3440,7 +3524,7 @@
         window.addEventListener('DOMContentLoaded', async () => {
             // Tampilkan loading state
             const productGrid = document.getElementById('productGrid');
-            productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
+            productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data produk...</div>';
             
             await loadProducts();
             checkAdminLogin();
@@ -3457,6 +3541,8 @@
                     openLoginModal();
                 }
             });
+            
+            console.log("✅ Aplikasi siap digunakan. Total produk:", allProducts.length);
         });
     </script>
 </body>
