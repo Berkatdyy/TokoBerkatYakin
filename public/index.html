@@ -1856,14 +1856,10 @@
                 <button class="btn-close" onclick="closeLoginModal()">×</button>
             </div>
             <div class="form-group">
-                <label for="adminId">Admin ID</label>
-                <input type="text" id="adminId" placeholder="Masukkan ID Admin">
+                <label for="adminToken">Token Admin</label>
+                <input type="password" id="adminToken" placeholder="Masukkan Token Admin">
             </div>
-            <div class="form-group">
-                <label for="adminPassword">Password</label>
-                <input type="password" id="adminPassword" placeholder="Masukkan Password">
-            </div>
-            <div class="login-error" id="loginError">ID atau Password salah!</div>
+            <div class="login-error" id="loginError">Token salah!</div>
             <div class="form-actions">
                 <button class="btn btn-primary" onclick="loginAdmin()">Login</button>
                 <button class="btn" onclick="closeLoginModal()">Batal</button>
@@ -2340,6 +2336,20 @@
     </footer>
 
     <script>
+        // ===== JSONBIN CONFIGURATION =====
+        // ===== GANTI DENGAN DATA ANDA =====
+        const BIN_ID = "GANTI_DENGAN_BIN_ID_ANDA"; // "6986547aae596e708f16b404"
+        const API_KEY = "$2a$10$GANTI_DENGAN_API_KEY_ANDA"; // "$2a$10$/9j7hZXbitv2lA9dW0sU8elJNi0VBo/eSPRUdeVSOWS/eHDnhLzwK"
+        const ADMIN_TOKEN = "GANTI_DENGAN_TOKEN_ADMIN_ANDA"; // Contoh: "berkatdyy2025"
+        // ===== AKHIR CONFIGURATION =====
+
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        const JSONBIN_HEADERS = {
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY,
+            "X-Bin-Versioning": "false"
+        };
+
         // ===== PRODUCT DATABASE (DEFAULT) =====
         const defaultProducts = [
             {
@@ -2525,23 +2535,77 @@
         let allProducts = [];
         let allCategories = [];
 
-        // ===== LOAD PRODUCTS & CATEGORIES FROM LOCALSTORAGE =====
-        function loadProducts() {
-            const savedProducts = localStorage.getItem('berkat_yakin_products');
-            if (savedProducts) {
-                allProducts = JSON.parse(savedProducts);
+        // ===== DATABASE FUNCTIONS =====
+        async function loadFromDatabase() {
+            try {
+                console.log("📡 Mengambil data dari JSONBin...");
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'GET',
+                    headers: JSONBIN_HEADERS
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log("✅ Data berhasil diambil dari JSONBin");
+                
+                // Jika bin kosong, inisialisasi dengan data default
+                if (!data.record || Object.keys(data.record).length === 0) {
+                    console.log("📦 Bin kosong, menginisialisasi dengan data default...");
+                    return {
+                        products: defaultProducts,
+                        categories: defaultCategories,
+                        lastUpdated: new Date().toISOString()
+                    };
+                }
+                
+                return data.record;
+            } catch (error) {
+                console.error("❌ Error mengambil data:", error);
+                console.log("🔄 Menggunakan data default karena error...");
+                return {
+                    products: defaultProducts,
+                    categories: defaultCategories,
+                    lastUpdated: new Date().toISOString()
+                };
+            }
+        }
+
+        async function saveToDatabase(data) {
+            try {
+                console.log("💾 Menyimpan data ke JSONBin...");
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: JSONBIN_HEADERS,
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log("✅ Data berhasil disimpan ke JSONBin");
+                return true;
+            } catch (error) {
+                console.error("❌ Error menyimpan data:", error);
+                alert("⚠️ Gagal menyimpan data ke server. Silakan coba lagi.");
+                return false;
+            }
+        }
+
+        // ===== LOAD PRODUCTS & CATEGORIES FROM JSONBIN =====
+        async function loadProducts() {
+            const dbData = await loadFromDatabase();
+            
+            if (dbData) {
+                allProducts = dbData.products || [...defaultProducts];
+                allCategories = dbData.categories || [...defaultCategories];
             } else {
                 allProducts = [...defaultProducts];
-                saveProducts();
-            }
-            
-            // Load categories
-            const savedCategories = localStorage.getItem('berkat_yakin_categories');
-            if (savedCategories) {
-                allCategories = JSON.parse(savedCategories);
-            } else {
                 allCategories = [...defaultCategories];
-                saveCategories();
             }
             
             filteredProducts = [...allProducts];
@@ -2550,13 +2614,27 @@
             updateCategoryLists();
         }
 
-        // ===== SAVE PRODUCTS & CATEGORIES TO LOCALSTORAGE =====
-        function saveProducts() {
-            localStorage.setItem('berkat_yakin_products', JSON.stringify(allProducts));
+        // ===== SAVE PRODUCTS & CATEGORIES TO JSONBIN =====
+        async function saveProducts() {
+            const data = {
+                products: allProducts,
+                categories: allCategories,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            const success = await saveToDatabase(data);
+            return success;
         }
 
-        function saveCategories() {
-            localStorage.setItem('berkat_yakin_categories', JSON.stringify(allCategories));
+        async function saveCategories() {
+            const data = {
+                products: allProducts,
+                categories: allCategories,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            const success = await saveToDatabase(data);
+            return success;
         }
 
         // ===== UPDATE CATEGORY LISTS =====
@@ -2622,7 +2700,7 @@
         }
 
         // ===== ADD NEW CATEGORY =====
-        function addNewCategory() {
+        async function addNewCategory() {
             const input = document.getElementById('newCategoryInput');
             const categoryName = input.value.trim().toLowerCase();
             
@@ -2637,15 +2715,17 @@
             }
             
             allCategories.push(categoryName);
-            saveCategories();
-            updateCategoryLists();
+            const success = await saveCategories();
             
-            input.value = '';
-            alert(`Kategori "${categoryName}" berhasil ditambahkan!`);
+            if (success) {
+                updateCategoryLists();
+                input.value = '';
+                alert(`Kategori "${categoryName}" berhasil ditambahkan!`);
+            }
         }
 
         // ===== DELETE CATEGORY =====
-        function deleteCategory(categoryName) {
+        async function deleteCategory(categoryName) {
             // Prevent deletion of default categories
             if (['mie', 'rokok'].includes(categoryName)) {
                 alert('Kategori default tidak bisa dihapus!');
@@ -2660,20 +2740,19 @@
                     return;
                 }
                 
-                // Delete all products with this category
                 allProducts = allProducts.filter(product => product.category !== categoryName);
-                saveProducts();
+                const saveSuccess = await saveProducts();
+                if (!saveSuccess) return;
             }
             
-            // Remove category from list
             allCategories = allCategories.filter(cat => cat !== categoryName);
-            saveCategories();
-            updateCategoryLists();
+            const success = await saveCategories();
             
-            // Re-render products
-            filterProducts(currentFilter);
-            
-            alert(`Kategori "${categoryName}" berhasil dihapus!`);
+            if (success) {
+                updateCategoryLists();
+                filterProducts(currentFilter);
+                alert(`Kategori "${categoryName}" berhasil dihapus!`);
+            }
         }
 
         // ===== LAZY LOADING =====
@@ -3028,41 +3107,15 @@
         });
 
         // ===== ADMIN FUNCTIONS =====
-        const ADMIN_ID = 'berkatdyy';
-        const ADMIN_PASSWORD_HASH = '75354e17'; // Password asli untuk di-hash
-
-        async function sha256(message) {
-            // Convert string to ArrayBuffer
-            const encoder = new TextEncoder();
-            const data = encoder.encode(message);
+        function loginAdmin() {
+            const token = document.getElementById('adminToken').value;
             
-            // Hash the data
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            
-            // Convert ArrayBuffer to hex string
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            
-            return hashHex;
-        }
-
-        async function loginAdmin() {
-            const id = document.getElementById('adminId').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            if (id === ADMIN_ID) {
-                const hashedPassword = await sha256(password);
-                const storedHash = await sha256(ADMIN_PASSWORD_HASH);
-                
-                if (hashedPassword === storedHash) {
-                    // Login berhasil
-                    localStorage.setItem('admin_logged_in', 'true');
-                    closeLoginModal();
-                    openAdminModal();
-                    updateAdminMenu(true);
-                } else {
-                    showLoginError();
-                }
+            if (token === ADMIN_TOKEN) {
+                // Login berhasil
+                sessionStorage.setItem('admin_logged_in', 'true');
+                closeLoginModal();
+                openAdminModal();
+                updateAdminMenu(true);
             } else {
                 showLoginError();
             }
@@ -3077,7 +3130,7 @@
         }
 
         function checkAdminLogin() {
-            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+            const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
             updateAdminMenu(isLoggedIn);
         }
 
@@ -3093,7 +3146,7 @@
         }
 
         function logoutAdmin() {
-            localStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_logged_in');
             closeAdminModal();
             updateAdminMenu(false);
             alert('Anda telah logout dari admin.');
@@ -3106,12 +3159,11 @@
 
         function closeLoginModal() {
             document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('adminId').value = '';
-            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminToken').value = '';
         }
 
         function openAdminModal() {
-            if (localStorage.getItem('admin_logged_in') === 'true') {
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 closeAllDropdowns();
                 document.getElementById('adminModal').classList.add('active');
                 renderAdminProductList();
@@ -3205,7 +3257,7 @@
             // Add new category if it doesn't exist
             if (!allCategories.includes(category)) {
                 allCategories.push(category);
-                saveCategories();
+                await saveCategories();
                 updateCategoryLists();
             }
             
@@ -3250,16 +3302,17 @@
                 allProducts.push(newProduct);
             }
             
-            saveProducts();
-            renderProducts();
-            renderAdminProductList();
-            updateFilterTabs();
-            resetForm();
-            
-            alert(id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
+            const success = await saveProducts();
+            if (success) {
+                renderProducts();
+                renderAdminProductList();
+                updateFilterTabs();
+                resetForm();
+                alert(id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
+            }
         }
 
-        function deleteProduct(id = null) {
+        async function deleteProduct(id = null) {
             if (!id && editingProductId) {
                 id = editingProductId;
             }
@@ -3268,11 +3321,14 @@
             
             if (confirm('Yakin ingin menghapus produk ini?')) {
                 allProducts = allProducts.filter(p => p.id !== id);
-                saveProducts();
-                renderProducts();
-                renderAdminProductList();
-                resetForm();
-                alert('Produk berhasil dihapus!');
+                const success = await saveProducts();
+                
+                if (success) {
+                    renderProducts();
+                    renderAdminProductList();
+                    resetForm();
+                    alert('Produk berhasil dihapus!');
+                }
             }
         }
 
@@ -3381,11 +3437,26 @@
         window.addEventListener('resize', handleResize);
 
         // ===== INITIALIZE =====
-        window.addEventListener('DOMContentLoaded', () => {
-            loadProducts();
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Tampilkan loading state
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
+            
+            await loadProducts();
             checkAdminLogin();
             filterProducts('all');
             setupSearch();
+            
+            // Inisialisasi event listener untuk admin
+            document.getElementById('navAdmin').addEventListener('click', function(e) {
+                e.preventDefault();
+                const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+                if (isLoggedIn) {
+                    openAdminModal();
+                } else {
+                    openLoginModal();
+                }
+            });
         });
     </script>
 </body>
