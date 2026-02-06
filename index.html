@@ -2270,396 +2270,24 @@
         });
 
         // ===== DROPDOWN CLICK SUPPORT FOR MOBILE =====
-        // ===== AUTH SYSTEM WITH SHA-256 =====
-        const ADMIN_CREDENTIALS = {
-            username: 'berkatdyy',
-            passwordHash: null
-        };
-
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
-        }
-
-        (async function() {
-            ADMIN_CREDENTIALS.passwordHash = await sha256('75354e17');
-        })();
-
-        function isAdminLoggedIn() {
-            return localStorage.getItem('adminLoggedIn') === 'true';
-        }
-
-        function updateAuthUI() {
-            const loginLink = document.getElementById('loginLink');
-            const adminControls = document.getElementById('adminControls');
-            
-            if (isAdminLoggedIn()) {
-                loginLink.style.display = 'none';
-                adminControls.classList.add('visible');
-            } else {
-                loginLink.style.display = 'block';
-                adminControls.classList.remove('visible');
-            }
-        }
-
-        function openLoginModal() {
-            if (isAdminLoggedIn()) {
-                alert('Anda sudah login sebagai admin!');
-                return;
-            }
-            document.getElementById('loginModal').classList.add('active');
-            document.getElementById('loginError').classList.remove('show');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('adminId').value = '';
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('loginError').classList.remove('show');
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const username = document.getElementById('adminId').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const errorElement = document.getElementById('loginError');
-            
-            const enteredPasswordHash = await sha256(password);
-            
-            if (username === ADMIN_CREDENTIALS.username && enteredPasswordHash === ADMIN_CREDENTIALS.passwordHash) {
-                localStorage.setItem('adminLoggedIn', 'true');
-                updateAuthUI();
-                closeLoginModal();
-                alert('✅ Login berhasil! Anda sekarang dapat mengelola produk.');
-            } else {
-                errorElement.textContent = '❌ Admin ID atau Password salah!';
-                errorElement.classList.add('show');
-            }
-        }
-
-        function logout() {
-            if (confirm('Yakin ingin logout?')) {
-                localStorage.removeItem('adminLoggedIn');
-                updateAuthUI();
-                alert('✅ Anda telah logout.');
-            }
-        }
-
-        function checkAdminAccess() {
-            if (!isAdminLoggedIn()) {
-                alert('⚠️ Silakan login terlebih dahulu untuk mengelola produk!');
-                openLoginModal();
-                return false;
-            }
-            return true;
-        }
-
-        // ===== AUTO IMAGE COMPRESSION =====
-        let currentCompressedImage = null;
-
-        async function handleImageUpload(event) {
-            const file = event.target.files[0];
-            const statusElement = document.getElementById('uploadStatus');
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const previewImage = document.getElementById('imagePreview');
-            
-            if (!file) return;
-            
-            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
-                alert('⚠️ Hanya file JPG yang diperbolehkan!');
-                event.target.value = '';
-                return;
-            }
-            
-            statusElement.textContent = '⏳ Memproses gambar...';
-            statusElement.className = 'upload-status processing';
-            
-            try {
-                currentCompressedImage = await compressImageToJPG(file);
-                
-                previewImage.src = currentCompressedImage.url;
-                previewContainer.style.display = 'block';
-                
-                const originalSize = formatBytes(file.size);
-                const compressedSize = formatBytes(currentCompressedImage.blob.size);
-                const savings = ((file.size - currentCompressedImage.blob.size) / file.size * 100).toFixed(1);
-                
-                statusElement.textContent = \`✅ \${originalSize} → \${compressedSize} (hemat \${savings}%)\`;
-                statusElement.className = 'upload-status success';
-            } catch (error) {
-                statusElement.textContent = '❌ Gagal memproses gambar';
-                statusElement.className = 'upload-status';
-                console.error('Image compression error:', error);
-            }
-        }
-
-        function compressImageToJPG(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        const maxWidth = 800;
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        canvas.toBlob((blob) => {
-                            if (!blob) {
-                                reject(new Error('Failed to create blob'));
-                                return;
-                            }
-                            
-                            resolve({
-                                blob: blob,
-                                url: URL.createObjectURL(blob),
-                                width: width,
-                                height: height
-                            });
-                        }, 'image/jpeg', 0.8);
-                    };
-                    img.onerror = () => reject(new Error('Failed to load image'));
-                    img.src = e.target.result;
-                };
-                reader.onerror = () => reject(new Error('Failed to read file'));
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-        }
-
-        // ===== PRODUCT MANAGEMENT =====
-        let products = JSON.parse(localStorage.getItem('products')) || [
-            {
-                id: 1,
-                name: 'Beras Premium 5kg',
-                category: 'sembako',
-                description: 'Beras berkualitas premium, pulen dan wangi',
-                price: 75000,
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f5f5f7" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%2386868b" font-size="18" font-family="system-ui"%3EBeras Premium%3C/text%3E%3C/svg%3E',
-                badge: 'Terlaris'
-            },
-            {
-                id: 2,
-                name: 'Minyak Goreng 2L',
-                category: 'sembako',
-                description: 'Minyak goreng berkualitas untuk masakan sehari-hari',
-                price: 32000,
-                image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f5f5f7" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%2386868b" font-size="18" font-family="system-ui"%3EMinyak Goreng%3C/text%3E%3C/svg%3E',
-                badge: ''
-            }
-        ];
-
-        let currentProductId = null;
-        let currentCategory = 'all';
-
-        function renderProducts() {
-            const grid = document.getElementById('productsGrid');
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            
-            let filteredProducts = products.filter(p => {
-                const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
-                const matchesSearch = p.name.toLowerCase().includes(searchQuery) || 
-                                    p.description.toLowerCase().includes(searchQuery);
-                return matchesCategory && matchesSearch;
-            });
-            
-            if (filteredProducts.length === 0) {
-                grid.innerHTML = '<div class="loading">Tidak ada produk ditemukan</div>';
-                return;
-            }
-            
-            grid.innerHTML = filteredProducts.map(p => \`
-                <div class="product-card animate-on-scroll">
-                    <div class="product-image">
-                        <img src="\${p.image}" alt="\${p.name}" class="loaded">
-                        \${p.badge ? \`<span class="product-badge">\${p.badge}</span>\` : ''}
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">\${p.category}</div>
-                        <h3 class="product-name">\${p.name}</h3>
-                        <p class="product-description">\${p.description}</p>
-                        <div class="product-price">Rp \${p.price.toLocaleString('id-ID')}</div>
-                        \${isAdminLoggedIn() ? \`
-                        <div class="product-actions">
-                            <button class="btn-edit" onclick="editProduct(\${p.id})">Edit</button>
-                            <button class="btn-delete" onclick="deleteProduct(\${p.id})">Hapus</button>
-                        </div>
-                        \` : ''}
-                    </div>
-                </div>
-            \`).join('');
-            
-            document.querySelectorAll('.animate-on-scroll').forEach(el => {
-                scrollObserver.observe(el);
-            });
-        }
-
-        function filterByCategory(category) {
-            currentCategory = category;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            renderProducts();
-        }
-
-        function filterProducts() {
-            renderProducts();
-        }
-
-        function openProductModal() {
-            if (!checkAdminAccess()) return;
-            
-            currentProductId = null;
-            document.getElementById('modalTitle').textContent = 'Tambah Produk';
-            document.getElementById('productForm').reset();
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('uploadStatus').textContent = '';
-            currentCompressedImage = null;
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.remove('active');
-            currentProductId = null;
-            currentCompressedImage = null;
-        }
-
-        function editProduct(id) {
-            if (!checkAdminAccess()) return;
-            
-            const product = products.find(p => p.id === id);
-            if (!product) return;
-            
-            currentProductId = id;
-            document.getElementById('modalTitle').textContent = 'Edit Produk';
-            document.getElementById('productName').value = product.name;
-            document.getElementById('productCategory').value = product.category;
-            document.getElementById('productDescription').value = product.description;
-            document.getElementById('productPrice').value = product.price;
-            document.getElementById('productBadge').value = product.badge || '';
-            
-            if (product.image) {
-                document.getElementById('imagePreview').src = product.image;
-                document.getElementById('imagePreviewContainer').style.display = 'block';
-            }
-            
-            document.getElementById('uploadStatus').textContent = '';
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        function deleteProduct(id) {
-            if (!checkAdminAccess()) return;
-            
-            const product = products.find(p => p.id === id);
-            if (!product) return;
-            
-            if (confirm(\`Hapus produk "\${product.name}"?\`)) {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem('products', JSON.stringify(products));
-                renderProducts();
-                alert('✅ Produk berhasil dihapus!');
-            }
-        }
-
-        async function saveProduct(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('productName').value;
-            const category = document.getElementById('productCategory').value;
-            const description = document.getElementById('productDescription').value;
-            const price = parseInt(document.getElementById('productPrice').value);
-            const badge = document.getElementById('productBadge').value;
-            
-            if (!currentProductId && !currentCompressedImage) {
-                alert('⚠️ Silakan pilih foto produk!');
-                return;
-            }
-            
-            if (currentProductId) {
-                const product = products.find(p => p.id === currentProductId);
-                product.name = name;
-                product.category = category;
-                product.description = description;
-                product.price = price;
-                product.badge = badge;
-                
-                if (currentCompressedImage) {
-                    product.image = currentCompressedImage.url;
-                }
-                
-                alert('✅ Produk berhasil diupdate!');
-            } else {
-                const newProduct = {
-                    id: Date.now(),
-                    name,
-                    category,
-                    description,
-                    price,
-                    badge,
-                    image: currentCompressedImage.url
-                };
-                products.push(newProduct);
-                alert('✅ Produk berhasil ditambahkan!');
-            }
-            
-            localStorage.setItem('products', JSON.stringify(products));
-            closeProductModal();
-            renderProducts();
-        }
-
-        function toggleMobileMenu() {
-            document.getElementById('navMenu').classList.toggle('active');
-        }
-
-        window.addEventListener('scroll', () => {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
         const dropdowns = document.querySelectorAll('.dropdown');
         dropdowns.forEach(dropdown => {
             const toggle = dropdown.querySelector('.dropdown-toggle');
             const content = dropdown.querySelector('.dropdown-content');
             
             if (toggle && content) {
+                // Click to toggle dropdown on mobile
                 toggle.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
+                    // Close other dropdowns
                     dropdowns.forEach(other => {
                         if (other !== dropdown) {
                             other.querySelector('.dropdown-content').style.display = 'none';
                         }
                     });
                     
+                    // Toggle current dropdown
                     if (content.style.display === 'block') {
                         content.style.display = 'none';
                     } else {
@@ -2669,6 +2297,7 @@
             }
         });
 
+        // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
                 dropdowns.forEach(dropdown => {
@@ -2677,6 +2306,7 @@
             }
         });
 
+        // ===== SMOOTH SCROLL =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
@@ -2693,6 +2323,7 @@
             });
         });
 
+        // ===== SCROLL ANIMATION =====
         const scrollObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -2708,8 +2339,166 @@
             scrollObserver.observe(el);
         });
 
-        // Initialize
-        updateAuthUI();
+        // ===== IMAGE COMPRESSOR FUNCTIONS =====
+        let compressedImages = [];
+
+        function openCompressor() {
+            document.getElementById('compressModal').classList.add('active');
+        }
+
+        function closeCompressor() {
+            document.getElementById('compressModal').classList.remove('active');
+        }
+
+        // Update quality display
+        document.getElementById('quality').addEventListener('input', (e) => {
+            document.getElementById('qualityValue').textContent = e.target.value;
+        });
+
+        // Upload zone handlers
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) {
+                processImages(files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                processImages(files);
+            }
+        });
+
+        async function processImages(files) {
+            const quality = parseInt(document.getElementById('quality').value) / 100;
+            const maxWidth = parseInt(document.getElementById('maxWidth').value);
+            const format = document.getElementById('format').value;
+            const previewList = document.getElementById('previewList');
+            
+            compressedImages = [];
+            previewList.innerHTML = '';
+
+            for (let file of files) {
+                const result = await compressImage(file, quality, maxWidth, format);
+                compressedImages.push(result);
+                renderPreview(result);
+            }
+
+            document.getElementById('downloadAllBtn').style.display = 'block';
+        }
+
+        function compressImage(file, quality, maxWidth, format) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        let mimeType = 'image/jpeg';
+                        let extension = 'jpg';
+                        if (format === 'webp') {
+                            mimeType = 'image/webp';
+                            extension = 'webp';
+                        } else if (format === 'png') {
+                            mimeType = 'image/png';
+                            extension = 'png';
+                        }
+
+                        canvas.toBlob((blob) => {
+                            const fileName = file.name.replace(/\.[^/.]+$/, '') + '.' + extension;
+                            const savings = ((file.size - blob.size) / file.size * 100).toFixed(1);
+                            resolve({
+                                originalFile: file,
+                                blob: blob,
+                                fileName: fileName,
+                                url: URL.createObjectURL(blob),
+                                originalSize: file.size,
+                                compressedSize: blob.size,
+                                savings: savings
+                            });
+                        }, mimeType, quality);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPreview(result) {
+            const previewList = document.getElementById('previewList');
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            div.innerHTML = `
+                <img src="${result.url}" class="preview-thumb" alt="${result.fileName}">
+                <div class="preview-info">
+                    <div class="preview-name">${result.fileName}</div>
+                    <div class="preview-size">
+                        ${formatBytes(result.originalSize)} → ${formatBytes(result.compressedSize)}
+                        <span class="size-saved">(-${result.savings}%)</span>
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="downloadSingle(${compressedImages.length - 1})">
+                    💾
+                </button>
+            `;
+            previewList.appendChild(div);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function downloadSingle(index) {
+            const result = compressedImages[index];
+            const link = document.createElement('a');
+            link.href = result.url;
+            link.download = result.fileName;
+            link.click();
+        }
+
+        function downloadAllCompressed() {
+            compressedImages.forEach(result => {
+                const link = document.createElement('a');
+                link.href = result.url;
+                link.download = result.fileName;
+                link.click();
+            });
+        }
+
+        // ===== INITIAL RENDER =====
         renderProducts();
     </script>
 </body>
