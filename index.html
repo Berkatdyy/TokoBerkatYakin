@@ -1,13 +1,27 @@
-F<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berkat Yakin — Pusat Belanja & Layanan Keuangan Banjarmasin</title>
     <meta name="description" content="Toko Berkat Yakin - Pusat belanja sembako, snack, minuman, dan layanan keuangan terlengkap di Banjarmasin. Buka setiap hari 08:00-22:00 WITA.">
+    <meta name="keywords" content="toko, sembako, banjarmasin, pulsa, token pln, snack, minuman, berkat yakin">
+    <meta name="author" content="Toko Berkat Yakin">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Berkat Yakin - Pusat Belanja Banjarmasin">
+    <meta property="og:description" content="Sembako berkualitas, snack favorit, minuman segar, dan layanan keuangan lengkap.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="warung.jpg">
+    
+    <!-- Preconnect untuk performa -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Favicon (optional - uncomment jika sudah ada) -->
+    <!-- <link rel="icon" type="image/png" href="favicon.png"> -->
+    
     <style>
         :root {
             --primary: #0071e3;
@@ -51,6 +65,34 @@ F<!DOCTYPE html>
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             overflow-x: hidden;
+        }
+
+        /* LOADING ANIMATION */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* LAZY LOAD IMAGE */
+        .product-image img {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .product-image img.loaded {
+            opacity: 1;
+        }
+
+        .product-image img[data-src] {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
         }
 
         @keyframes fadeInUp {
@@ -109,6 +151,7 @@ F<!DOCTYPE html>
             transform: translateY(0);
         }
 
+        /* NAVIGATION */
         nav {
             position: fixed;
             top: 0;
@@ -252,6 +295,7 @@ F<!DOCTYPE html>
             transition: all 0.3s var(--transition);
         }
 
+        /* HERO SECTION */
         .hero {
             padding: 140px 2rem 80px;
             position: relative;
@@ -272,12 +316,7 @@ F<!DOCTYPE html>
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                135deg,
-                rgba(0, 0, 0, 0.35) 0%,
-                rgba(0, 0, 0, 0.25) 50%,
-                rgba(0, 0, 0, 0.35) 100%
-            );
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 50%, rgba(0, 0, 0, 0.35) 100%);
             z-index: 1;
         }
 
@@ -304,43 +343,7 @@ F<!DOCTYPE html>
             margin-bottom: 1.5rem;
             animation: slideDown 0.6s var(--transition), pulse 2s infinite;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
             font-weight: 500;
-        }
-
-        .hero-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 100%;
-            }
-        }
-
-        .hero-badge svg {
-            color: white;
-            animation: rotate 2s linear infinite;
-        }
-
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .hero h1 {
@@ -364,22 +367,12 @@ F<!DOCTYPE html>
             text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 1px 6px rgba(0, 0, 0, 0.2);
         }
 
+        /* STATS SECTION */
         .stats-section {
             background: var(--bg-secondary);
             padding: 4rem 2rem;
             border-top: 0.5px solid var(--border);
             border-bottom: 0.5px solid var(--border);
-            position: relative;
-        }
-
-        .stats-section::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle at 1px 1px, rgba(0, 113, 227, 0.06) 1px, transparent 0);
-            background-size: 40px 40px;
-            opacity: 0.5;
-            pointer-events: none;
         }
 
         .stats-grid {
@@ -388,8 +381,6 @@ F<!DOCTYPE html>
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 3rem;
-            position: relative;
-            z-index: 1;
         }
 
         .stat-item {
@@ -432,9 +423,9 @@ F<!DOCTYPE html>
             color: var(--text-secondary);
         }
 
+        /* SECTIONS */
         .section {
             padding: 6rem 2rem;
-            position: relative;
         }
 
         .section-container {
@@ -472,7 +463,7 @@ F<!DOCTYPE html>
             line-height: 1.6;
         }
 
-        /* Enhanced Product Grid */
+        /* PRODUCT GRID */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -496,7 +487,6 @@ F<!DOCTYPE html>
             border-color: rgba(0, 113, 227, 0.2);
         }
 
-        /* Product Badge */
         .product-badge {
             position: absolute;
             top: 1rem;
@@ -537,7 +527,6 @@ F<!DOCTYPE html>
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            position: relative;
             padding: 1.5rem;
         }
 
@@ -660,26 +649,6 @@ F<!DOCTYPE html>
             border: none;
             cursor: pointer;
             margin-top: auto;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-buy::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-buy:hover::before {
-            width: 300px;
-            height: 300px;
         }
 
         .btn-buy:hover {
@@ -688,19 +657,7 @@ F<!DOCTYPE html>
             box-shadow: 0 6px 24px rgba(0, 113, 227, 0.4);
         }
 
-        .btn-buy svg {
-            width: 20px;
-            height: 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-buy span {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Filter Tabs */
+        /* FILTER TABS */
         .filter-tabs {
             display: flex;
             justify-content: center;
@@ -734,6 +691,34 @@ F<!DOCTYPE html>
             box-shadow: 0 4px 16px rgba(0, 113, 227, 0.25);
         }
 
+        .load-more-container {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .btn-load-more {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1.25rem 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s var(--transition);
+            box-shadow: 0 6px 24px rgba(0, 113, 227, 0.3);
+        }
+
+        .btn-load-more:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(0, 113, 227, 0.4);
+        }
+
+        /* CARD GRID */
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -812,6 +797,7 @@ F<!DOCTYPE html>
             color: var(--text);
         }
 
+        /* CONTACT GRID */
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -867,6 +853,7 @@ F<!DOCTYPE html>
             line-height: 1.6;
         }
 
+        /* BUTTONS */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -894,6 +881,23 @@ F<!DOCTYPE html>
             box-shadow: 0 6px 30px rgba(0, 113, 227, 0.35);
         }
 
+        .btn-secondary {
+            background: var(--accent-green);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-green-light);
+            transform: scale(1.05);
+        }
+
+        /* FOOTER */
         footer {
             background: var(--bg-secondary);
             border-top: 0.5px solid var(--border);
@@ -928,6 +932,196 @@ F<!DOCTYPE html>
             font-size: 0.875rem;
         }
 
+        /* ADMIN BUTTON */
+        .admin-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);
+            z-index: 999;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 113, 227, 0.6);
+        }
+
+        /* IMAGE COMPRESSOR MODAL */
+        .compress-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .compress-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .compress-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .compress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .compress-header h2 {
+            font-size: 1.5rem;
+            color: var(--text);
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .btn-close:hover {
+            background: var(--bg-secondary);
+            color: var(--text);
+        }
+
+        .upload-zone {
+            border: 3px dashed var(--border);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--bg);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--accent-green);
+            background: #e8f5e9;
+        }
+
+        .compress-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .setting-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .setting-group input,
+        .setting-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .preview-list {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .preview-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .preview-info {
+            flex: 1;
+        }
+
+        .preview-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-size {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .size-saved {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        /* UTILITY CLASSES */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-3 {
+            margin-top: 3rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* RESPONSIVE DESIGN */
         @media (max-width: 768px) {
             .nav-menu {
                 position: fixed;
@@ -1009,31 +1203,71 @@ F<!DOCTYPE html>
             .section {
                 padding: 4rem 1.5rem;
             }
-
-            .filter-tabs {
-                gap: 0.75rem;
-            }
-
-            .filter-tab {
-                padding: 0.625rem 1.25rem;
-                font-size: 0.875rem;
-            }
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mt-3 {
-            margin-top: 3rem;
         }
     </style>
 </head>
 <body>
+    <!-- FLOATING ADMIN BUTTON -->
+    <button class="admin-btn" onclick="openCompressor()" title="Kelola Gambar Produk" aria-label="Kelola Gambar Produk">
+        ⚙️
+    </button>
+
+    <!-- IMAGE COMPRESSOR MODAL -->
+    <div class="compress-modal" id="compressModal">
+        <div class="compress-content">
+            <div class="compress-header">
+                <h2>🖼️ Kelola Gambar Produk</h2>
+                <button class="btn-close" onclick="closeCompressor()" aria-label="Tutup">×</button>
+            </div>
+
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    Drag & Drop gambar di sini
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                    atau klik untuk pilih file (PNG, JPG, JPEG)
+                </div>
+                <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+            </div>
+
+            <div class="compress-settings">
+                <div class="setting-group">
+                    <label for="quality">Kualitas</label>
+                    <input type="range" id="quality" min="60" max="95" value="80" step="5">
+                    <small style="color: var(--primary); font-weight: 600;">
+                        <span id="qualityValue">80</span>%
+                    </small>
+                </div>
+                <div class="setting-group">
+                    <label for="maxWidth">Max Width (px)</label>
+                    <input type="number" id="maxWidth" value="800" min="300" max="2000" step="100">
+                </div>
+                <div class="setting-group">
+                    <label for="format">Format Output</label>
+                    <select id="format">
+                        <option value="webp">WebP (Recommended)</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="preview-list" id="previewList"></div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn-secondary" id="downloadAllBtn" onclick="downloadAllCompressed()" style="flex: 1; display: none;">
+                    💾 Download Semua
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
     <nav id="navbar">
         <div class="nav-container">
             <a href="#" class="logo">Toko Berkat Yakin</a>
-            <div class="menu-toggle" id="menuToggle">
+            <div class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -1042,22 +1276,22 @@ F<!DOCTYPE html>
                 <li><a href="#produk">Produk</a></li>
                 <li><a href="#layanan">Layanan</a></li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle">
+                    <button class="dropdown-toggle" aria-label="Lokasi">
                         Lokasi
                         <span class="dropdown-arrow"></span>
                     </button>
                     <div class="dropdown-content">
-                        <a href="https://www.google.com/maps?q=-3.290611,114.568833" target="_blank">Buka di Google Maps</a>
-                        <a href="https://www.google.com/maps/dir//-3.290611,114.568833" target="_blank">Petunjuk Arah</a>
+                        <a href="https://www.google.com/maps?q=-3.290611,114.568833" target="_blank" rel="noopener">Buka di Google Maps</a>
+                        <a href="https://www.google.com/maps/dir//-3.290611,114.568833" target="_blank" rel="noopener">Petunjuk Arah</a>
                     </div>
                 </li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle">
+                    <button class="dropdown-toggle" aria-label="Kontak">
                         Kontak
                         <span class="dropdown-arrow"></span>
                     </button>
                     <div class="dropdown-content">
-                        <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" target="_blank">WhatsApp</a>
+                        <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" target="_blank" rel="noopener">WhatsApp</a>
                         <a href="tel:081253680904">Telepon</a>
                         <a href="#kontak">Lihat Info Lengkap</a>
                     </div>
@@ -1066,6 +1300,7 @@ F<!DOCTYPE html>
         </div>
     </nav>
 
+    <!-- HERO SECTION -->
     <section class="hero">
         <div class="hero-container">
             <div class="hero-badge">
@@ -1080,6 +1315,7 @@ F<!DOCTYPE html>
         </div>
     </section>
 
+    <!-- STATS SECTION -->
     <section class="stats-section">
         <div class="stats-grid">
             <div class="stat-item animate-on-scroll">
@@ -1124,7 +1360,7 @@ F<!DOCTYPE html>
         </div>
     </section>
 
-    <!-- BEST SELLER SECTION WITH NEW PRODUCTS -->
+    <!-- BEST SELLER SECTION -->
     <section class="section" style="background: white;">
         <div class="section-container">
             <div class="section-header">
@@ -1133,480 +1369,26 @@ F<!DOCTYPE html>
                 <p class="section-description">Produk-produk favorit pelanggan dengan kualitas terbaik dan harga terjangkau</p>
             </div>
 
-            <!-- Filter Tabs -->
             <div class="filter-tabs">
                 <button class="filter-tab active" data-filter="all">Semua Produk</button>
                 <button class="filter-tab" data-filter="mie">Mie Instan</button>
                 <button class="filter-tab" data-filter="rokok">Rokok</button>
             </div>
 
-            <div class="product-grid">
-                <!-- Product 1: Indomie Soto Banjar -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
-                    <div class="product-image">
-                        <img src="indomie-soto-banjar.png" alt="Indomie Soto Banjar">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Indomie Soto Banjar</h3>
-                        <p class="product-desc">Mi instan khas Banjarmasin dengan rasa soto yang otentik dan bumbu lengkap</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.9/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 3.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Indomie%20Soto%20Banjar" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
+            <div class="product-grid" id="productGrid"></div>
 
-                <!-- Product 2: Indomie Soto Banjar Limau Kuit -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
-                    <div class="product-image">
-                        <img src="indomie-soto-limau.png" alt="Indomie Soto Banjar Limau Kuit">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Indomie Soto Banjar Limau Kuit</h3>
-                        <p class="product-desc">Varian terbaru! Soto Banjar dengan sensasi segar jeruk limau kuit yang khas</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.9/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 3.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Indomie%20Soto%20Banjar%20Limau%20Kuit" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 3: Indomie Mi Goreng -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
-                    <div class="product-image">
-                        <img src="indomie-goreng.png" alt="Indomie Mi Goreng">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Indomie Mi Goreng</h3>
-                        <p class="product-desc">Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(5.0/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 3.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Melimpah</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Indomie%20Mi%20Goreng" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Product 3: Sakura Goreng -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
-                    <div class="product-image">
-                        <img src="mie-sakura-goreng.png" alt="Sakura Goreng">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Sakura Goreng</h3>
-                        <p class="product-desc">Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(5.0/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 2.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Melimpah</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sakura%20Mi%20Goreng" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-                
-                 <!-- Product 3: Sakura Soto -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-bestseller">🏆 BEST SELLER</div>
-                    <div class="product-image">
-                        <img src="mie-sakura-soto.png" alt="Sakura Soto">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Sakura Soto</h3>
-                        <p class="product-desc">Mi Soto favorit Indonesia dengan yang khas dan lezat</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(5.0/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 2.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Melimpah</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sakura%20Mi%20Soto" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 4: Sarimi Ayam Kecap -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-new">✨ PILIHAN HEMAT</div>
-                    <div class="product-image">
-                        <img src="sarimi-ayam-kecap.png" alt="Sarimi Ayam Kecap">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Sarimi Isi 2 - Ayam Kecap</h3>
-                        <p class="product-desc">Mie instant isi 2 dengan rasa ayam kecap yang gurih dan nikmat</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.8/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 4.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sarimi%20Ayam%20Kecap" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 5: Sarimi Ayam Kremess -->
-                <div class="product-card animate-on-scroll" data-category="mie">
-                    <div class="product-badge badge-new">✨ PILIHAN HEMAT</div>
-                    <div class="product-image">
-                        <img src="sarimi-ayam-kremess.png" alt="Sarimi Ayam Kremess">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Mie Instan</div>
-                        <h3 class="product-name">Sarimi Isi 2 - Ayam Kremess</h3>
-                        <p class="product-desc">Mie instant isi 2 dengan rasa ayam kremess yang creamy dan mantap</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.8/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 4.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sarimi%20Ayam%20Kremess" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 6: Sampoerna Mild -->
-                <div class="product-card animate-on-scroll" data-category="rokok">
-                    <div class="product-image">
-                        <img src="sampoerna-mild.png" alt="Sampoerna A Mild">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Rokok</div>
-                        <h3 class="product-name">Sampoerna A Mild</h3>
-                        <p class="product-desc">Rokok mild berkualitas premium - 12 batang per bungkus</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.7/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 27.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Sampoerna%20A%20Mild" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 7: Surya 12 -->
-                <div class="product-card animate-on-scroll" data-category="rokok">
-                    <div class="product-image">
-                        <img src="surya-12.png" alt="Surya Gudang Garam 12">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Rokok</div>
-                        <h3 class="product-name">Surya Gudang Garam 12</h3>
-                        <p class="product-desc">Rokok kretek berkualitas - 12 batang per bungkus</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.6/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 27.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Surya%2012" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Product 8: Marlboro Filterblack 16 -->
-                <div class="product-card animate-on-scroll" data-category="rokok">
-                    <div class="product-image">
-                        <img src="marlboro-filterblack.png" alt="Marlboro Filterblack 16">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Rokok</div>
-                        <h3 class="product-name">Marlboro Filter Black 16</h3>
-                        <p class="product-desc">Rokok Filter berkualitas - 16 batang per bungkus</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.6/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 32.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Marlboro%2016" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 9: MLD Freshcola 16 -->
-                <div class="product-card animate-on-scroll" data-category="rokok">
-                    <div class="product-image">
-                        <img src="mld-freshcola.png" alt="MLD Freshcola 16">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Rokok</div>
-                        <h3 class="product-name">MLD Freshcola 16</h3>
-                        <p class="product-desc">Rokok Filter berkualitas - 16 batang per bungkus</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.6/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 32.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20MLD-Freshcola%2016" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Product 10: LA Purple Boost 16 -->
-                <div class="product-card animate-on-scroll" data-category="rokok">
-                    <div class="product-image">
-                        <img src="la-purple.png" alt="La Purple">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Rokok</div>
-                        <h3 class="product-name">LA Purple Boost </h3>
-                        <p class="product-desc">Rokok Filter berkualitas - 16 batang per bungkus</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.6/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 35.000</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Stok Tersedia</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20LA-purple%2016" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Product 11: Surya Kaleng -->
-                <div class="product-card animate-on-scroll" data-category="rokok">
-                    <div class="product-badge badge-promo">🔥 ECERAN</div>
-                    <div class="product-image">
-                        <img src="surya-kaleng.png" alt="Surya Gudang Garam Kaleng">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">Rokok</div>
-                        <h3 class="product-name">Surya Gudang Garam Kaleng</h3>
-                        <p class="product-desc">Rokok kretek premium dalam kemasan kaleng - Tersedia eceran per batang</p>
-                        <div class="product-rating">
-                            <div class="stars">
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                                <span class="star">★</span>
-                            </div>
-                            <span class="rating-text">(4.7/5)</span>
-                        </div>
-                        <div class="product-price-wrapper">
-                            <div class="product-price">Rp 2.500</div>
-                        </div>
-                        <div class="product-stock">
-                            <div class="stock-indicator"></div>
-                            <span class="stock-text">Per Batang</span>
-                        </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20Surya%20Kaleng" class="btn-buy">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                            </svg>
-                            <span>Pesan Sekarang</span>
-                        </a>
-                    </div>
-                </div>
+            <div class="load-more-container">
+                <button class="btn-load-more" id="loadMoreBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    <span>Muat Lebih Banyak</span>
+                </button>
             </div>
         </div>
     </section>
 
+    <!-- PRODUCTS SECTION -->
     <section id="produk" class="section">
         <div class="section-container">
             <div class="section-header">
@@ -1685,6 +1467,7 @@ F<!DOCTYPE html>
         </div>
     </section>
 
+    <!-- SERVICES SECTION -->
     <section id="layanan" class="section" style="background: var(--bg-secondary);">
         <div class="section-container">
             <div class="section-header">
@@ -1770,6 +1553,7 @@ F<!DOCTYPE html>
         </div>
     </section>
 
+    <!-- CONTACT SECTION -->
     <section id="kontak" class="section">
         <div class="section-container">
             <div class="section-header">
@@ -1814,7 +1598,7 @@ F<!DOCTYPE html>
                 </div>
             </div>
             <div class="text-center mt-3">
-                <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" class="btn btn-primary">
+                <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" class="btn btn-primary" target="_blank" rel="noopener">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
                     </svg>
@@ -1824,6 +1608,7 @@ F<!DOCTYPE html>
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer>
         <div class="footer-content">
             <div class="footer-logo">Berkat Yakin</div>
@@ -1835,7 +1620,313 @@ F<!DOCTYPE html>
     </footer>
 
     <script>
-        // Navbar scroll effect
+        // ===== PRODUCT DATABASE =====
+        const products = [
+            {
+                id: 1,
+                category: 'mie',
+                badge: 'bestseller',
+                badgeText: '🏆 BEST SELLER',
+                image: 'indomie-soto-banjar.webp',
+                name: 'Indomie Soto Banjar',
+                desc: 'Mi instan khas Banjarmasin dengan rasa soto yang otentik dan bumbu lengkap',
+                rating: 4.9,
+                price: 'Rp 3.000',
+                stock: 'Stok Tersedia',
+                wa: 'Indomie%20Soto%20Banjar'
+            },
+            {
+                id: 2,
+                category: 'mie',
+                badge: 'bestseller',
+                badgeText: '🏆 BEST SELLER',
+                image: 'indomie-soto-limau.webp',
+                name: 'Indomie Soto Banjar Limau Kuit',
+                desc: 'Varian terbaru! Soto Banjar dengan sensasi segar jeruk limau kuit yang khas',
+                rating: 4.9,
+                price: 'Rp 3.000',
+                stock: 'Stok Tersedia',
+                wa: 'Indomie%20Soto%20Banjar%20Limau%20Kuit'
+            },
+            {
+                id: 3,
+                category: 'mie',
+                badge: 'bestseller',
+                badgeText: '🏆 BEST SELLER',
+                image: 'indomie-goreng.webp',
+                name: 'Indomie Mi Goreng',
+                desc: 'Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat',
+                rating: 5.0,
+                price: 'Rp 3.000',
+                stock: 'Stok Melimpah',
+                wa: 'Indomie%20Mi%20Goreng'
+            },
+            {
+                id: 4,
+                category: 'mie',
+                badge: 'bestseller',
+                badgeText: '🏆 BEST SELLER',
+                image: 'mie-sakura-goreng.webp',
+                name: 'Sakura Goreng',
+                desc: 'Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat',
+                rating: 5.0,
+                price: 'Rp 2.000',
+                stock: 'Stok Melimpah',
+                wa: 'Sakura%20Mi%20Goreng'
+            },
+            {
+                id: 5,
+                category: 'mie',
+                badge: 'bestseller',
+                badgeText: '🏆 BEST SELLER',
+                image: 'mie-sakura-soto.webp',
+                name: 'Sakura Soto',
+                desc: 'Mi Soto favorit Indonesia dengan yang khas dan lezat',
+                rating: 5.0,
+                price: 'Rp 2.000',
+                stock: 'Stok Melimpah',
+                wa: 'Sakura%20Mi%20Soto'
+            },
+            {
+                id: 6,
+                category: 'mie',
+                badge: 'new',
+                badgeText: '✨ PILIHAN HEMAT',
+                image: 'sarimi-ayam-kecap.webp',
+                name: 'Sarimi Isi 2 - Ayam Kecap',
+                desc: 'Mie instant isi 2 dengan rasa ayam kecap yang gurih dan nikmat',
+                rating: 4.8,
+                price: 'Rp 4.000',
+                stock: 'Stok Tersedia',
+                wa: 'Sarimi%20Ayam%20Kecap'
+            },
+            {
+                id: 7,
+                category: 'mie',
+                badge: 'new',
+                badgeText: '✨ PILIHAN HEMAT',
+                image: 'sarimi-ayam-kremess.webp',
+                name: 'Sarimi Isi 2 - Ayam Kremess',
+                desc: 'Mie instant isi 2 dengan rasa ayam kremess yang creamy dan mantap',
+                rating: 4.8,
+                price: 'Rp 4.000',
+                stock: 'Stok Tersedia',
+                wa: 'Sarimi%20Ayam%20Kremess'
+            },
+            {
+                id: 8,
+                category: 'rokok',
+                badge: '',
+                badgeText: '',
+                image: 'sampoerna-mild.webp',
+                name: 'Sampoerna A Mild',
+                desc: 'Rokok mild berkualitas premium - 12 batang per bungkus',
+                rating: 4.7,
+                price: 'Rp 27.000',
+                stock: 'Stok Tersedia',
+                wa: 'Sampoerna%20A%20Mild'
+            },
+            {
+                id: 9,
+                category: 'rokok',
+                badge: '',
+                badgeText: '',
+                image: 'surya-12.webp',
+                name: 'Surya Gudang Garam 12',
+                desc: 'Rokok kretek berkualitas - 12 batang per bungkus',
+                rating: 4.6,
+                price: 'Rp 27.000',
+                stock: 'Stok Tersedia',
+                wa: 'Surya%2012'
+            },
+            {
+                id: 10,
+                category: 'rokok',
+                badge: '',
+                badgeText: '',
+                image: 'marlboro-filterblack.webp',
+                name: 'Marlboro Filter Black 16',
+                desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
+                rating: 4.6,
+                price: 'Rp 32.000',
+                stock: 'Stok Tersedia',
+                wa: 'Marlboro%2016'
+            },
+            {
+                id: 11,
+                category: 'rokok',
+                badge: '',
+                badgeText: '',
+                image: 'mld-freshcola.webp',
+                name: 'MLD Freshcola 16',
+                desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
+                rating: 4.6,
+                price: 'Rp 32.000',
+                stock: 'Stok Tersedia',
+                wa: 'MLD-Freshcola%2016'
+            },
+            {
+                id: 12,
+                category: 'rokok',
+                badge: '',
+                badgeText: '',
+                image: 'la-purple.webp',
+                name: 'LA Purple Boost',
+                desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
+                rating: 4.6,
+                price: 'Rp 35.000',
+                stock: 'Stok Tersedia',
+                wa: 'LA-purple%2016'
+            },
+            {
+                id: 13,
+                category: 'rokok',
+                badge: 'promo',
+                badgeText: '🔥 ECERAN',
+                image: 'surya-kaleng.webp',
+                name: 'Surya Gudang Garam Kaleng',
+                desc: 'Rokok kretek premium dalam kemasan kaleng - Tersedia eceran per batang',
+                rating: 4.7,
+                price: 'Rp 2.500',
+                stock: 'Per Batang',
+                wa: 'Surya%20Kaleng'
+            }
+        ];
+
+        // ===== PAGINATION =====
+        const PRODUCTS_PER_PAGE = 6;
+        let currentPage = 1;
+        let currentFilter = 'all';
+        let filteredProducts = [...products];
+
+        // ===== LAZY LOADING =====
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const src = img.getAttribute('data-src');
+                    if (src) {
+                        img.src = src;
+                        img.onload = () => {
+                            img.classList.add('loaded');
+                        };
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                }
+            });
+        }, {
+            rootMargin: '50px'
+        });
+
+        // ===== GENERATE PRODUCT CARD =====
+        function generateProductCard(product) {
+            const stars = '★'.repeat(5);
+            const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badgeText}</div>` : '';
+            
+            return `
+                <div class="product-card animate-on-scroll visible" data-category="${product.category}">
+                    ${badgeHTML}
+                    <div class="product-image">
+                        <img data-src="${product.image}" alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">${product.category === 'mie' ? 'Mie Instan' : 'Rokok'}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-desc">${product.desc}</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
+                            </div>
+                            <span class="rating-text">(${product.rating}/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">${product.price}</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">${product.stock}</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20${product.wa}" class="btn-buy" target="_blank" rel="noopener">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== RENDER PRODUCTS =====
+        function renderProducts(append = false) {
+            const productGrid = document.getElementById('productGrid');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            
+            const start = 0;
+            const end = currentPage * PRODUCTS_PER_PAGE;
+            const productsToShow = filteredProducts.slice(start, end);
+            
+            if (!append) {
+                productGrid.innerHTML = '';
+            }
+            
+            const newProductsStart = append ? (currentPage - 1) * PRODUCTS_PER_PAGE : 0;
+            const newProducts = filteredProducts.slice(newProductsStart, end);
+            
+            newProducts.forEach(product => {
+                productGrid.insertAdjacentHTML('beforeend', generateProductCard(product));
+            });
+            
+            const images = productGrid.querySelectorAll('img[data-src]');
+            images.forEach(img => imageObserver.observe(img));
+            
+            if (end >= filteredProducts.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'inline-flex';
+            }
+        }
+
+        // ===== FILTER =====
+        function filterProducts(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            if (filter === 'all') {
+                filteredProducts = [...products];
+            } else {
+                filteredProducts = products.filter(p => p.category === filter);
+            }
+            
+            renderProducts(false);
+        }
+
+        // ===== LOAD MORE =====
+        document.getElementById('loadMoreBtn').addEventListener('click', () => {
+            currentPage++;
+            renderProducts(true);
+            
+            setTimeout(() => {
+                const firstNewProduct = document.querySelector('.product-grid').children[(currentPage - 1) * PRODUCTS_PER_PAGE];
+                if (firstNewProduct) {
+                    firstNewProduct.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 100);
+        });
+
+        // ===== FILTER TABS =====
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const filterValue = tab.getAttribute('data-filter');
+                filterProducts(filterValue);
+            });
+        });
+
+        // ===== NAVBAR =====
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 50) {
@@ -1845,7 +1936,7 @@ F<!DOCTYPE html>
             }
         });
 
-        // Mobile menu toggle
+        // ===== MOBILE MENU =====
         const menuToggle = document.getElementById('menuToggle');
         const navMenu = document.getElementById('navMenu');
 
@@ -1861,77 +1952,200 @@ F<!DOCTYPE html>
             });
         });
 
-        // Smooth scroll for anchor links
+        // ===== SMOOTH SCROLL =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    window.scrollTo({
-                        top: target.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             });
         });
 
-        // Scroll animation observer
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
+        // ===== SCROLL ANIMATION =====
+        const scrollObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
                 }
             });
-        }, observerOptions);
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
 
         document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            observer.observe(el);
+            scrollObserver.observe(el);
         });
 
-        // Product filter functionality
-        const filterTabs = document.querySelectorAll('.filter-tab');
-        const productCards = document.querySelectorAll('.product-card');
+        // ===== IMAGE COMPRESSOR FUNCTIONS =====
+        let compressedImages = [];
 
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs
-                filterTabs.forEach(t => t.classList.remove('active'));
-                // Add active class to clicked tab
-                tab.classList.add('active');
+        function openCompressor() {
+            document.getElementById('compressModal').classList.add('active');
+        }
 
-                const filterValue = tab.getAttribute('data-filter');
+        function closeCompressor() {
+            document.getElementById('compressModal').classList.remove('active');
+        }
 
-                productCards.forEach(card => {
-                    if (filterValue === 'all') {
-                        card.style.display = 'flex';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, 10);
-                    } else {
-                        const category = card.getAttribute('data-category');
-                        if (category === filterValue) {
-                            card.style.display = 'flex';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 10);
-                        } else {
-                            card.style.opacity = '0';
-                            card.style.transform = 'translateY(20px)';
-                            setTimeout(() => {
-                                card.style.display = 'none';
-                            }, 300);
+        // Update quality display
+        document.getElementById('quality').addEventListener('input', (e) => {
+            document.getElementById('qualityValue').textContent = e.target.value;
+        });
+
+        // Upload zone handlers
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) {
+                processImages(files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                processImages(files);
+            }
+        });
+
+        async function processImages(files) {
+            const quality = parseInt(document.getElementById('quality').value) / 100;
+            const maxWidth = parseInt(document.getElementById('maxWidth').value);
+            const format = document.getElementById('format').value;
+            const previewList = document.getElementById('previewList');
+            
+            compressedImages = [];
+            previewList.innerHTML = '';
+
+            for (let file of files) {
+                const result = await compressImage(file, quality, maxWidth, format);
+                compressedImages.push(result);
+                renderPreview(result);
+            }
+
+            document.getElementById('downloadAllBtn').style.display = 'block';
+        }
+
+        function compressImage(file, quality, maxWidth, format) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
                         }
-                    }
-                });
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        let mimeType = 'image/jpeg';
+                        let extension = 'jpg';
+                        if (format === 'webp') {
+                            mimeType = 'image/webp';
+                            extension = 'webp';
+                        } else if (format === 'png') {
+                            mimeType = 'image/png';
+                            extension = 'png';
+                        }
+
+                        canvas.toBlob((blob) => {
+                            const fileName = file.name.replace(/\.[^/.]+$/, '') + '.' + extension;
+                            const savings = ((file.size - blob.size) / file.size * 100).toFixed(1);
+                            resolve({
+                                originalFile: file,
+                                blob: blob,
+                                fileName: fileName,
+                                url: URL.createObjectURL(blob),
+                                originalSize: file.size,
+                                compressedSize: blob.size,
+                                savings: savings
+                            });
+                        }, mimeType, quality);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
             });
-        });
+        }
+
+        function renderPreview(result) {
+            const previewList = document.getElementById('previewList');
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            div.innerHTML = `
+                <img src="${result.url}" class="preview-thumb" alt="${result.fileName}">
+                <div class="preview-info">
+                    <div class="preview-name">${result.fileName}</div>
+                    <div class="preview-size">
+                        ${formatBytes(result.originalSize)} → ${formatBytes(result.compressedSize)}
+                        <span class="size-saved">(-${result.savings}%)</span>
+                    </div>
+                </div>
+                <button class="btn-secondary" onclick="downloadSingle(${compressedImages.length - 1})">
+                    💾
+                </button>
+            `;
+            previewList.appendChild(div);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function downloadSingle(index) {
+            const result = compressedImages[index];
+            const link = document.createElement('a');
+            link.href = result.url;
+            link.download = result.fileName;
+            link.click();
+        }
+
+        function downloadAllCompressed() {
+            compressedImages.forEach(result => {
+                const link = document.createElement('a');
+                link.href = result.url;
+                link.download = result.fileName;
+                link.click();
+            });
+        }
+
+        // ===== INITIAL RENDER =====
+        renderProducts();
     </script>
 </body>
 </html>
