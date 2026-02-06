@@ -1121,87 +1121,217 @@
             display: none !important;
         }
 
-        /* RESPONSIVE DESIGN */
+        /* RESPONSIVE DESIGN - MOBILE SAMA SEPERTI DESKTOP */
         @media (max-width: 768px) {
-            .nav-menu {
-                position: fixed;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: rgba(251, 251, 253, 0.95);
-                backdrop-filter: saturate(180%) blur(20px);
-                flex-direction: column;
-                gap: 0;
-                padding: 1rem 0;
-                border-bottom: 0.5px solid var(--border);
-                transform: translateY(-100%);
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s var(--transition);
-            }
-
-            .nav-menu.active {
-                transform: translateY(0);
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .nav-menu a {
-                padding: 1rem 2rem;
-                width: 100%;
-                text-align: center;
-            }
-
-            .dropdown {
-                width: 100%;
-            }
-
-            .dropdown-toggle {
-                padding: 1rem 2rem;
-                width: 100%;
-                justify-content: center;
-            }
-
-            .dropdown-content {
-                position: static;
-                box-shadow: none;
-                border: none;
-                border-radius: 0;
-                background: var(--bg-secondary);
-            }
-
+            /* Menu toggle tetap tersembunyi */
             .menu-toggle {
-                display: flex;
+                display: none;
             }
 
-            .menu-toggle.active span:nth-child(1) {
-                transform: rotate(45deg) translateY(8px);
+            /* Navigation tetap horizontal seperti desktop */
+            .nav-container {
+                padding: 1rem 1rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
-            .menu-toggle.active span:nth-child(2) {
-                opacity: 0;
+            .logo {
+                font-size: 1rem;
+                white-space: nowrap;
             }
 
-            .menu-toggle.active span:nth-child(3) {
-                transform: rotate(-45deg) translateY(-8px);
+            .nav-menu {
+                gap: 1.5rem;
+                font-size: 0.75rem;
             }
 
+            .nav-menu a,
+            .dropdown-toggle {
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+
+            /* Hero tetap besar */
             .hero {
-                padding: 120px 1.5rem 60px;
-                min-height: 500px;
+                padding: 140px 1rem 80px;
+                min-height: 600px;
+            }
+
+            .hero h1 {
+                font-size: clamp(2rem, 8vw, 4rem);
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            /* Grid tetap multi-kolom dengan ukuran lebih kecil */
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .product-image {
+                height: 220px;
+            }
+
+            .product-info {
+                padding: 1.5rem;
+            }
+
+            .product-name {
+                font-size: 1.125rem;
+            }
+
+            .product-price {
+                font-size: 1.5rem;
+            }
+
+            /* Card grid tetap multi-kolom */
+            .card-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.125rem;
+            }
+
+            /* Contact grid tetap multi-kolom */
+            .contact-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .contact-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .contact-card h3 {
+                font-size: 1.25rem;
+            }
+
+            /* Stats tetap 4 kolom tapi lebih kecil */
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .stat-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            /* Section padding lebih kecil */
+            .section {
+                padding: 3rem 1rem;
+            }
+
+            .section-header {
+                margin-bottom: 2rem;
+            }
+
+            .section-title {
+                font-size: clamp(1.5rem, 6vw, 2.75rem);
+            }
+
+            .section-description {
+                font-size: 0.9375rem;
+            }
+
+            /* Filter tabs tetap horizontal dengan scroll */
+            .filter-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                justify-content: flex-start;
+                padding-bottom: 0.5rem;
+            }
+
+            .filter-tab {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.8125rem;
+                flex-shrink: 0;
+            }
+
+            /* Button ukuran lebih kecil */
+            .btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.875rem;
+            }
+
+            .btn-buy {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.875rem;
+            }
+
+            .btn-load-more {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+
+            /* Admin button lebih kecil */
+            .admin-btn {
+                width: 50px;
+                height: 50px;
+                bottom: 1.5rem;
+                right: 1.5rem;
+                font-size: 1.25rem;
+            }
+
+            /* Modal compressor tetap sama */
+            .compress-content {
+                padding: 1.5rem;
+            }
+
+            .compress-settings {
+                grid-template-columns: 1fr;
+            }
+
+            /* Footer tetap sama */
+            footer {
+                padding: 2rem 1rem;
+            }
+
+            .footer-logo {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Untuk layar sangat kecil (< 480px) */
+        @media (max-width: 480px) {
+            .nav-container {
+                flex-wrap: nowrap;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
             }
 
             .product-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
 
             .card-grid,
             .contact-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .section {
-                padding: 4rem 1.5rem;
             }
         }
     </style>
@@ -1627,7 +1757,7 @@
                 category: 'mie',
                 badge: 'bestseller',
                 badgeText: '🏆 BEST SELLER',
-                image: 'indomie-soto-banjar.webp',
+                image: 'indomie-soto-banjar.png',
                 name: 'Indomie Soto Banjar',
                 desc: 'Mi instan khas Banjarmasin dengan rasa soto yang otentik dan bumbu lengkap',
                 rating: 4.9,
@@ -1640,7 +1770,7 @@
                 category: 'mie',
                 badge: 'bestseller',
                 badgeText: '🏆 BEST SELLER',
-                image: 'indomie-soto-limau.webp',
+                image: 'indomie-soto-limau.png',
                 name: 'Indomie Soto Banjar Limau Kuit',
                 desc: 'Varian terbaru! Soto Banjar dengan sensasi segar jeruk limau kuit yang khas',
                 rating: 4.9,
@@ -1653,7 +1783,7 @@
                 category: 'mie',
                 badge: 'bestseller',
                 badgeText: '🏆 BEST SELLER',
-                image: 'indomie-goreng.webp',
+                image: 'indomie-goreng.png',
                 name: 'Indomie Mi Goreng',
                 desc: 'Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat',
                 rating: 5.0,
@@ -1666,7 +1796,7 @@
                 category: 'mie',
                 badge: 'bestseller',
                 badgeText: '🏆 BEST SELLER',
-                image: 'mie-sakura-goreng.webp',
+                image: 'mie-sakura-goreng.png',
                 name: 'Sakura Goreng',
                 desc: 'Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat',
                 rating: 5.0,
@@ -1679,7 +1809,7 @@
                 category: 'mie',
                 badge: 'bestseller',
                 badgeText: '🏆 BEST SELLER',
-                image: 'mie-sakura-soto.webp',
+                image: 'mie-sakura-soto.png',
                 name: 'Sakura Soto',
                 desc: 'Mi Soto favorit Indonesia dengan yang khas dan lezat',
                 rating: 5.0,
@@ -1692,7 +1822,7 @@
                 category: 'mie',
                 badge: 'new',
                 badgeText: '✨ PILIHAN HEMAT',
-                image: 'sarimi-ayam-kecap.webp',
+                image: 'sarimi-ayam-kecap.png',
                 name: 'Sarimi Isi 2 - Ayam Kecap',
                 desc: 'Mie instant isi 2 dengan rasa ayam kecap yang gurih dan nikmat',
                 rating: 4.8,
@@ -1705,7 +1835,7 @@
                 category: 'mie',
                 badge: 'new',
                 badgeText: '✨ PILIHAN HEMAT',
-                image: 'sarimi-ayam-kremess.webp',
+                image: 'sarimi-ayam-kremess.png',
                 name: 'Sarimi Isi 2 - Ayam Kremess',
                 desc: 'Mie instant isi 2 dengan rasa ayam kremess yang creamy dan mantap',
                 rating: 4.8,
@@ -1718,7 +1848,7 @@
                 category: 'rokok',
                 badge: '',
                 badgeText: '',
-                image: 'sampoerna-mild.webp',
+                image: 'sampoerna-mild.png',
                 name: 'Sampoerna A Mild',
                 desc: 'Rokok mild berkualitas premium - 12 batang per bungkus',
                 rating: 4.7,
@@ -1731,7 +1861,7 @@
                 category: 'rokok',
                 badge: '',
                 badgeText: '',
-                image: 'surya-12.webp',
+                image: 'surya-12.png',
                 name: 'Surya Gudang Garam 12',
                 desc: 'Rokok kretek berkualitas - 12 batang per bungkus',
                 rating: 4.6,
@@ -1744,7 +1874,7 @@
                 category: 'rokok',
                 badge: '',
                 badgeText: '',
-                image: 'marlboro-filterblack.webp',
+                image: 'marlboro-filterblack.png',
                 name: 'Marlboro Filter Black 16',
                 desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
                 rating: 4.6,
@@ -1757,7 +1887,7 @@
                 category: 'rokok',
                 badge: '',
                 badgeText: '',
-                image: 'mld-freshcola.webp',
+                image: 'mld-freshcola.png',
                 name: 'MLD Freshcola 16',
                 desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
                 rating: 4.6,
@@ -1770,7 +1900,7 @@
                 category: 'rokok',
                 badge: '',
                 badgeText: '',
-                image: 'la-purple.webp',
+                image: 'la-purple.png',
                 name: 'LA Purple Boost',
                 desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
                 rating: 4.6,
@@ -1783,7 +1913,7 @@
                 category: 'rokok',
                 badge: 'promo',
                 badgeText: '🔥 ECERAN',
-                image: 'surya-kaleng.webp',
+                image: 'surya-kaleng.png',
                 name: 'Surya Gudang Garam Kaleng',
                 desc: 'Rokok kretek premium dalam kemasan kaleng - Tersedia eceran per batang',
                 rating: 4.7,
@@ -1808,6 +1938,11 @@
                     if (src) {
                         img.src = src;
                         img.onload = () => {
+                            img.classList.add('loaded');
+                        };
+                        img.onerror = () => {
+                            // Fallback to placeholder if image not found
+                            img.src = `https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(img.alt)}`;
                             img.classList.add('loaded');
                         };
                         img.removeAttribute('data-src');
@@ -1926,7 +2061,7 @@
             });
         });
 
-        // ===== NAVBAR =====
+        // ===== NAVBAR SCROLL EFFECT =====
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 50) {
@@ -1934,22 +2069,6 @@
             } else {
                 navbar.classList.remove('scrolled');
             }
-        });
-
-        // ===== MOBILE MENU =====
-        const menuToggle = document.getElementById('menuToggle');
-        const navMenu = document.getElementById('navMenu');
-
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        navMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
         });
 
         // ===== SMOOTH SCROLL =====
