@@ -64,15 +64,178 @@
             overflow-x: hidden;
         }
 
-        /* Fix untuk navigasi HP */
+        /* FIX NAVIGASI DI MOBILE - SEMUA SECTION */
         #produk, #layanan, #kontak {
-            scroll-margin-top: 100px;
+            scroll-margin-top: 120px !important; /* Lebih besar untuk mobile */
         }
 
         @media (max-width: 768px) {
             #produk, #layanan, #kontak {
-                scroll-margin-top: 80px;
+                scroll-margin-top: 100px !important; /* Sesuaikan tinggi navbar mobile */
+                padding-top: 20px; /* Tambah padding atas */
+                position: relative;
             }
+            
+            /* Pastikan konten tidak tertutup navbar */
+            .section {
+                position: relative;
+                z-index: 1;
+            }
+            
+            /* Dropdown konten lebih rendah di mobile */
+            .dropdown-content {
+                position: fixed !important;
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                max-height: 70vh;
+                overflow-y: auto;
+                border-radius: 20px 20px 0 0 !important;
+                transform: translateY(100%);
+                animation: slideUp 0.3s ease forwards;
+                z-index: 1001;
+            }
+            
+            @keyframes slideUp {
+                from {
+                    transform: translateY(100%);
+                }
+                to {
+                    transform: translateY(0);
+                }
+            }
+            
+            /* Overlay untuk dropdown */
+            .dropdown-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+            }
+            
+            .dropdown-overlay.active {
+                display: block;
+            }
+        }
+
+        /* SEARCH BOX STYLES */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            padding: 0 1rem;
+            position: relative;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-pill);
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--card-bg);
+            color: var(--text);
+            transition: all 0.3s var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .search-results-info {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        /* CATEGORY MANAGEMENT IN ADMIN */
+        .category-management {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-pill);
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+
+        .category-tag .delete-category {
+            background: none;
+            border: none;
+            color: var(--accent-red);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .category-tag .delete-category:hover {
+            background: var(--accent-red);
+            color: white;
         }
 
         /* MODAL LOGIN & ADMIN */
@@ -223,6 +386,11 @@
         .btn-secondary:hover {
             background: var(--accent-green-light);
             transform: scale(1.05);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
         }
 
         .login-error {
@@ -415,13 +583,13 @@
             transform: translateY(0);
         }
 
-        /* NAVIGATION */
+        /* NAVIGATION - IMPROVED FOR MOBILE */
         nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(251, 251, 253, 0.72);
+            background: rgba(251, 251, 253, 0.95);
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
             border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
@@ -430,7 +598,7 @@
         }
 
         nav.scrolled {
-            background: rgba(251, 251, 253, 0.85);
+            background: rgba(251, 251, 253, 0.98);
             box-shadow: var(--shadow-sm);
         }
 
@@ -537,7 +705,7 @@
             position: absolute;
             top: calc(100% + 0.5rem);
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
             min-width: 200px;
@@ -545,9 +713,10 @@
             overflow: hidden;
             box-shadow: var(--shadow-md);
             border: 0.5px solid var(--border);
+            z-index: 1001;
         }
 
-        .dropdown:hover .dropdown-content {
+        .dropdown.active .dropdown-content {
             display: block;
             animation: fadeIn 0.2s var(--transition);
         }
@@ -583,7 +752,7 @@
 
         /* HERO SECTION */
         .hero {
-            padding: 140px 2rem 80px;
+            padding: 160px 2rem 80px; /* Tambah padding atas untuk memberi ruang navbar */
             position: relative;
             overflow: hidden;
             min-height: 600px;
@@ -948,7 +1117,7 @@
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
@@ -1240,19 +1409,67 @@
                 margin-left: 0.5rem;
             }
 
-            /* Dropdown lebih mudah diklik di mobile */
+            /* Dropdown mobile yang lebih baik */
+            .dropdown {
+                position: static; /* Ubah untuk mobile */
+            }
+            
+            .dropdown-toggle {
+                position: relative;
+                z-index: 1002;
+            }
+            
             .dropdown-content {
-                min-width: 180px;
+                position: fixed !important;
+                top: auto !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                max-height: 70vh;
+                overflow-y: auto;
+                border-radius: 20px 20px 0 0 !important;
+                animation: slideUp 0.3s ease forwards;
+                z-index: 1003;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            }
+            
+            .dropdown-content a {
+                padding: 1.25rem 1.5rem;
+                font-size: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .dropdown-content a:last-child {
+                border-bottom: none;
             }
 
-            .dropdown-content a {
-                padding: 1rem 1.25rem;
+            /* Search box mobile */
+            .search-container {
+                margin-bottom: 2rem;
+            }
+            
+            .search-input {
+                padding: 0.875rem 1rem 0.875rem 3rem;
                 font-size: 0.9375rem;
             }
+            
+            .search-icon {
+                left: 1rem;
+            }
 
-            /* Hero responsive */
+            /* Category management mobile */
+            .category-management {
+                padding: 1rem;
+            }
+            
+            .category-list {
+                justify-content: center;
+            }
+
+            /* Hero responsive - tambah padding atas lebih besar */
             .hero {
-                padding: 120px 1rem 60px;
+                padding: 140px 1rem 60px;
                 min-height: 500px;
             }
 
@@ -1447,9 +1664,10 @@
                 line-height: 1.6;
             }
 
-            /* Section adjustments */
+            /* Section adjustments - tambah padding atas */
             .section {
-                padding: 3rem 1rem;
+                padding: 4rem 1rem 3rem;
+                margin-top: -20px; /* Kompensasi untuk scroll-margin */
             }
 
             .section-header {
@@ -1555,18 +1773,33 @@
         @media (max-width: 400px) {
             /* Navigation lebih compact */
             .nav-menu {
-                gap: 0.75rem;
+                gap: 0.5rem;
             }
 
             .nav-menu a,
             .dropdown-toggle {
-                font-size: 0.75rem;
-                padding: 0.4rem;
+                font-size: 0.7rem;
+                padding: 0.3rem;
+                min-width: 50px;
             }
 
             .nav-menu .admin-menu {
-                padding: 0.3rem 0.6rem;
-                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.65rem;
+            }
+
+            /* Hero lebih compact */
+            .hero {
+                padding: 130px 0.5rem 50px;
+            }
+
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+
+            .hero-description {
+                font-size: 0.875rem;
+                padding: 0 0.5rem;
             }
 
             /* Product grid tetap 2 kolom tapi lebih compact */
@@ -1608,19 +1841,13 @@
             .stat-label {
                 font-size: 0.75rem;
             }
-
-            /* Hero lebih compact */
-            .hero h1 {
-                font-size: 1.5rem;
-            }
-
-            .hero-description {
-                font-size: 0.875rem;
-            }
         }
     </style>
 </head>
 <body>
+    <!-- OVERLAY UNTUK DROPDOWN MOBILE -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
     <!-- MODAL LOGIN -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
@@ -1657,6 +1884,19 @@
                 <button class="btn btn-secondary" onclick="logoutAdmin()">Logout</button>
             </div>
             
+            <div class="category-management">
+                <div class="category-header">
+                    <h4>📁 Kelola Kategori</h4>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="newCategoryInput" placeholder="Kategori baru" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; flex: 1;">
+                        <button class="btn-small btn-secondary" onclick="addNewCategory()">Tambah</button>
+                    </div>
+                </div>
+                <div class="category-list" id="categoryList">
+                    <!-- Daftar kategori akan dimuat di sini -->
+                </div>
+            </div>
+            
             <div class="product-list-admin" id="productListAdmin">
                 <!-- Daftar produk akan dimuat di sini -->
             </div>
@@ -1670,11 +1910,10 @@
             
             <div class="form-group">
                 <label for="productCategory">Kategori</label>
-                <select id="productCategory">
-                    <option value="mie">Mie Instan</option>
-                    <option value="rokok">Rokok</option>
-                    <option value="lainnya">Lainnya</option>
-                </select>
+                <input type="text" id="productCategory" list="categoryOptions" placeholder="Pilih atau ketik kategori baru">
+                <datalist id="categoryOptions">
+                    <!-- Opsi kategori akan diisi oleh JavaScript -->
+                </datalist>
             </div>
             
             <div class="form-group">
@@ -1744,7 +1983,7 @@
                 <li><a href="#produk">Produk</a></li>
                 <li><a href="#layanan">Layanan</a></li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle" aria-label="Lokasi">
+                    <button class="dropdown-toggle" aria-label="Lokasi" data-dropdown="lokasi">
                         Lokasi
                         <span class="dropdown-arrow"></span>
                     </button>
@@ -1754,7 +1993,7 @@
                     </div>
                 </li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle" aria-label="Kontak">
+                    <button class="dropdown-toggle" aria-label="Kontak" data-dropdown="kontak">
                         Kontak
                         <span class="dropdown-arrow"></span>
                     </button>
@@ -1836,6 +2075,18 @@
                 <div class="section-subtitle">⭐ Paling Laris</div>
                 <h2 class="section-title">Best Seller Produk Pilihan</h2>
                 <p class="section-description">Produk-produk favorit pelanggan dengan kualitas terbaik dan harga terjangkau</p>
+            </div>
+
+            <!-- SEARCH BOX -->
+            <div class="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari produk berdasarkan nama, kategori, atau deskripsi...">
+                </div>
+                <div class="search-results-info" id="searchResultsInfo"></div>
             </div>
 
             <div class="filter-tabs">
@@ -2262,14 +2513,19 @@
             }
         ];
 
+        // ===== CATEGORIES DATABASE =====
+        const defaultCategories = ['mie', 'rokok', 'sembako', 'minuman', 'snack', 'lainnya'];
+
         // ===== PAGINATION =====
         const PRODUCTS_PER_PAGE = 6;
         let currentPage = 1;
         let currentFilter = 'all';
+        let currentSearch = '';
         let filteredProducts = [];
         let allProducts = [];
+        let allCategories = [];
 
-        // ===== LOAD PRODUCTS FROM LOCALSTORAGE =====
+        // ===== LOAD PRODUCTS & CATEGORIES FROM LOCALSTORAGE =====
         function loadProducts() {
             const savedProducts = localStorage.getItem('berkat_yakin_products');
             if (savedProducts) {
@@ -2278,14 +2534,146 @@
                 allProducts = [...defaultProducts];
                 saveProducts();
             }
+            
+            // Load categories
+            const savedCategories = localStorage.getItem('berkat_yakin_categories');
+            if (savedCategories) {
+                allCategories = JSON.parse(savedCategories);
+            } else {
+                allCategories = [...defaultCategories];
+                saveCategories();
+            }
+            
             filteredProducts = [...allProducts];
             renderProducts();
             renderAdminProductList();
+            updateCategoryLists();
         }
 
-        // ===== SAVE PRODUCTS TO LOCALSTORAGE =====
+        // ===== SAVE PRODUCTS & CATEGORIES TO LOCALSTORAGE =====
         function saveProducts() {
             localStorage.setItem('berkat_yakin_products', JSON.stringify(allProducts));
+        }
+
+        function saveCategories() {
+            localStorage.setItem('berkat_yakin_categories', JSON.stringify(allCategories));
+        }
+
+        // ===== UPDATE CATEGORY LISTS =====
+        function updateCategoryLists() {
+            // Update datalist in admin form
+            const datalist = document.getElementById('categoryOptions');
+            datalist.innerHTML = '';
+            
+            allCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                datalist.appendChild(option);
+            });
+            
+            // Update category tags in admin panel
+            renderCategoryTags();
+            
+            // Update filter tabs based on categories
+            updateFilterTabs();
+        }
+
+        // ===== RENDER CATEGORY TAGS IN ADMIN =====
+        function renderCategoryTags() {
+            const container = document.getElementById('categoryList');
+            container.innerHTML = '';
+            
+            allCategories.forEach(category => {
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.innerHTML = `
+                    ${category}
+                    <button class="delete-category" onclick="deleteCategory('${category}')" ${['mie', 'rokok'].includes(category) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>×</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // ===== UPDATE FILTER TABS BASED ON CATEGORIES =====
+        function updateFilterTabs() {
+            const tabsContainer = document.querySelector('.filter-tabs');
+            if (!tabsContainer) return;
+            
+            // Keep existing tabs but update based on categories
+            const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
+            const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
+            
+            // Add new categories as tabs if they don't exist
+            allCategories.forEach(category => {
+                if (!existingFilters.includes(category) && category !== 'all') {
+                    const tab = document.createElement('button');
+                    tab.className = 'filter-tab';
+                    tab.dataset.filter = category;
+                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        filterProducts(category);
+                    });
+                    tabsContainer.appendChild(tab);
+                }
+            });
+        }
+
+        // ===== ADD NEW CATEGORY =====
+        function addNewCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const categoryName = input.value.trim().toLowerCase();
+            
+            if (!categoryName) {
+                alert('Nama kategori tidak boleh kosong!');
+                return;
+            }
+            
+            if (allCategories.includes(categoryName)) {
+                alert('Kategori sudah ada!');
+                return;
+            }
+            
+            allCategories.push(categoryName);
+            saveCategories();
+            updateCategoryLists();
+            
+            input.value = '';
+            alert(`Kategori "${categoryName}" berhasil ditambahkan!`);
+        }
+
+        // ===== DELETE CATEGORY =====
+        function deleteCategory(categoryName) {
+            // Prevent deletion of default categories
+            if (['mie', 'rokok'].includes(categoryName)) {
+                alert('Kategori default tidak bisa dihapus!');
+                return;
+            }
+            
+            // Check if category is used in products
+            const isUsed = allProducts.some(product => product.category === categoryName);
+            
+            if (isUsed) {
+                if (!confirm(`Kategori "${categoryName}" masih digunakan oleh beberapa produk. Hapus kategori dan semua produk dengan kategori ini?`)) {
+                    return;
+                }
+                
+                // Delete all products with this category
+                allProducts = allProducts.filter(product => product.category !== categoryName);
+                saveProducts();
+            }
+            
+            // Remove category from list
+            allCategories = allCategories.filter(cat => cat !== categoryName);
+            saveCategories();
+            updateCategoryLists();
+            
+            // Re-render products
+            filterProducts(currentFilter);
+            
+            alert(`Kategori "${categoryName}" berhasil dihapus!`);
         }
 
         // ===== LAZY LOADING =====
@@ -2319,13 +2707,13 @@
             const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badgeText || ''}</div>` : '';
             
             return `
-                <div class="product-card animate-on-scroll visible" data-category="${product.category}">
+                <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${product.desc.toLowerCase()} ${product.category.toLowerCase()}">
                     ${badgeHTML}
                     <div class="product-image">
                         <img data-src="${product.image}" alt="${product.name}" loading="lazy">
                     </div>
                     <div class="product-info">
-                        <div class="product-category">${product.category === 'mie' ? 'Mie Instan' : product.category === 'rokok' ? 'Rokok' : 'Lainnya'}</div>
+                        <div class="product-category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</div>
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-desc">${product.desc}</p>
                         <div class="product-rating">
@@ -2352,21 +2740,52 @@
             `;
         }
 
-        // ===== RENDER PRODUCTS =====
+        // ===== RENDER PRODUCTS WITH SEARCH =====
         function renderProducts(append = false) {
             const productGrid = document.getElementById('productGrid');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            
+            let productsToShow = filteredProducts;
+            
+            // Apply search filter
+            if (currentSearch) {
+                const searchTerm = currentSearch.toLowerCase();
+                productsToShow = productsToShow.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.desc.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm)
+                );
+                
+                // Update search results info
+                searchResultsInfo.textContent = `Menampilkan ${productsToShow.length} hasil untuk "${currentSearch}"`;
+            } else {
+                searchResultsInfo.textContent = '';
+            }
             
             const start = 0;
             const end = currentPage * PRODUCTS_PER_PAGE;
-            const productsToShow = filteredProducts.slice(start, end);
+            const productsToDisplay = productsToShow.slice(start, end);
             
             if (!append) {
                 productGrid.innerHTML = '';
+                
+                // Show no results message
+                if (productsToShow.length === 0) {
+                    productGrid.innerHTML = `
+                        <div class="no-results">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+                            <h3 style="margin-bottom: 0.5rem;">Produk tidak ditemukan</h3>
+                            <p>Coba kata kunci lain atau lihat semua produk</p>
+                        </div>
+                    `;
+                    loadMoreBtn.style.display = 'none';
+                    return;
+                }
             }
             
             const newProductsStart = append ? (currentPage - 1) * PRODUCTS_PER_PAGE : 0;
-            const newProducts = filteredProducts.slice(newProductsStart, end);
+            const newProducts = productsToShow.slice(newProductsStart, end);
             
             newProducts.forEach(product => {
                 productGrid.insertAdjacentHTML('beforeend', generateProductCard(product));
@@ -2375,11 +2794,45 @@
             const images = productGrid.querySelectorAll('img[data-src]');
             images.forEach(img => imageObserver.observe(img));
             
-            if (end >= filteredProducts.length) {
+            if (end >= productsToShow.length) {
                 loadMoreBtn.style.display = 'none';
             } else {
                 loadMoreBtn.style.display = 'inline-flex';
             }
+        }
+
+        // ===== SEARCH FUNCTIONALITY =====
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                
+                searchTimeout = setTimeout(() => {
+                    currentSearch = e.target.value.trim();
+                    currentPage = 1;
+                    renderProducts(false);
+                    
+                    // Update filter tabs to show "All" when searching
+                    if (currentSearch) {
+                        document.querySelectorAll('.filter-tab').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        document.querySelector('.filter-tab[data-filter="all"]').classList.add('active');
+                    }
+                }, 300);
+            });
+            
+            // Clear search button
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    currentSearch = '';
+                    renderProducts(false);
+                    searchResultsInfo.textContent = '';
+                }
+            });
         }
 
         // ===== FILTER =====
@@ -2392,6 +2845,11 @@
             } else {
                 filteredProducts = allProducts.filter(p => p.category === filter);
             }
+            
+            // Clear search when changing filter
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            document.getElementById('searchResultsInfo').textContent = '';
             
             renderProducts(false);
         }
@@ -2430,30 +2888,90 @@
             }
         });
 
-        // ===== DROPDOWN CLICK SUPPORT FOR MOBILE =====
+        // ===== IMPROVED DROPDOWN FOR MOBILE =====
         const dropdowns = document.querySelectorAll('.dropdown');
+        const dropdownOverlay = document.getElementById('dropdownOverlay');
+        let activeDropdown = null;
+
+        function closeAllDropdowns() {
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            dropdownOverlay.classList.remove('active');
+            activeDropdown = null;
+            
+            // Reset dropdown content position for desktop
+            if (window.innerWidth > 768) {
+                dropdowns.forEach(dropdown => {
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        content.style.position = 'absolute';
+                        content.style.bottom = '';
+                        content.style.left = '';
+                        content.style.right = '';
+                        content.style.width = '';
+                        content.style.maxHeight = '';
+                        content.style.borderRadius = '';
+                    }
+                });
+            }
+        }
+
         dropdowns.forEach(dropdown => {
             const toggle = dropdown.querySelector('.dropdown-toggle');
             const content = dropdown.querySelector('.dropdown-content');
             
             if (toggle && content) {
-                // Click to toggle dropdown on mobile
+                // Desktop hover
+                dropdown.addEventListener('mouseenter', () => {
+                    if (window.innerWidth > 768) {
+                        closeAllDropdowns();
+                        dropdown.classList.add('active');
+                        activeDropdown = dropdown;
+                    }
+                });
+                
+                dropdown.addEventListener('mouseleave', () => {
+                    if (window.innerWidth > 768) {
+                        setTimeout(() => {
+                            if (activeDropdown === dropdown) {
+                                closeAllDropdowns();
+                            }
+                        }, 300);
+                    }
+                });
+                
+                // Mobile click
                 toggle.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
-                    // Close other dropdowns
-                    dropdowns.forEach(other => {
-                        if (other !== dropdown) {
-                            other.querySelector('.dropdown-content').style.display = 'none';
+                    if (window.innerWidth <= 768) {
+                        if (activeDropdown === dropdown) {
+                            closeAllDropdowns();
+                        } else {
+                            closeAllDropdowns();
+                            dropdown.classList.add('active');
+                            activeDropdown = dropdown;
+                            dropdownOverlay.classList.add('active');
                         }
-                    });
-                    
-                    // Toggle current dropdown
-                    if (content.style.display === 'block') {
-                        content.style.display = 'none';
                     } else {
-                        content.style.display = 'block';
+                        // Desktop click fallback
+                        if (activeDropdown === dropdown) {
+                            closeAllDropdowns();
+                        } else {
+                            closeAllDropdowns();
+                            dropdown.classList.add('active');
+                            activeDropdown = dropdown;
+                        }
                     }
+                });
+                
+                // Close dropdown when clicking on links
+                const links = content.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', () => {
+                        closeAllDropdowns();
+                    });
                 });
             }
         });
@@ -2461,13 +2979,14 @@
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
-                dropdowns.forEach(dropdown => {
-                    dropdown.querySelector('.dropdown-content').style.display = 'none';
-                });
+                closeAllDropdowns();
             }
         });
 
-        // ===== SMOOTH SCROLL =====
+        // Close dropdown overlay when clicked
+        dropdownOverlay.addEventListener('click', closeAllDropdowns);
+
+        // ===== IMPROVED SMOOTH SCROLL =====
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
@@ -2475,8 +2994,16 @@
                     e.preventDefault();
                     const target = document.querySelector(href);
                     if (target) {
+                        // Close any open dropdowns
+                        closeAllDropdowns();
+                        
+                        // Calculate scroll position with offset
+                        const navbarHeight = navbar.offsetHeight;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = targetPosition - navbarHeight - 20;
+                        
                         window.scrollTo({
-                            top: target.offsetTop - 100,
+                            top: offsetPosition,
                             behavior: 'smooth'
                         });
                     }
@@ -2573,6 +3100,7 @@
         }
 
         function openLoginModal() {
+            closeAllDropdowns();
             document.getElementById('loginModal').classList.add('active');
         }
 
@@ -2584,8 +3112,10 @@
 
         function openAdminModal() {
             if (localStorage.getItem('admin_logged_in') === 'true') {
+                closeAllDropdowns();
                 document.getElementById('adminModal').classList.add('active');
                 renderAdminProductList();
+                updateCategoryLists();
             } else {
                 openLoginModal();
             }
@@ -2654,7 +3184,7 @@
         async function saveProduct() {
             const id = document.getElementById('productId').value;
             const name = document.getElementById('productName').value;
-            const category = document.getElementById('productCategory').value;
+            const category = document.getElementById('productCategory').value.trim().toLowerCase();
             const price = document.getElementById('productPrice').value;
             const desc = document.getElementById('productDesc').value;
             const stock = document.getElementById('productStock').value;
@@ -2665,6 +3195,18 @@
             if (!name || !price || !desc || !stock || !imageData) {
                 alert('Harap isi semua field yang wajib!');
                 return;
+            }
+            
+            if (!category) {
+                alert('Harap masukkan kategori!');
+                return;
+            }
+            
+            // Add new category if it doesn't exist
+            if (!allCategories.includes(category)) {
+                allCategories.push(category);
+                saveCategories();
+                updateCategoryLists();
             }
             
             const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
@@ -2711,6 +3253,7 @@
             saveProducts();
             renderProducts();
             renderAdminProductList();
+            updateFilterTabs();
             resetForm();
             
             alert(id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
@@ -2738,7 +3281,7 @@
             
             document.getElementById('productId').value = '';
             document.getElementById('productName').value = '';
-            document.getElementById('productCategory').value = 'mie';
+            document.getElementById('productCategory').value = '';
             document.getElementById('productPrice').value = '';
             document.getElementById('productDesc').value = '';
             document.getElementById('productStock').value = '';
@@ -2827,11 +3370,22 @@
             openAdminModal();
         });
 
+        // ===== RESPONSIVE ADJUSTMENTS =====
+        function handleResize() {
+            // Close dropdowns when switching between mobile/desktop
+            if (window.innerWidth > 768 && activeDropdown) {
+                closeAllDropdowns();
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+
         // ===== INITIALIZE =====
         window.addEventListener('DOMContentLoaded', () => {
             loadProducts();
             checkAdminLogin();
             filterProducts('all');
+            setupSearch();
         });
     </script>
 </body>
