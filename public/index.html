@@ -2337,12 +2337,15 @@
 
     <script>
         // ===== JSONBIN CONFIGURATION =====
-        // ===== GANTI DENGAN DATA ANDA =====
-        const BIN_ID = "6986547aae596e708f16b404";
-        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OV0CMyX3gP0sxM7qI5LA6jEsXz3n/K7a"; // X-MASTER-KEY dari dashboard
-        const ADMIN_TOKEN = "75354e17";  // <- Inilah token Anda
-        // ===== AKHIR CONFIGURATION =====
-
+        // ===== GANTI DENGAN DATA ANDA SENDIRI =====
+        // 1. Daftar di https://jsonbin.io/
+        // 2. Buat bin baru
+        // 3. Copy Bin ID dan API Key Anda di sini:
+        const BIN_ID = "6986547aae596e708f16b404"; // Ganti dengan Bin ID Anda
+        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OV0CMyX3gP0sxM7qI5LA6jEsXz3n/K7a"; // Ganti dengan API Key Anda
+        const ADMIN_TOKEN = "75354e17";  // Token admin - bisa diganti
+        
+        // ===== URL & HEADERS =====
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         const JSONBIN_HEADERS = {
             "Content-Type": "application/json",
@@ -2350,7 +2353,7 @@
             "X-Bin-Versioning": "false"
         };
 
-        // ===== PRODUCT DATABASE (DEFAULT) =====
+        // ===== DEFAULT DATA (jika JSONBin kosong) =====
         const defaultProducts = [
             {
                 id: 1,
@@ -2523,10 +2526,9 @@
             }
         ];
 
-        // ===== CATEGORIES DATABASE =====
         const defaultCategories = ['mie', 'rokok', 'sembako', 'minuman', 'snack', 'lainnya'];
 
-        // ===== PAGINATION =====
+        // ===== GLOBAL VARIABLES =====
         const PRODUCTS_PER_PAGE = 6;
         let currentPage = 1;
         let currentFilter = 'all';
@@ -2551,12 +2553,15 @@
                 const data = await response.json();
                 console.log("✅ Data berhasil diambil dari JSONBin");
                 
-                // Jika bin kosong, inisialisasi dengan data default
-                if (!data.record || Object.keys(data.record).length === 0) {
+                // Jika bin kosong atau tidak ada data, inisialisasi dengan data default
+                if (!data.record || 
+                    !data.record.products || 
+                    data.record.products.length === 0 ||
+                    !data.record.categories) {
                     console.log("📦 Bin kosong, menginisialisasi dengan data default...");
                     return {
-                        products: defaultProducts,
-                        categories: defaultCategories,
+                        products: [...defaultProducts],
+                        categories: [...defaultCategories],
                         lastUpdated: new Date().toISOString()
                     };
                 }
@@ -2566,8 +2571,8 @@
                 console.error("❌ Error mengambil data:", error);
                 console.log("🔄 Menggunakan data default karena error...");
                 return {
-                    products: defaultProducts,
-                    categories: defaultCategories,
+                    products: [...defaultProducts],
+                    categories: [...defaultCategories],
                     lastUpdated: new Date().toISOString()
                 };
             }
@@ -2596,7 +2601,7 @@
             }
         }
 
-        // ===== LOAD PRODUCTS & CATEGORIES FROM JSONBIN =====
+        // ===== LOAD PRODUCTS & CATEGORIES =====
         async function loadProducts() {
             const dbData = await loadFromDatabase();
             
@@ -2612,9 +2617,10 @@
             renderProducts();
             renderAdminProductList();
             updateCategoryLists();
+            updateFilterTabs();
         }
 
-        // ===== SAVE PRODUCTS & CATEGORIES TO JSONBIN =====
+        // ===== SAVE PRODUCTS & CATEGORIES =====
         async function saveProducts() {
             const data = {
                 products: allProducts,
@@ -2652,9 +2658,6 @@
             
             // Update category tags in admin panel
             renderCategoryTags();
-            
-            // Update filter tabs based on categories
-            updateFilterTabs();
         }
 
         // ===== RENDER CATEGORY TAGS IN ADMIN =====
@@ -2678,13 +2681,21 @@
             const tabsContainer = document.querySelector('.filter-tabs');
             if (!tabsContainer) return;
             
-            // Keep existing tabs but update based on categories
+            // Get existing tabs
             const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
             const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
             
+            // Clear all non-default tabs
+            const defaultTabs = ['all', 'mie', 'rokok'];
+            existingTabs.forEach(tab => {
+                if (!defaultTabs.includes(tab.dataset.filter)) {
+                    tab.remove();
+                }
+            });
+            
             // Add new categories as tabs if they don't exist
             allCategories.forEach(category => {
-                if (!existingFilters.includes(category) && category !== 'all') {
+                if (!defaultTabs.includes(category) && !existingFilters.includes(category)) {
                     const tab = document.createElement('button');
                     tab.className = 'filter-tab';
                     tab.dataset.filter = category;
@@ -2694,7 +2705,14 @@
                         tab.classList.add('active');
                         filterProducts(category);
                     });
-                    tabsContainer.appendChild(tab);
+                    
+                    // Insert before load more button or at the end
+                    const allTab = tabsContainer.querySelector('.filter-tab[data-filter="all"]');
+                    if (allTab) {
+                        allTab.parentNode.insertBefore(tab, allTab.nextSibling.nextSibling);
+                    } else {
+                        tabsContainer.appendChild(tab);
+                    }
                 }
             });
         }
@@ -2719,6 +2737,7 @@
             
             if (success) {
                 updateCategoryLists();
+                updateFilterTabs();
                 input.value = '';
                 alert(`Kategori "${categoryName}" berhasil ditambahkan!`);
             }
@@ -2750,6 +2769,7 @@
             
             if (success) {
                 updateCategoryLists();
+                updateFilterTabs();
                 filterProducts(currentFilter);
                 alert(`Kategori "${categoryName}" berhasil dihapus!`);
             }
@@ -2819,7 +2839,7 @@
             `;
         }
 
-        // ===== RENDER PRODUCTS WITH SEARCH =====
+        // ===== RENDER PRODUCTS =====
         function renderProducts(append = false) {
             const productGrid = document.getElementById('productGrid');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -3187,7 +3207,7 @@
                 const div = document.createElement('div');
                 div.className = 'admin-product-item';
                 div.innerHTML = `
-                    <img src="${product.image}" class="admin-product-image" alt="${product.name}">
+                    <img src="${product.image}" class="admin-product-image" alt="${product.name}" onerror="this.src='https://via.placeholder.com/60x60/0071e3/ffffff?text=${encodeURIComponent(product.name.substring(0, 2))}'">
                     <div class="admin-product-info">
                         <div class="admin-product-name">${product.name}</div>
                         <div class="admin-product-price">${product.price}</div>
@@ -3259,6 +3279,7 @@
                 allCategories.push(category);
                 await saveCategories();
                 updateCategoryLists();
+                updateFilterTabs();
             }
             
             const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
@@ -3306,7 +3327,7 @@
             if (success) {
                 renderProducts();
                 renderAdminProductList();
-                updateFilterTabs();
+                filterProducts(currentFilter);
                 resetForm();
                 alert(id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
             }
@@ -3326,6 +3347,7 @@
                 if (success) {
                     renderProducts();
                     renderAdminProductList();
+                    filterProducts(currentFilter);
                     resetForm();
                     alert('Produk berhasil dihapus!');
                 }
@@ -3423,7 +3445,12 @@
         // ===== NAVBAR ADMIN MENU CLICK =====
         document.getElementById('navAdmin').addEventListener('click', function(e) {
             e.preventDefault();
-            openAdminModal();
+            const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+            if (isLoggedIn) {
+                openAdminModal();
+            } else {
+                openLoginModal();
+            }
         });
 
         // ===== RESPONSIVE ADJUSTMENTS =====
@@ -3436,7 +3463,7 @@
 
         window.addEventListener('resize', handleResize);
 
-        // ===== INITIALIZE =====
+        // ===== INISIALISASI =====
         window.addEventListener('DOMContentLoaded', async () => {
             // Tampilkan loading state
             const productGrid = document.getElementById('productGrid');
@@ -3446,18 +3473,16 @@
             checkAdminLogin();
             filterProducts('all');
             setupSearch();
-            
-            // Inisialisasi event listener untuk admin
-            document.getElementById('navAdmin').addEventListener('click', function(e) {
-                e.preventDefault();
-                const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-                if (isLoggedIn) {
-                    openAdminModal();
-                } else {
-                    openLoginModal();
-                }
-            });
         });
+
+        // ===== PERINGATAN JIKA BELUM MENGISI JSONBIN CONFIG =====
+        if (BIN_ID === "YOUR_BIN_ID_HERE" || API_KEY === "YOUR_API_KEY_HERE") {
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    alert("⚠️ PERINGATAN: Anda belum mengisi konfigurasi JSONBin!\n\nSilakan:\n1. Daftar di https://jsonbin.io/\n2. Buat bin baru\n3. Ganti BIN_ID dan API_KEY di kode JavaScript (baris 1563-1564) dengan data Anda sendiri.\n\nTanpa ini, data tidak akan tersimpan permanen.");
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>
