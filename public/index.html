@@ -66,23 +66,21 @@
 
         /* FIX NAVIGASI DI MOBILE - SEMUA SECTION */
         #produk, #layanan, #kontak {
-            scroll-margin-top: 120px !important; /* Lebih besar untuk mobile */
+            scroll-margin-top: 120px !important;
         }
 
         @media (max-width: 768px) {
             #produk, #layanan, #kontak {
-                scroll-margin-top: 100px !important; /* Sesuaikan tinggi navbar mobile */
-                padding-top: 20px; /* Tambah padding atas */
+                scroll-margin-top: 100px !important;
+                padding-top: 20px;
                 position: relative;
             }
             
-            /* Pastikan konten tidak tertutup navbar */
             .section {
                 position: relative;
                 z-index: 1;
             }
             
-            /* Dropdown konten lebih rendah di mobile */
             .dropdown-content {
                 position: fixed !important;
                 top: auto !important;
@@ -107,7 +105,6 @@
                 }
             }
             
-            /* Overlay untuk dropdown */
             .dropdown-overlay {
                 display: none;
                 position: fixed;
@@ -905,7 +902,7 @@
 
         /* HERO SECTION */
         .hero {
-            padding: 160px 2rem 80px; /* Tambah padding atas untuk memberi ruang navbar */
+            padding: 160px 2rem 80px;
             position: relative;
             overflow: hidden;
             min-height: 600px;
@@ -1525,12 +1522,10 @@
 
         /* RESPONSIVE DESIGN - OPTIMIZED FOR MOBILE */
         @media (max-width: 768px) {
-            /* Menu toggle tetap tersembunyi */
             .menu-toggle {
                 display: none;
             }
 
-            /* Navigation tetap horizontal seperti desktop */
             .nav-container {
                 padding: 1rem;
                 overflow-x: auto;
@@ -1555,16 +1550,14 @@
                 text-align: center;
             }
 
-            /* Admin menu di mobile */
             .nav-menu .admin-menu {
                 padding: 0.4rem 0.8rem;
                 font-size: 0.75rem;
                 margin-left: 0.5rem;
             }
 
-            /* Dropdown mobile yang lebih baik */
             .dropdown {
-                position: static; /* Ubah untuk mobile */
+                position: static;
             }
             
             .dropdown-toggle {
@@ -1597,7 +1590,6 @@
                 border-bottom: none;
             }
 
-            /* Search box mobile */
             .search-container {
                 margin-bottom: 2rem;
             }
@@ -1611,7 +1603,6 @@
                 left: 1rem;
             }
 
-            /* Category management mobile */
             .category-management {
                 padding: 1rem;
             }
@@ -1620,7 +1611,6 @@
                 justify-content: center;
             }
 
-            /* Hero responsive - tambah padding atas lebih besar */
             .hero {
                 padding: 140px 1rem 60px;
                 min-height: 500px;
@@ -1639,7 +1629,6 @@
                 padding: 0.375rem 1rem;
             }
 
-            /* PRODUCT GRID - 2 KOLOM DI MOBILE */
             .product-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 0.75rem;
@@ -1721,7 +1710,6 @@
                 height: 16px;
             }
 
-            /* Stats grid - 2 kolom di mobile */
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 1.5rem;
@@ -1745,7 +1733,6 @@
                 font-size: 0.8125rem;
             }
 
-            /* CARD GRID - 1 KOLOM DI MOBILE untuk kemudahan klik */
             .card-grid {
                 grid-template-columns: 1fr;
                 gap: 1.25rem;
@@ -1783,7 +1770,6 @@
                 padding: 0.3125rem 0.75rem;
             }
 
-            /* CONTACT GRID - 1 KOLOM DI MOBILE dengan area klik lebih besar */
             .contact-grid {
                 grid-template-columns: 1fr;
                 gap: 1.25rem;
@@ -1817,10 +1803,9 @@
                 line-height: 1.6;
             }
 
-            /* Section adjustments - tambah padding atas */
             .section {
                 padding: 4rem 1rem 3rem;
-                margin-top: -20px; /* Kompensasi untuk scroll-margin */
+                margin-top: -20px;
             }
 
             .section-header {
@@ -1840,7 +1825,6 @@
                 font-size: 0.75rem;
             }
 
-            /* Filter tabs - scroll horizontal */
             .filter-tabs {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
@@ -1861,7 +1845,6 @@
                 min-width: fit-content;
             }
 
-            /* Buttons - ukuran touch-friendly */
             .btn {
                 padding: 0.875rem 1.5rem;
                 font-size: 0.9375rem;
@@ -1879,7 +1862,6 @@
                 min-height: 50px;
             }
 
-            /* Modal responsive */
             .modal {
                 padding: 1rem;
             }
@@ -1892,7 +1874,6 @@
                 flex-direction: column;
             }
 
-            /* Admin product item */
             .admin-product-item {
                 flex-direction: column;
                 text-align: center;
@@ -1904,7 +1885,6 @@
                 justify-content: center;
             }
 
-            /* Footer */
             footer {
                 padding: 2.5rem 1rem;
             }
@@ -1922,9 +1902,7 @@
             }
         }
 
-        /* Untuk layar sangat kecil (< 400px) */
         @media (max-width: 400px) {
-            /* Navigation lebih compact */
             .nav-menu {
                 gap: 0.5rem;
             }
@@ -1941,7 +1919,6 @@
                 font-size: 0.65rem;
             }
 
-            /* Hero lebih compact */
             .hero {
                 padding: 130px 0.5rem 50px;
             }
@@ -1955,7 +1932,6 @@
                 padding: 0 0.5rem;
             }
 
-            /* Product grid tetap 2 kolom tapi lebih compact */
             .product-grid {
                 gap: 0.5rem;
             }
@@ -1982,7 +1958,6 @@
                 padding: 0.625rem 0.875rem;
             }
 
-            /* Stats - 2 kolom lebih compact */
             .stats-grid {
                 gap: 1rem;
             }
@@ -2752,37 +2727,30 @@
         function validateProductData(data) {
             const errors = {};
             
-            // Nama produk validation
             if (!data.name || data.name.trim().length < 3) {
                 errors.name = 'Nama produk harus minimal 3 karakter';
             }
             
-            // Kategori validation
             if (!data.category || data.category.trim().length < 2) {
                 errors.category = 'Kategori harus minimal 2 karakter';
             }
             
-            // Harga validation
             if (!data.price || !data.price.includes('Rp')) {
                 errors.price = 'Harga harus dalam format Rp (contoh: Rp 3.000)';
             }
             
-            // Deskripsi validation
             if (!data.desc || data.desc.trim().length < 10) {
                 errors.desc = 'Deskripsi harus minimal 10 karakter';
             }
             
-            // Stok validation
             if (!data.stock || data.stock.trim().length < 2) {
                 errors.stock = 'Status stok harus diisi';
             }
             
-            // Rating validation
             if (data.rating < 1 || data.rating > 5) {
                 errors.rating = 'Rating harus antara 1-5';
             }
             
-            // Image validation
             if (!data.image) {
                 errors.image = 'Gambar produk harus diupload';
             }
@@ -2791,7 +2759,6 @@
         }
 
         function showValidationErrors(errors) {
-            // Reset semua error
             document.querySelectorAll('.validation-error').forEach(el => {
                 el.classList.remove('show');
                 el.textContent = '';
@@ -2801,7 +2768,6 @@
                 el.classList.remove('error');
             });
             
-            // Tampilkan error yang ada
             Object.keys(errors).forEach(field => {
                 const errorEl = document.getElementById(`${field}Error`);
                 const groupEl = document.getElementById(`${field}Group`);
@@ -2868,7 +2834,7 @@
                 console.log("📡 Mengambil data dari JSONBin...");
                 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
                 
                 const response = await fetch(JSONBIN_URL, {
                     method: 'GET',
@@ -2885,7 +2851,6 @@
                 const data = await response.json();
                 console.log("✅ Data berhasil diambil dari JSONBin");
                 
-                // Validasi data yang diterima
                 if (!data.record || typeof data.record !== 'object') {
                     console.log("⚠️ Data tidak valid, menggunakan data default");
                     return {
@@ -2895,7 +2860,6 @@
                     };
                 }
                 
-                // Validasi struktur data
                 const isValidProducts = Array.isArray(data.record.products) && 
                     data.record.products.every(p => p.id && p.name);
                 const isValidCategories = Array.isArray(data.record.categories);
@@ -2928,7 +2892,6 @@
         }
 
         async function saveToDatabase(data) {
-            // Buat backup sebelum menyimpan
             createBackup();
             
             try {
@@ -2951,28 +2914,22 @@
                     return result;
                 };
                 
-                // Gunakan retry mechanism
                 const result = await withRetry(saveOperation, 3, 1000);
                 
-                // Clear backup setelah berhasil
                 clearBackup();
                 return { success: true, data: result };
                 
             } catch (error) {
                 console.error("❌ Error menyimpan data:", error);
                 
-                // Rollback ke backup
                 const rollbackSuccess = rollback();
                 
-                // Tampilkan notifikasi dengan opsi retry
-                const notificationId = Date.now();
                 showNotification('error', 'Gagal Menyimpan', 
                     `Error: ${error.message}. Data dikembalikan ke versi sebelumnya.`,
                     10000);
                 
-                // Tambahkan opsi retry manual
                 setTimeout(() => {
-                    const notification = document.querySelector(`[data-id="${notificationId}"]`);
+                    const notification = document.querySelector('.notification.error');
                     if (notification) {
                         const retryButton = document.createElement('button');
                         retryButton.className = 'retry-button';
@@ -3064,7 +3021,6 @@
 
         // ===== UPDATE CATEGORY LISTS =====
         function updateCategoryLists() {
-            // Update datalist in admin form
             const datalist = document.getElementById('categoryOptions');
             datalist.innerHTML = '';
             
@@ -3075,10 +3031,7 @@
                 datalist.appendChild(option);
             });
             
-            // Update category tags in admin panel
             renderCategoryTags();
-            
-            // Update filter tabs based on categories
             updateFilterTabs();
         }
 
@@ -3103,11 +3056,9 @@
             const tabsContainer = document.querySelector('.filter-tabs');
             if (!tabsContainer) return;
             
-            // Keep existing tabs but update based on categories
             const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
             const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
             
-            // Add new categories as tabs if they don't exist
             allCategories.forEach(category => {
                 if (!existingFilters.includes(category) && category !== 'all') {
                     const tab = document.createElement('button');
@@ -3156,13 +3107,11 @@
 
         // ===== DELETE CATEGORY =====
         async function deleteCategory(categoryName) {
-            // Prevent deletion of default categories
             if (['mie', 'rokok'].includes(categoryName)) {
                 showNotification('error', 'Error', 'Kategori default tidak bisa dihapus!');
                 return;
             }
             
-            // Check if category is used in products
             const isUsed = allProducts.some(product => product.category === categoryName);
             
             if (isUsed) {
@@ -3256,7 +3205,6 @@
             
             let productsToShow = filteredProducts;
             
-            // Apply search filter
             if (currentSearch) {
                 const searchTerm = currentSearch.toLowerCase();
                 productsToShow = productsToShow.filter(product => 
@@ -3265,7 +3213,6 @@
                     product.category.toLowerCase().includes(searchTerm)
                 );
                 
-                // Update search results info
                 searchResultsInfo.textContent = `Menampilkan ${productsToShow.length} hasil untuk "${currentSearch}"`;
             } else {
                 searchResultsInfo.textContent = '';
@@ -3278,7 +3225,6 @@
             if (!append) {
                 productGrid.innerHTML = '';
                 
-                // Show no results message
                 if (productsToShow.length === 0) {
                     productGrid.innerHTML = `
                         <div class="no-results">
@@ -3322,7 +3268,6 @@
                     currentPage = 1;
                     renderProducts(false);
                     
-                    // Update filter tabs to show "All" when searching
                     if (currentSearch) {
                         document.querySelectorAll('.filter-tab').forEach(tab => {
                             tab.classList.remove('active');
@@ -3332,13 +3277,12 @@
                 }, 300);
             });
             
-            // Clear search button
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     searchInput.value = '';
                     currentSearch = '';
                     renderProducts(false);
-                    searchResultsInfo.textContent = '';
+                    document.getElementById('searchResultsInfo').textContent = '';
                 }
             });
         }
@@ -3354,7 +3298,6 @@
                 filteredProducts = allProducts.filter(p => p.category === filter);
             }
             
-            // Clear search when changing filter
             document.getElementById('searchInput').value = '';
             currentSearch = '';
             document.getElementById('searchResultsInfo').textContent = '';
@@ -3408,7 +3351,6 @@
             dropdownOverlay.classList.remove('active');
             activeDropdown = null;
             
-            // Reset dropdown content position for desktop
             if (window.innerWidth > 768) {
                 dropdowns.forEach(dropdown => {
                     const content = dropdown.querySelector('.dropdown-content');
@@ -3430,7 +3372,6 @@
             const content = dropdown.querySelector('.dropdown-content');
             
             if (toggle && content) {
-                // Desktop hover
                 dropdown.addEventListener('mouseenter', () => {
                     if (window.innerWidth > 768) {
                         closeAllDropdowns();
@@ -3449,7 +3390,6 @@
                     }
                 });
                 
-                // Mobile click
                 toggle.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
@@ -3463,7 +3403,6 @@
                             dropdownOverlay.classList.add('active');
                         }
                     } else {
-                        // Desktop click fallback
                         if (activeDropdown === dropdown) {
                             closeAllDropdowns();
                         } else {
@@ -3474,7 +3413,6 @@
                     }
                 });
                 
-                // Close dropdown when clicking on links
                 const links = content.querySelectorAll('a');
                 links.forEach(link => {
                     link.addEventListener('click', () => {
@@ -3484,14 +3422,12 @@
             }
         });
 
-        // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
                 closeAllDropdowns();
             }
         });
 
-        // Close dropdown overlay when clicked
         dropdownOverlay.addEventListener('click', closeAllDropdowns);
 
         // ===== IMPROVED SMOOTH SCROLL =====
@@ -3502,10 +3438,8 @@
                     e.preventDefault();
                     const target = document.querySelector(href);
                     if (target) {
-                        // Close any open dropdowns
                         closeAllDropdowns();
                         
-                        // Calculate scroll position with offset
                         const navbarHeight = navbar.offsetHeight;
                         const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
                         const offsetPosition = targetPosition - navbarHeight - 20;
@@ -3547,7 +3481,6 @@
             }
             
             if (token === ADMIN_TOKEN) {
-                // Login berhasil
                 sessionStorage.setItem('admin_logged_in', 'true');
                 closeLoginModal();
                 openAdminModal();
@@ -3656,21 +3589,17 @@
             document.getElementById('productRating').value = product.rating;
             document.getElementById('productBadge').value = product.badge || '';
             
-            // Set image preview
             const preview = document.getElementById('imagePreview');
             preview.src = product.image;
             preview.classList.add('show');
             document.getElementById('productImageData').value = product.image;
             
-            // Update form title
             document.getElementById('formTitle').textContent = 'Edit Produk';
             document.getElementById('saveProductBtn').textContent = 'Update Produk';
             document.getElementById('deleteProductBtn').style.display = 'block';
             
-            // Clear validation errors
             showValidationErrors({});
             
-            // Scroll to form
             document.querySelector('.modal-content').scrollTop = 0;
         }
 
@@ -3696,18 +3625,15 @@
                 image: imageData
             };
             
-            // Validasi data
             const errors = validateProductData(productData);
             if (!showValidationErrors(errors)) {
                 showNotification('error', 'Validasi Gagal', 'Harap perbaiki field yang error');
                 return;
             }
             
-            // Buat backup sebelum perubahan
             createBackup();
             
             try {
-                // Add new category if it doesn't exist
                 if (!allCategories.includes(category)) {
                     allCategories.push(category);
                 }
@@ -3717,7 +3643,6 @@
                                  badge === 'promo' ? '🔥 ECERAN' : '';
                 
                 if (id) {
-                    // Update existing product
                     const index = allProducts.findIndex(p => p.id === parseInt(id));
                     if (index !== -1) {
                         allProducts[index] = {
@@ -3735,7 +3660,6 @@
                         };
                     }
                 } else {
-                    // Add new product
                     const newId = allProducts.length > 0 ? Math.max(...allProducts.map(p => p.id)) + 1 : 1;
                     const newProduct = {
                         id: newId,
@@ -3763,7 +3687,6 @@
                     showNotification('success', 'Berhasil', id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
                 }
             } catch (error) {
-                // Rollback jika error
                 rollback();
                 showNotification('error', 'Error', 'Gagal menyimpan produk. Data dikembalikan.');
             }
@@ -3782,7 +3705,6 @@
             
             if (!id) return;
             
-            // Buat backup sebelum penghapusan
             createBackup();
             
             try {
@@ -3796,7 +3718,6 @@
                     showNotification('success', 'Berhasil', 'Produk berhasil dihapus!');
                 }
             } catch (error) {
-                // Rollback jika error
                 rollback();
                 showNotification('error', 'Error', 'Gagal menghapus produk. Data dikembalikan.');
             }
@@ -3823,7 +3744,6 @@
             document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
             document.getElementById('deleteProductBtn').style.display = 'none';
             
-            // Clear validation errors
             showValidationErrors({});
         }
 
@@ -3832,14 +3752,12 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check if file is JPG
             if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
                 showNotification('error', 'Format Error', 'Hanya format JPG yang diperbolehkan!');
                 this.value = '';
                 return;
             }
             
-            // Check file size (max 2MB)
             if (file.size > 2 * 1024 * 1024) {
                 showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 2MB!');
                 this.value = '';
@@ -3855,7 +3773,6 @@
                 preview.src = compressedImage;
                 preview.classList.add('show');
                 
-                // Clear image error
                 document.getElementById('imageError').classList.remove('show');
                 
                 showNotification('success', 'Berhasil', 'Gambar berhasil diupload dan dikompresi');
@@ -3878,7 +3795,6 @@
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // Set max width to 800px
                         let width = img.width;
                         let height = img.height;
                         
@@ -3891,10 +3807,8 @@
                         canvas.width = width;
                         canvas.height = height;
                         
-                        // Draw image with compression
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Convert to JPG with 80% quality
                         const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
                         resolve(compressedDataUrl);
                     };
@@ -3916,7 +3830,6 @@
 
         // ===== RESPONSIVE ADJUSTMENTS =====
         function handleResize() {
-            // Close dropdowns when switching between mobile/desktop
             if (window.innerWidth > 768 && activeDropdown) {
                 closeAllDropdowns();
             }
@@ -3944,7 +3857,6 @@
                 const backup = localStorage.getItem('product_backup');
                 if (backup) {
                     const data = JSON.parse(backup);
-                    // Check if backup is not too old (24 hours)
                     if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
                         return data;
                     }
@@ -3957,11 +3869,9 @@
 
         // ===== INITIALIZE =====
         window.addEventListener('DOMContentLoaded', async () => {
-            // Tampilkan loading state
             const productGrid = document.getElementById('productGrid');
             productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
             
-            // Coba load dari local backup dulu untuk tampilan cepat
             const localBackup = loadLocalBackup();
             if (localBackup) {
                 allProducts = localBackup.products;
@@ -3972,16 +3882,13 @@
                 showNotification('info', 'Memuat...', 'Menampilkan data lokal sambil mengambil update...');
             }
             
-            // Kemudian load data terbaru dari server
             await loadProducts();
             checkAdminLogin();
             filterProducts('all');
             setupSearch();
             
-            // Auto-save local backup ketika data berubah
-            setInterval(saveLocalBackup, 60000); // Setiap 1 menit
+            setInterval(saveLocalBackup, 60000);
             
-            // Inisialisasi event listener untuk admin
             document.getElementById('navAdmin').addEventListener('click', function(e) {
                 e.preventDefault();
                 const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
@@ -3992,15 +3899,12 @@
                 }
             });
             
-            // Keyboard shortcut untuk admin
             document.addEventListener('keydown', (e) => {
-                // Ctrl+Shift+A untuk admin panel
                 if (e.ctrlKey && e.shiftKey && e.key === 'A') {
                     e.preventDefault();
                     openAdminModal();
                 }
                 
-                // Escape untuk close modal
                 if (e.key === 'Escape') {
                     closeLoginModal();
                     closeAdminModal();
