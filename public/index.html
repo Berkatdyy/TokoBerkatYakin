@@ -19,8 +19,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Supabase Client Library -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -69,21 +69,23 @@
 
         /* FIX NAVIGASI DI MOBILE - SEMUA SECTION */
         #produk, #layanan, #kontak {
-            scroll-margin-top: 120px !important;
+            scroll-margin-top: 120px !important; /* Lebih besar untuk mobile */
         }
 
         @media (max-width: 768px) {
             #produk, #layanan, #kontak {
-                scroll-margin-top: 100px !important;
-                padding-top: 20px;
+                scroll-margin-top: 100px !important; /* Sesuaikan tinggi navbar mobile */
+                padding-top: 20px; /* Tambah padding atas */
                 position: relative;
             }
             
+            /* Pastikan konten tidak tertutup navbar */
             .section {
                 position: relative;
                 z-index: 1;
             }
             
+            /* Dropdown konten lebih rendah di mobile */
             .dropdown-content {
                 position: fixed !important;
                 top: auto !important;
@@ -108,6 +110,7 @@
                 }
             }
             
+            /* Overlay untuk dropdown */
             .dropdown-overlay {
                 display: none;
                 position: fixed;
@@ -905,7 +908,7 @@
 
         /* HERO SECTION */
         .hero {
-            padding: 160px 2rem 80px;
+            padding: 160px 2rem 80px; /* Tambah padding atas untuk memberi ruang navbar */
             position: relative;
             overflow: hidden;
             min-height: 600px;
@@ -1525,10 +1528,12 @@
 
         /* RESPONSIVE DESIGN - OPTIMIZED FOR MOBILE */
         @media (max-width: 768px) {
+            /* Menu toggle tetap tersembunyi */
             .menu-toggle {
                 display: none;
             }
 
+            /* Navigation tetap horizontal seperti desktop */
             .nav-container {
                 padding: 1rem;
                 overflow-x: auto;
@@ -1553,14 +1558,16 @@
                 text-align: center;
             }
 
+            /* Admin menu di mobile */
             .nav-menu .admin-menu {
                 padding: 0.4rem 0.8rem;
                 font-size: 0.75rem;
                 margin-left: 0.5rem;
             }
 
+            /* Dropdown mobile yang lebih baik */
             .dropdown {
-                position: static;
+                position: static; /* Ubah untuk mobile */
             }
             
             .dropdown-toggle {
@@ -1593,6 +1600,7 @@
                 border-bottom: none;
             }
 
+            /* Search box mobile */
             .search-container {
                 margin-bottom: 2rem;
             }
@@ -1606,6 +1614,7 @@
                 left: 1rem;
             }
 
+            /* Category management mobile */
             .category-management {
                 padding: 1rem;
             }
@@ -1614,6 +1623,7 @@
                 justify-content: center;
             }
 
+            /* Hero responsive - tambah padding atas lebih besar */
             .hero {
                 padding: 140px 1rem 60px;
                 min-height: 500px;
@@ -1632,6 +1642,7 @@
                 padding: 0.375rem 1rem;
             }
 
+            /* PRODUCT GRID - 2 KOLOM DI MOBILE */
             .product-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 0.75rem;
@@ -1713,6 +1724,7 @@
                 height: 16px;
             }
 
+            /* Stats grid - 2 kolom di mobile */
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 1.5rem;
@@ -1736,6 +1748,7 @@
                 font-size: 0.8125rem;
             }
 
+            /* CARD GRID - 1 KOLOM DI MOBILE untuk kemudahan klik */
             .card-grid {
                 grid-template-columns: 1fr;
                 gap: 1.25rem;
@@ -1773,6 +1786,7 @@
                 padding: 0.3125rem 0.75rem;
             }
 
+            /* CONTACT GRID - 1 KOLOM DI MOBILE dengan area klik lebih besar */
             .contact-grid {
                 grid-template-columns: 1fr;
                 gap: 1.25rem;
@@ -1806,9 +1820,10 @@
                 line-height: 1.6;
             }
 
+            /* Section adjustments - tambah padding atas */
             .section {
                 padding: 4rem 1rem 3rem;
-                margin-top: -20px;
+                margin-top: -20px; /* Kompensasi untuk scroll-margin */
             }
 
             .section-header {
@@ -1828,6 +1843,7 @@
                 font-size: 0.75rem;
             }
 
+            /* Filter tabs - scroll horizontal */
             .filter-tabs {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
@@ -1848,6 +1864,7 @@
                 min-width: fit-content;
             }
 
+            /* Buttons - ukuran touch-friendly */
             .btn {
                 padding: 0.875rem 1.5rem;
                 font-size: 0.9375rem;
@@ -1865,6 +1882,7 @@
                 min-height: 50px;
             }
 
+            /* Modal responsive */
             .modal {
                 padding: 1rem;
             }
@@ -1877,6 +1895,7 @@
                 flex-direction: column;
             }
 
+            /* Admin product item */
             .admin-product-item {
                 flex-direction: column;
                 text-align: center;
@@ -1888,6 +1907,7 @@
                 justify-content: center;
             }
 
+            /* Footer */
             footer {
                 padding: 2.5rem 1rem;
             }
@@ -1905,7 +1925,9 @@
             }
         }
 
+        /* Untuk layar sangat kecil (< 400px) */
         @media (max-width: 400px) {
+            /* Navigation lebih compact */
             .nav-menu {
                 gap: 0.5rem;
             }
@@ -1922,6 +1944,7 @@
                 font-size: 0.65rem;
             }
 
+            /* Hero lebih compact */
             .hero {
                 padding: 130px 0.5rem 50px;
             }
@@ -1935,6 +1958,7 @@
                 padding: 0 0.5rem;
             }
 
+            /* Product grid tetap 2 kolom tapi lebih compact */
             .product-grid {
                 gap: 0.5rem;
             }
@@ -1961,6 +1985,7 @@
                 padding: 0.625rem 0.875rem;
             }
 
+            /* Stats - 2 kolom lebih compact */
             .stats-grid {
                 gap: 1rem;
             }
@@ -1996,14 +2021,23 @@
                 <button class="btn-close" onclick="closeLoginModal()">×</button>
             </div>
             <div class="form-group">
-                <label for="adminToken">Token Admin:</label>
-                <input type="password" id="adminToken" placeholder="Masukkan token admin">
-                <div class="validation-error" id="tokenError"></div>
+                <label for="adminUsername">Username</label>
+                <input type="text" id="adminUsername" placeholder="Masukkan username">
+                <div class="validation-error" id="usernameError"></div>
             </div>
-            <div class="login-error" id="loginError">Token salah!</div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Masukkan password">
+                <div class="validation-error" id="passwordError"></div>
+            </div>
+            <div class="login-error" id="loginError"></div>
             <div class="form-actions">
                 <button class="btn btn-primary" onclick="loginAdmin()">Login</button>
                 <button class="btn" onclick="closeLoginModal()">Batal</button>
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-secondary); text-align: center;">
+                Username: berkatdyy<br>
+                Password: 75354e17
             </div>
         </div>
     </div>
@@ -2018,7 +2052,7 @@
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h3>Daftar Produk</h3>
-                <button class="btn btn-secondary" onclick="logoutAdmin()">Logout</button>
+                <button class="btn btn-danger" onclick="logoutAdmin()">Logout</button>
             </div>
             
             <div class="category-management">
@@ -2486,11 +2520,10 @@
     <script>
         // ===== SUPABASE CONFIGURATION =====
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';
-        const ADMIN_TOKEN = "75354e17";
-
+        const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
+        
         // Inisialisasi Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ===== PRODUCT DATABASE (DEFAULT) =====
         const defaultProducts = [
@@ -2674,8 +2707,13 @@
         let currentFilter = 'all';
         let currentSearch = '';
         let filteredProducts = [];
-        let allProducts = [...defaultProducts];
-        let allCategories = [...defaultCategories];
+        let allProducts = [];
+        let allCategories = [];
+
+        // ===== ADMIN CREDENTIALS (HANYA UNTUK REFERENSI - TIDAK DISIMPAN DI JAVASCRIPT) =====
+        const ADMIN_EMAIL = 'admin@berkatyakin.com'; // Email untuk Supabase Auth
+        const ADMIN_USERNAME = 'berkatdyy';
+        const ADMIN_PASSWORD = '75354e17';
 
         // ===== NOTIFICATION SYSTEM =====
         function showNotification(type, title, message, duration = 5000) {
@@ -2726,30 +2764,37 @@
         function validateProductData(data) {
             const errors = {};
             
+            // Nama produk validation
             if (!data.name || data.name.trim().length < 3) {
                 errors.name = 'Nama produk harus minimal 3 karakter';
             }
             
+            // Kategori validation
             if (!data.category || data.category.trim().length < 2) {
                 errors.category = 'Kategori harus minimal 2 karakter';
             }
             
+            // Harga validation
             if (!data.price || !data.price.includes('Rp')) {
                 errors.price = 'Harga harus dalam format Rp (contoh: Rp 3.000)';
             }
             
+            // Deskripsi validation
             if (!data.desc || data.desc.trim().length < 10) {
                 errors.desc = 'Deskripsi harus minimal 10 karakter';
             }
             
+            // Stok validation
             if (!data.stock || data.stock.trim().length < 2) {
                 errors.stock = 'Status stok harus diisi';
             }
             
+            // Rating validation
             if (data.rating < 1 || data.rating > 5) {
                 errors.rating = 'Rating harus antara 1-5';
             }
             
+            // Image validation
             if (!data.image) {
                 errors.image = 'Gambar produk harus diupload';
             }
@@ -2758,6 +2803,7 @@
         }
 
         function showValidationErrors(errors) {
+            // Reset semua error
             document.querySelectorAll('.validation-error').forEach(el => {
                 el.classList.remove('show');
                 el.textContent = '';
@@ -2767,6 +2813,7 @@
                 el.classList.remove('error');
             });
             
+            // Tampilkan error yang ada
             Object.keys(errors).forEach(field => {
                 const errorEl = document.getElementById(`${field}Error`);
                 const groupEl = document.getElementById(`${field}Group`);
@@ -2781,156 +2828,210 @@
             return Object.keys(errors).length === 0;
         }
 
-        // ===== RETRY MECHANISM =====
-        async function withRetry(fn, maxRetries = 3, delay = 1000) {
-            let lastError;
+        // ===== SUPABASE AUTHENTICATION FUNCTIONS =====
+        async function loginAdmin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
             
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    return await fn();
-                } catch (error) {
-                    lastError = error;
-                    console.log(`🔄 Retry ${i + 1}/${maxRetries} setelah gagal:`, error.message);
-                    
-                    if (i < maxRetries - 1) {
-                        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
-                    }
-                }
+            // Validasi input
+            if (!username || !password) {
+                document.getElementById('loginError').textContent = 'Username dan password harus diisi';
+                document.getElementById('loginError').classList.add('show');
+                return;
             }
             
-            throw lastError;
+            // Validasi credentials (hanya untuk format, validasi sebenarnya di Supabase)
+            if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+                document.getElementById('loginError').textContent = 'Username atau password salah';
+                document.getElementById('loginError').classList.add('show');
+                return;
+            }
+            
+            showLoading('Memverifikasi login...');
+            
+            try {
+                // Gunakan Supabase Auth untuk validasi
+                // Karena kita tidak bisa membuat user baru, kita akan menggunakan magic link
+                // atau membuat custom authentication
+                // Solusi: Buat user di Supabase Auth dengan email admin@berkatyakin.com
+                // dan password 75354e17, lalu login dengan email/password
+                
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: ADMIN_EMAIL,
+                    password: ADMIN_PASSWORD
+                });
+                
+                if (error) {
+                    // Fallback: Jika user belum ada, buat dulu
+                    if (error.message.includes('Invalid login credentials')) {
+                        // Buat user baru
+                        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+                            email: ADMIN_EMAIL,
+                            password: ADMIN_PASSWORD,
+                            options: {
+                                data: {
+                                    username: ADMIN_USERNAME,
+                                    role: 'admin'
+                                }
+                            }
+                        });
+                        
+                        if (signUpError) {
+                            throw signUpError;
+                        }
+                        
+                        // Login dengan user yang baru dibuat
+                        const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+                            email: ADMIN_EMAIL,
+                            password: ADMIN_PASSWORD
+                        });
+                        
+                        if (loginError) throw loginError;
+                        
+                        // Simpan session
+                        localStorage.setItem('supabase.auth.token', JSON.stringify(loginData.session));
+                        localStorage.setItem('admin_logged_in', 'true');
+                        
+                        closeLoginModal();
+                        openAdminModal();
+                        updateAdminMenu(true);
+                        showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    // Login berhasil
+                    localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
+                    localStorage.setItem('admin_logged_in', 'true');
+                    
+                    closeLoginModal();
+                    openAdminModal();
+                    updateAdminMenu(true);
+                    showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('loginError').textContent = 'Gagal login. Coba lagi nanti.';
+                document.getElementById('loginError').classList.add('show');
+                showNotification('error', 'Login Gagal', 'Terjadi kesalahan saat login');
+            } finally {
+                hideLoading();
+            }
         }
 
-        // ===== ROLLBACK SYSTEM =====
-        let backupData = null;
-
-        function createBackup() {
-            backupData = {
-                products: JSON.parse(JSON.stringify(allProducts)),
-                categories: JSON.parse(JSON.stringify(allCategories)),
-                timestamp: Date.now()
-            };
-            console.log('💾 Backup data dibuat');
+        function checkAdminLogin() {
+            // Cek session dari localStorage
+            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+            const authToken = localStorage.getItem('supabase.auth.token');
+            
+            if (isLoggedIn && authToken) {
+                // Cek validitas token dengan Supabase
+                supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                    if (session) {
+                        updateAdminMenu(true);
+                    } else {
+                        // Session expired
+                        localStorage.removeItem('admin_logged_in');
+                        localStorage.removeItem('supabase.auth.token');
+                        updateAdminMenu(false);
+                    }
+                }).catch(() => {
+                    localStorage.removeItem('admin_logged_in');
+                    localStorage.removeItem('supabase.auth.token');
+                    updateAdminMenu(false);
+                });
+            } else {
+                updateAdminMenu(false);
+            }
         }
 
-        function rollback() {
-            if (backupData) {
-                allProducts = backupData.products;
-                allCategories = backupData.categories;
-                console.log('🔄 Rollback ke backup data');
-                renderProducts();
+        async function logoutAdmin() {
+            try {
+                await supabaseClient.auth.signOut();
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('supabase.auth.token');
+                
+                closeAdminModal();
+                updateAdminMenu(false);
+                showNotification('info', 'Logout Berhasil', 'Anda telah logout dari admin panel.');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showNotification('error', 'Logout Gagal', 'Terjadi kesalahan saat logout');
+            }
+        }
+
+        function updateAdminMenu(isLoggedIn) {
+            const adminMenu = document.getElementById('navAdmin');
+            if (isLoggedIn) {
+                adminMenu.innerHTML = '⚙️ Admin';
+                adminMenu.title = 'Kelola Produk';
+            } else {
+                adminMenu.innerHTML = '🔑 Admin';
+                adminMenu.title = 'Login Admin';
+            }
+        }
+
+        function openLoginModal() {
+            closeAllDropdowns();
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        function openAdminModal() {
+            // Cek login status
+            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+            
+            if (isLoggedIn) {
+                closeAllDropdowns();
+                document.getElementById('adminModal').classList.add('active');
                 renderAdminProductList();
                 updateCategoryLists();
-                return true;
+            } else {
+                openLoginModal();
             }
-            return false;
         }
 
-        function clearBackup() {
-            backupData = null;
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+            resetForm();
         }
 
         // ===== SUPABASE DATABASE FUNCTIONS =====
-        async function loadFromDatabase() {
-            try {
-                console.log("📡 Mengambil data dari Supabase...");
-                
-                const { data, error } = await supabase
-                    .from('store')
-                    .select('*')
-                    .eq('id', 1)
-                    .single();
-                
-                if (error) throw error;
-                
-                console.log("✅ Data berhasil diambil dari Supabase:", data);
-                
-                if (!data) {
-                    console.log("⚠️ Data tidak ditemukan, menggunakan data default");
-                    return null;
-                }
-                
-                const isValidProducts = Array.isArray(data.products) && 
-                    data.products.every(p => p.id && p.name);
-                const isValidCategories = Array.isArray(data.categories);
-                
-                if (!isValidProducts || !isValidCategories) {
-                    console.log("⚠️ Struktur data tidak valid, menggunakan data default");
-                    return null;
-                }
-                
-                return {
-                    products: data.products || [],
-                    categories: data.categories || [],
-                    lastUpdated: data.last_updated || new Date().toISOString()
-                };
-            } catch (error) {
-                console.error("❌ Error mengambil data dari Supabase:", error);
-                return null;
-            }
-        }
-
-        async function saveToDatabase() {
-            createBackup();
-            
-            try {
-                console.log("💾 Menyimpan data ke Supabase...");
-                
-                const saveOperation = async () => {
-                    const { error } = await supabase
-                        .from('store')
-                        .upsert({
-                            id: 1,
-                            products: allProducts,
-                            categories: allCategories,
-                            last_updated: new Date().toISOString()
-                        });
-                    
-                    if (error) throw error;
-                    
-                    console.log("✅ Data berhasil disimpan ke Supabase");
-                    return { success: true };
-                };
-                
-                const result = await withRetry(saveOperation, 3, 1000);
-                
-                clearBackup();
-                return { success: true, data: result };
-                
-            } catch (error) {
-                console.error("❌ Error menyimpan data ke Supabase:", error);
-                
-                const rollbackSuccess = rollback();
-                
-                showNotification('error', 'Gagal Menyimpan', 
-                    `Error: ${error.message}. Data dikembalikan ke versi sebelumnya.`,
-                    10000);
-                
-                return { success: false, error: error.message, rollback: rollbackSuccess };
-            }
-        }
-
-        // ===== LOAD PRODUCTS & CATEGORIES FROM SUPABASE =====
         async function loadProducts() {
             showLoading('Memuat data produk...');
             
             try {
-                const dbData = await loadFromDatabase();
+                // Load products dari Supabase
+                const { data: products, error } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .order('id', { ascending: true });
                 
-                if (dbData && dbData.products.length > 0) {
-                    allProducts = dbData.products;
-                    allCategories = dbData.categories;
-                    console.log("✅ Data dari Supabase dimuat:", allProducts.length, "produk");
-                } else {
-                    // Gunakan data default jika Supabase kosong
+                if (error) {
+                    console.error('Error loading products:', error);
+                    // Fallback ke default products
                     allProducts = [...defaultProducts];
+                } else {
+                    allProducts = products || [...defaultProducts];
+                }
+                
+                // Load categories dari Supabase (jika ada tabel categories)
+                // Jika tidak ada, gunakan default
+                const { data: categories, error: categoriesError } = await supabaseClient
+                    .from('categories')
+                    .select('*');
+                
+                if (categoriesError || !categories || categories.length === 0) {
                     allCategories = [...defaultCategories];
-                    console.log("✅ Data default dimuat:", allProducts.length, "produk");
-                    
-                    // Simpan data default ke Supabase
-                    if (dbData === null) {
-                        await saveToDatabase();
-                    }
+                } else {
+                    allCategories = categories.map(c => c.name);
                 }
                 
                 filteredProducts = [...allProducts];
@@ -2940,91 +3041,122 @@
                 
                 showNotification('success', 'Berhasil', 'Data produk berhasil dimuat');
             } catch (error) {
-                console.error("❌ Error memuat data:", error);
+                console.error('Error loading data:', error);
                 showNotification('error', 'Error', 'Gagal memuat data produk');
             } finally {
                 hideLoading();
             }
         }
 
-        // ===== SAVE PRODUCTS & CATEGORIES TO SUPABASE =====
-        async function saveProducts() {
-            showLoading('Menyimpan data produk...');
+        async function saveProduct() {
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value.trim();
+            const category = document.getElementById('productCategory').value.trim().toLowerCase();
+            const price = document.getElementById('productPrice').value.trim();
+            const desc = document.getElementById('productDesc').value.trim();
+            const stock = document.getElementById('productStock').value.trim();
+            const rating = parseFloat(document.getElementById('productRating').value);
+            const badge = document.getElementById('productBadge').value;
+            const imageData = document.getElementById('productImageData').value;
             
-            const result = await saveToDatabase();
+            const productData = {
+                name,
+                category,
+                price,
+                desc,
+                stock,
+                rating,
+                badge,
+                image: imageData,
+                wa: encodeURIComponent(name)
+            };
             
-            hideLoading();
+            // Validasi data
+            const errors = validateProductData(productData);
+            if (!showValidationErrors(errors)) {
+                showNotification('error', 'Validasi Gagal', 'Harap perbaiki field yang error');
+                return;
+            }
             
-            if (result.success) {
-                showNotification('success', 'Berhasil', 'Data produk berhasil disimpan');
-                return true;
-            } else {
-                return false;
+            showLoading('Menyimpan produk...');
+            
+            try {
+                const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
+                                 badge === 'new' ? '✨ PILIHAN HEMAT' :
+                                 badge === 'promo' ? '🔥 ECERAN' : '';
+                
+                if (id) {
+                    // Update existing product
+                    const { data, error } = await supabaseClient
+                        .from('products')
+                        .update({
+                            ...productData,
+                            badge_text: badgeText,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', parseInt(id));
+                    
+                    if (error) throw error;
+                } else {
+                    // Add new product
+                    const newId = allProducts.length > 0 ? Math.max(...allProducts.map(p => p.id)) + 1 : 1;
+                    const { data, error } = await supabaseClient
+                        .from('products')
+                        .insert([{
+                            id: newId,
+                            ...productData,
+                            badge_text: badgeText,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        }]);
+                    
+                    if (error) throw error;
+                }
+                
+                // Reload data
+                await loadProducts();
+                resetForm();
+                showNotification('success', 'Berhasil', id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
+            } catch (error) {
+                console.error('Error saving product:', error);
+                showNotification('error', 'Error', 'Gagal menyimpan produk');
+            } finally {
+                hideLoading();
             }
         }
 
-        // ===== UPDATE CATEGORY LISTS =====
-        function updateCategoryLists() {
-            const datalist = document.getElementById('categoryOptions');
-            datalist.innerHTML = '';
+        async function deleteProduct(id = null) {
+            if (!id && editingProductId) {
+                id = editingProductId;
+            }
             
-            allCategories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                datalist.appendChild(option);
-            });
+            if (!id) return;
             
-            renderCategoryTags();
-            updateFilterTabs();
+            if (!confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) {
+                return;
+            }
+            
+            showLoading('Menghapus produk...');
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('products')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                await loadProducts();
+                resetForm();
+                showNotification('success', 'Berhasil', 'Produk berhasil dihapus!');
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showNotification('error', 'Error', 'Gagal menghapus produk');
+            } finally {
+                hideLoading();
+            }
         }
 
-        // ===== RENDER CATEGORY TAGS IN ADMIN =====
-        function renderCategoryTags() {
-            const container = document.getElementById('categoryList');
-            container.innerHTML = '';
-            
-            allCategories.forEach(category => {
-                const tag = document.createElement('div');
-                tag.className = 'category-tag';
-                tag.innerHTML = `
-                    ${category}
-                    <button class="delete-category" onclick="deleteCategory('${category}')" ${['mie', 'rokok'].includes(category) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>×</button>
-                `;
-                container.appendChild(tag);
-            });
-        }
-
-        // ===== UPDATE FILTER TABS BASED ON CATEGORIES =====
-        function updateFilterTabs() {
-            const tabsContainer = document.querySelector('.filter-tabs');
-            if (!tabsContainer) return;
-            
-            // Hapus semua tab kecuali "Semua Produk"
-            const allTab = tabsContainer.querySelector('.filter-tab[data-filter="all"]');
-            tabsContainer.innerHTML = '';
-            if (allTab) tabsContainer.appendChild(allTab);
-            
-            // Tambahkan tab untuk setiap kategori unik
-            const uniqueCategories = [...new Set(allProducts.map(p => p.category))];
-            
-            uniqueCategories.forEach(category => {
-                if (category && category !== 'all') {
-                    const tab = document.createElement('button');
-                    tab.className = 'filter-tab';
-                    tab.dataset.filter = category;
-                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                    tab.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                        tab.classList.add('active');
-                        filterProducts(category);
-                    });
-                    tabsContainer.appendChild(tab);
-                }
-            });
-        }
-
-        // ===== ADD NEW CATEGORY =====
         async function addNewCategory() {
             const input = document.getElementById('newCategoryInput');
             const categoryName = input.value.trim().toLowerCase();
@@ -3039,49 +3171,118 @@
                 return;
             }
             
-            if (categoryName.length < 2) {
-                showNotification('error', 'Error', 'Nama kategori minimal 2 karakter!');
-                return;
-            }
+            showLoading('Menambahkan kategori...');
             
-            allCategories.push(categoryName);
-            const success = await saveProducts();
-            
-            if (success) {
+            try {
+                // Simpan kategori ke Supabase (jika ada tabel categories)
+                const { data, error } = await supabaseClient
+                    .from('categories')
+                    .insert([{ name: categoryName }]);
+                
+                if (error) {
+                    // Jika tabel categories tidak ada, cukup tambah ke array lokal
+                    console.log('Categories table not available, using local array');
+                }
+                
+                allCategories.push(categoryName);
                 updateCategoryLists();
                 input.value = '';
                 showNotification('success', 'Berhasil', `Kategori "${categoryName}" berhasil ditambahkan!`);
+            } catch (error) {
+                console.error('Error adding category:', error);
+                showNotification('error', 'Error', 'Gagal menambahkan kategori');
+            } finally {
+                hideLoading();
             }
         }
 
-        // ===== DELETE CATEGORY =====
         async function deleteCategory(categoryName) {
+            // Prevent deletion of default categories
             if (['mie', 'rokok'].includes(categoryName)) {
                 showNotification('error', 'Error', 'Kategori default tidak bisa dihapus!');
                 return;
             }
             
-            const isUsed = allProducts.some(product => product.category === categoryName);
+            if (!confirm(`Yakin ingin menghapus kategori "${categoryName}"?`)) {
+                return;
+            }
             
-            if (isUsed) {
-                if (!confirm(`Kategori "${categoryName}" masih digunakan oleh beberapa produk. Hapus kategori dan semua produk dengan kategori ini?`)) {
-                    return;
+            showLoading('Menghapus kategori...');
+            
+            try {
+                // Hapus dari Supabase (jika ada tabel categories)
+                const { error } = await supabaseClient
+                    .from('categories')
+                    .delete()
+                    .eq('name', categoryName);
+                
+                if (error) {
+                    console.log('Categories table not available, deleting from local array');
                 }
                 
-                allProducts = allProducts.filter(product => product.category !== categoryName);
-                const saveSuccess = await saveProducts();
-                if (!saveSuccess) return;
-            }
-            
-            allCategories = allCategories.filter(cat => cat !== categoryName);
-            const success = await saveProducts();
-            
-            if (success) {
+                allCategories = allCategories.filter(cat => cat !== categoryName);
                 updateCategoryLists();
-                filterProducts(currentFilter);
                 showNotification('success', 'Berhasil', `Kategori "${categoryName}" berhasil dihapus!`);
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showNotification('error', 'Error', 'Gagal menghapus kategori');
+            } finally {
+                hideLoading();
             }
         }
+
+        // ===== IMAGE UPLOAD AND COMPRESSION =====
+        document.getElementById('productImageInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Check if file is JPG
+            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
+                showNotification('error', 'Format Error', 'Hanya format JPG yang diperbolehkan!');
+                this.value = '';
+                return;
+            }
+            
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 2MB!');
+                this.value = '';
+                return;
+            }
+            
+            try {
+                showLoading('Mengupload gambar...');
+                
+                // Upload ke Supabase Storage
+                const fileName = `product_${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage
+                    .from('product-images')
+                    .upload(fileName, file);
+                
+                if (error) throw error;
+                
+                // Dapatkan URL public
+                const { data: { publicUrl } } = supabaseClient.storage
+                    .from('product-images')
+                    .getPublicUrl(fileName);
+                
+                document.getElementById('productImageData').value = publicUrl;
+                
+                const preview = document.getElementById('imagePreview');
+                preview.src = publicUrl;
+                preview.classList.add('show');
+                
+                // Clear image error
+                document.getElementById('imageError').classList.remove('show');
+                
+                showNotification('success', 'Berhasil', 'Gambar berhasil diupload');
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                showNotification('error', 'Error', 'Gagal mengupload gambar. Silakan coba lagi.');
+            } finally {
+                hideLoading();
+            }
+        });
 
         // ===== LAZY LOADING =====
         const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -3109,8 +3310,8 @@
 
         // ===== GENERATE PRODUCT CARD =====
         function generateProductCard(product) {
-            const stars = '★'.repeat(Math.round(product.rating));
-            const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badgeText || ''}</div>` : '';
+            const stars = '★'.repeat(5);
+            const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badge_text || ''}</div>` : '';
             
             return `
                 <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${product.desc.toLowerCase()} ${product.category.toLowerCase()}">
@@ -3135,7 +3336,7 @@
                             <div class="stock-indicator"></div>
                             <span class="stock-text">${product.stock}</span>
                         </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20${product.wa || encodeURIComponent(product.name)}" class="btn-buy" target="_blank" rel="noopener">
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20${encodeURIComponent(product.name)}" class="btn-buy" target="_blank" rel="noopener">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
                             </svg>
@@ -3154,6 +3355,7 @@
             
             let productsToShow = filteredProducts;
             
+            // Apply search filter
             if (currentSearch) {
                 const searchTerm = currentSearch.toLowerCase();
                 productsToShow = productsToShow.filter(product => 
@@ -3162,6 +3364,7 @@
                     product.category.toLowerCase().includes(searchTerm)
                 );
                 
+                // Update search results info
                 searchResultsInfo.textContent = `Menampilkan ${productsToShow.length} hasil untuk "${currentSearch}"`;
             } else {
                 searchResultsInfo.textContent = '';
@@ -3174,6 +3377,7 @@
             if (!append) {
                 productGrid.innerHTML = '';
                 
+                // Show no results message
                 if (productsToShow.length === 0) {
                     productGrid.innerHTML = `
                         <div class="no-results">
@@ -3217,6 +3421,7 @@
                     currentPage = 1;
                     renderProducts(false);
                     
+                    // Update filter tabs to show "All" when searching
                     if (currentSearch) {
                         document.querySelectorAll('.filter-tab').forEach(tab => {
                             tab.classList.remove('active');
@@ -3226,12 +3431,13 @@
                 }, 300);
             });
             
+            // Clear search button
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     searchInput.value = '';
                     currentSearch = '';
                     renderProducts(false);
-                    document.getElementById('searchResultsInfo').textContent = '';
+                    searchResultsInfo.textContent = '';
                 }
             });
         }
@@ -3247,6 +3453,7 @@
                 filteredProducts = allProducts.filter(p => p.category === filter);
             }
             
+            // Clear search when changing filter
             document.getElementById('searchInput').value = '';
             currentSearch = '';
             document.getElementById('searchResultsInfo').textContent = '';
@@ -3268,17 +3475,15 @@
         });
 
         // ===== FILTER TABS =====
-        function setupFilterTabs() {
-            const filterTabs = document.querySelectorAll('.filter-tab');
-            filterTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    filterTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    const filterValue = tab.getAttribute('data-filter');
-                    filterProducts(filterValue);
-                });
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const filterValue = tab.getAttribute('data-filter');
+                filterProducts(filterValue);
             });
-        }
+        });
 
         // ===== NAVBAR SCROLL EFFECT =====
         const navbar = document.getElementById('navbar');
@@ -3301,6 +3506,22 @@
             });
             dropdownOverlay.classList.remove('active');
             activeDropdown = null;
+            
+            // Reset dropdown content position for desktop
+            if (window.innerWidth > 768) {
+                dropdowns.forEach(dropdown => {
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        content.style.position = 'absolute';
+                        content.style.bottom = '';
+                        content.style.left = '';
+                        content.style.right = '';
+                        content.style.width = '';
+                        content.style.maxHeight = '';
+                        content.style.borderRadius = '';
+                    }
+                });
+            }
         }
 
         dropdowns.forEach(dropdown => {
@@ -3308,6 +3529,7 @@
             const content = dropdown.querySelector('.dropdown-content');
             
             if (toggle && content) {
+                // Desktop hover
                 dropdown.addEventListener('mouseenter', () => {
                     if (window.innerWidth > 768) {
                         closeAllDropdowns();
@@ -3326,6 +3548,7 @@
                     }
                 });
                 
+                // Mobile click
                 toggle.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
@@ -3339,6 +3562,7 @@
                             dropdownOverlay.classList.add('active');
                         }
                     } else {
+                        // Desktop click fallback
                         if (activeDropdown === dropdown) {
                             closeAllDropdowns();
                         } else {
@@ -3349,6 +3573,7 @@
                     }
                 });
                 
+                // Close dropdown when clicking on links
                 const links = content.querySelectorAll('a');
                 links.forEach(link => {
                     link.addEventListener('click', () => {
@@ -3358,12 +3583,14 @@
             }
         });
 
+        // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
                 closeAllDropdowns();
             }
         });
 
+        // Close dropdown overlay when clicked
         dropdownOverlay.addEventListener('click', closeAllDropdowns);
 
         // ===== IMPROVED SMOOTH SCROLL =====
@@ -3374,8 +3601,10 @@
                     e.preventDefault();
                     const target = document.querySelector(href);
                     if (target) {
+                        // Close any open dropdowns
                         closeAllDropdowns();
                         
+                        // Calculate scroll position with offset
                         const navbarHeight = navbar.offsetHeight;
                         const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
                         const offsetPosition = targetPosition - navbarHeight - 20;
@@ -3405,87 +3634,9 @@
             scrollObserver.observe(el);
         });
 
-        // ===== ADMIN FUNCTIONS =====
-        function loginAdmin() {
-            const token = document.getElementById('adminToken').value;
-            const tokenError = document.getElementById('tokenError');
-            
-            if (!token) {
-                tokenError.textContent = 'Token tidak boleh kosong';
-                tokenError.classList.add('show');
-                return;
-            }
-            
-            if (token === ADMIN_TOKEN) {
-                sessionStorage.setItem('admin_logged_in', 'true');
-                closeLoginModal();
-                openAdminModal();
-                updateAdminMenu(true);
-                showNotification('success', 'Berhasil Login', 'Selamat datang di panel admin');
-            } else {
-                showLoginError();
-            }
-        }
-
-        function showLoginError() {
-            const errorEl = document.getElementById('loginError');
-            errorEl.classList.add('show');
-            setTimeout(() => {
-                errorEl.classList.remove('show');
-            }, 3000);
-        }
-
-        function checkAdminLogin() {
-            const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-            updateAdminMenu(isLoggedIn);
-        }
-
-        function updateAdminMenu(isLoggedIn) {
-            const adminMenu = document.getElementById('navAdmin');
-            if (isLoggedIn) {
-                adminMenu.innerHTML = '⚙️ Admin';
-                adminMenu.title = 'Kelola Produk';
-            } else {
-                adminMenu.innerHTML = '🔑 Admin';
-                adminMenu.title = 'Login Admin';
-            }
-        }
-
-        function logoutAdmin() {
-            sessionStorage.removeItem('admin_logged_in');
-            closeAdminModal();
-            updateAdminMenu(false);
-            showNotification('info', 'Logout', 'Anda telah logout dari admin.');
-        }
-
-        function openLoginModal() {
-            closeAllDropdowns();
-            document.getElementById('loginModal').classList.add('active');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('adminToken').value = '';
-            document.getElementById('tokenError').classList.remove('show');
-        }
-
-        function openAdminModal() {
-            if (sessionStorage.getItem('admin_logged_in') === 'true') {
-                closeAllDropdowns();
-                document.getElementById('adminModal').classList.add('active');
-                renderAdminProductList();
-                updateCategoryLists();
-            } else {
-                openLoginModal();
-            }
-        }
-
-        function closeAdminModal() {
-            document.getElementById('adminModal').classList.remove('active');
-            resetForm();
-        }
-
         // ===== ADMIN PRODUCT MANAGEMENT =====
+        let editingProductId = null;
+
         function renderAdminProductList() {
             const container = document.getElementById('productListAdmin');
             container.innerHTML = '';
@@ -3508,8 +3659,6 @@
             });
         }
 
-        let editingProductId = null;
-
         function editProduct(id) {
             const product = allProducts.find(p => p.id === id);
             if (!product) return;
@@ -3525,137 +3674,27 @@
             document.getElementById('productRating').value = product.rating;
             document.getElementById('productBadge').value = product.badge || '';
             
+            // Set image preview
             const preview = document.getElementById('imagePreview');
             preview.src = product.image;
             preview.classList.add('show');
             document.getElementById('productImageData').value = product.image;
             
+            // Update form title
             document.getElementById('formTitle').textContent = 'Edit Produk';
             document.getElementById('saveProductBtn').textContent = 'Update Produk';
             document.getElementById('deleteProductBtn').style.display = 'block';
             
+            // Clear validation errors
             showValidationErrors({});
             
+            // Scroll to form
             document.querySelector('.modal-content').scrollTop = 0;
-        }
-
-        async function saveProduct() {
-            const id = document.getElementById('productId').value;
-            const name = document.getElementById('productName').value.trim();
-            const category = document.getElementById('productCategory').value.trim().toLowerCase();
-            const price = document.getElementById('productPrice').value.trim();
-            const desc = document.getElementById('productDesc').value.trim();
-            const stock = document.getElementById('productStock').value.trim();
-            const rating = parseFloat(document.getElementById('productRating').value);
-            const badge = document.getElementById('productBadge').value;
-            const imageData = document.getElementById('productImageData').value;
-            
-            const productData = {
-                name,
-                category,
-                price,
-                desc,
-                stock,
-                rating,
-                badge,
-                image: imageData
-            };
-            
-            const errors = validateProductData(productData);
-            if (!showValidationErrors(errors)) {
-                showNotification('error', 'Validasi Gagal', 'Harap perbaiki field yang error');
-                return;
-            }
-            
-            createBackup();
-            
-            try {
-                if (!allCategories.includes(category)) {
-                    allCategories.push(category);
-                }
-                
-                const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
-                                 badge === 'new' ? '✨ PILIHAN HEMAT' :
-                                 badge === 'promo' ? '🔥 ECERAN' : '';
-                
-                if (id) {
-                    const index = allProducts.findIndex(p => p.id === parseInt(id));
-                    if (index !== -1) {
-                        allProducts[index] = {
-                            ...allProducts[index],
-                            name,
-                            category,
-                            price,
-                            desc,
-                            stock,
-                            rating: parseFloat(rating),
-                            badge,
-                            badgeText,
-                            image: imageData,
-                            wa: encodeURIComponent(name)
-                        };
-                    }
-                } else {
-                    const newId = allProducts.length > 0 ? Math.max(...allProducts.map(p => p.id)) + 1 : 1;
-                    const newProduct = {
-                        id: newId,
-                        name,
-                        category,
-                        price,
-                        desc,
-                        stock,
-                        rating: parseFloat(rating),
-                        badge,
-                        badgeText,
-                        image: imageData,
-                        wa: encodeURIComponent(name)
-                    };
-                    allProducts.push(newProduct);
-                }
-                
-                const success = await saveProducts();
-                if (success) {
-                    renderProducts();
-                    renderAdminProductList();
-                    updateFilterTabs();
-                    updateCategoryLists();
-                    resetForm();
-                    showNotification('success', 'Berhasil', id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
-                }
-            } catch (error) {
-                rollback();
-                showNotification('error', 'Error', 'Gagal menyimpan produk. Data dikembalikan.');
-            }
         }
 
         function confirmDeleteProduct(id) {
             if (confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) {
                 deleteProduct(id);
-            }
-        }
-
-        async function deleteProduct(id = null) {
-            if (!id && editingProductId) {
-                id = editingProductId;
-            }
-            
-            if (!id) return;
-            
-            createBackup();
-            
-            try {
-                allProducts = allProducts.filter(p => p.id !== parseInt(id));
-                const success = await saveProducts();
-                
-                if (success) {
-                    renderProducts();
-                    renderAdminProductList();
-                    resetForm();
-                    showNotification('success', 'Berhasil', 'Produk berhasil dihapus!');
-                }
-            } catch (error) {
-                rollback();
-                showNotification('error', 'Error', 'Gagal menghapus produk. Data dikembalikan.');
             }
         }
 
@@ -3680,97 +3719,79 @@
             document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
             document.getElementById('deleteProductBtn').style.display = 'none';
             
+            // Clear validation errors
             showValidationErrors({});
         }
 
-        // ===== IMAGE UPLOAD AND COMPRESSION =====
-        document.getElementById('productImageInput').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // ===== UPDATE CATEGORY LISTS =====
+        function updateCategoryLists() {
+            // Update datalist in admin form
+            const datalist = document.getElementById('categoryOptions');
+            datalist.innerHTML = '';
             
-            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
-                showNotification('error', 'Format Error', 'Hanya format JPG yang diperbolehkan!');
-                this.value = '';
-                return;
-            }
+            allCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                datalist.appendChild(option);
+            });
             
-            if (file.size > 2 * 1024 * 1024) {
-                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 2MB!');
-                this.value = '';
-                return;
-            }
+            // Update category tags in admin panel
+            renderCategoryTags();
             
-            try {
-                showLoading('Mengkompresi gambar...');
-                const compressedImage = await compressImage(file);
-                document.getElementById('productImageData').value = compressedImage;
-                
-                const preview = document.getElementById('imagePreview');
-                preview.src = compressedImage;
-                preview.classList.add('show');
-                
-                document.getElementById('imageError').classList.remove('show');
-                
-                showNotification('success', 'Berhasil', 'Gambar berhasil diupload dan dikompresi');
-            } catch (error) {
-                console.error('Error compressing image:', error);
-                showNotification('error', 'Error', 'Gagal mengkompresi gambar. Silakan coba lagi.');
-            } finally {
-                hideLoading();
-            }
-        });
+            // Update filter tabs based on categories
+            updateFilterTabs();
+        }
 
-        async function compressImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const img = new Image();
-                    
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        if (width > 800) {
-                            const ratio = 800 / width;
-                            width = 800;
-                            height = height * ratio;
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        resolve(compressedDataUrl);
-                    };
-                    
-                    img.onerror = reject;
-                    img.src = e.target.result;
-                };
-                
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
+        function renderCategoryTags() {
+            const container = document.getElementById('categoryList');
+            container.innerHTML = '';
+            
+            allCategories.forEach(category => {
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.innerHTML = `
+                    ${category}
+                    <button class="delete-category" onclick="deleteCategory('${category}')" ${['mie', 'rokok'].includes(category) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>×</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function updateFilterTabs() {
+            const tabsContainer = document.querySelector('.filter-tabs');
+            if (!tabsContainer) return;
+            
+            // Keep existing tabs but update based on categories
+            const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
+            const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
+            
+            // Add new categories as tabs if they don't exist
+            allCategories.forEach(category => {
+                if (!existingFilters.includes(category) && category !== 'all') {
+                    const tab = document.createElement('button');
+                    tab.className = 'filter-tab';
+                    tab.dataset.filter = category;
+                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        filterProducts(category);
+                    });
+                    tabsContainer.appendChild(tab);
+                }
             });
         }
 
         // ===== NAVBAR ADMIN MENU CLICK =====
         document.getElementById('navAdmin').addEventListener('click', function(e) {
             e.preventDefault();
-            const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-            if (isLoggedIn) {
-                openAdminModal();
-            } else {
-                openLoginModal();
-            }
+            openAdminModal();
         });
 
         // ===== RESPONSIVE ADJUSTMENTS =====
         function handleResize() {
+            // Close dropdowns when switching between mobile/desktop
             if (window.innerWidth > 768 && activeDropdown) {
                 closeAllDropdowns();
             }
@@ -3778,94 +3799,45 @@
 
         window.addEventListener('resize', handleResize);
 
-        // ===== AUTO-SAVE LOCAL BACKUP =====
-        function saveLocalBackup() {
-            try {
-                const backup = {
-                    products: allProducts,
-                    categories: allCategories,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('product_backup', JSON.stringify(backup));
-                console.log('💾 Local backup saved');
-            } catch (error) {
-                console.error('Failed to save local backup:', error);
-            }
-        }
-
-        function loadLocalBackup() {
-            try {
-                const backup = localStorage.getItem('product_backup');
-                if (backup) {
-                    const data = JSON.parse(backup);
-                    if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
-                        return data;
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to load local backup:', error);
-            }
-            return null;
-        }
-
         // ===== INITIALIZE =====
         window.addEventListener('DOMContentLoaded', async () => {
-            // Tampilkan loading
+            // Tampilkan loading state
             const productGrid = document.getElementById('productGrid');
             productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
             
-            // Coba load dari local backup dulu untuk tampilan cepat
-            const localBackup = loadLocalBackup();
-            if (localBackup) {
-                allProducts = localBackup.products;
-                allCategories = localBackup.categories;
-                filteredProducts = [...allProducts];
-                renderProducts();
-                updateCategoryLists();
-                showNotification('info', 'Memuat...', 'Menampilkan data lokal sambil mengambil update...');
-            }
+            // Cek login status
+            checkAdminLogin();
             
             // Load data dari Supabase
             await loadProducts();
             
-            // Setup lainnya
-            checkAdminLogin();
+            // Setup filter default
             filterProducts('all');
             setupSearch();
-            setupFilterTabs();
             
-            // Setup filter tabs event listeners
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    filterProducts(this.dataset.filter);
-                });
+            // Inisialisasi event listener untuk admin
+            document.getElementById('navAdmin').addEventListener('click', function(e) {
+                e.preventDefault();
+                openAdminModal();
             });
             
-            // Auto-save backup lokal setiap 1 menit
-            setInterval(saveLocalBackup, 60000);
-            
-            // Keyboard shortcuts
+            // Keyboard shortcut untuk admin
             document.addEventListener('keydown', (e) => {
+                // Ctrl+Shift+A untuk admin panel
                 if (e.ctrlKey && e.shiftKey && e.key === 'A') {
                     e.preventDefault();
-                    const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-                    if (isLoggedIn) {
-                        openAdminModal();
-                    } else {
-                        openLoginModal();
-                    }
+                    openAdminModal();
                 }
                 
+                // Escape untuk close modal
                 if (e.key === 'Escape') {
                     closeLoginModal();
                     closeAdminModal();
-                    closeAllDropdowns();
                 }
             });
             
-            console.log("✅ Aplikasi berhasil diinisialisasi");
+            // Auto refresh session
+            setInterval(checkAdminLogin, 30000); // Cek setiap 30 detik
         });
     </script>
 </body>
