@@ -2132,7 +2132,7 @@
                         Max 800px width, format JPG
                     </div>
                 </div>
-                <input type="file" id="productImageInput" accept="image/jpeg,image/jpg" style="display: none;">
+                <input type="file" id="productImageInput" accept="image/jpeg,image/jpg,image/png" style="display: none;">
                 <img id="imagePreview" class="image-preview" alt="Preview">
                 <div class="validation-error" id="imageError"></div>
             </div>
@@ -2523,180 +2523,17 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
         
         // Inisialisasi Supabase client
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: false
+            }
+        });
 
         // ===== PRODUCT DATABASE (DEFAULT) =====
-        const defaultProducts = [
-            {
-                id: 1,
-                category: 'mie',
-                badge: 'bestseller',
-                badgeText: '🏆 BEST SELLER',
-                image: 'indomie-soto-banjar.png',
-                name: 'Indomie Soto Banjar',
-                desc: 'Mi instan khas Banjarmasin dengan rasa soto yang otentik dan bumbu lengkap',
-                rating: 4.9,
-                price: 'Rp 3.000',
-                stock: 'Stok Tersedia',
-                wa: 'Indomie%20Soto%20Banjar'
-            },
-            {
-                id: 2,
-                category: 'mie',
-                badge: 'bestseller',
-                badgeText: '🏆 BEST SELLER',
-                image: 'indomie-soto-limau.png',
-                name: 'Indomie Soto Banjar Limau Kuit',
-                desc: 'Varian terbaru! Soto Banjar dengan sensasi segar jeruk limau kuit yang khas',
-                rating: 4.9,
-                price: 'Rp 3.000',
-                stock: 'Stok Tersedia',
-                wa: 'Indomie%20Soto%20Banjar%20Limau%20Kuit'
-            },
-            {
-                id: 3,
-                category: 'mie',
-                badge: 'bestseller',
-                badgeText: '🏆 BEST SELLER',
-                image: 'indomie-goreng.png',
-                name: 'Indomie Mi Goreng',
-                desc: 'Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat',
-                rating: 5.0,
-                price: 'Rp 3.000',
-                stock: 'Stok Melimpah',
-                wa: 'Indomie%20Mi%20Goreng'
-            },
-            {
-                id: 4,
-                category: 'mie',
-                badge: 'bestseller',
-                badgeText: '🏆 BEST SELLER',
-                image: 'mie-sakura-goreng.png',
-                name: 'Sakura Goreng',
-                desc: 'Mi goreng favorit Indonesia dengan bumbu kecap manis yang khas dan lezat',
-                rating: 5.0,
-                price: 'Rp 2.000',
-                stock: 'Stok Melimpah',
-                wa: 'Sakura%20Mi%20Goreng'
-            },
-            {
-                id: 5,
-                category: 'mie',
-                badge: 'bestseller',
-                badgeText: '🏆 BEST SELLER',
-                image: 'mie-sakura-soto.png',
-                name: 'Sakura Soto',
-                desc: 'Mi Soto favorit Indonesia dengan yang khas dan lezat',
-                rating: 5.0,
-                price: 'Rp 2.000',
-                stock: 'Stok Melimpah',
-                wa: 'Sakura%20Mi%20Soto'
-            },
-            {
-                id: 6,
-                category: 'mie',
-                badge: 'new',
-                badgeText: '✨ PILIHAN HEMAT',
-                image: 'sarimi-ayam-kecap.png',
-                name: 'Sarimi Isi 2 - Ayam Kecap',
-                desc: 'Mie instant isi 2 dengan rasa ayam kecap yang gurih dan nikmat',
-                rating: 4.8,
-                price: 'Rp 4.000',
-                stock: 'Stok Tersedia',
-                wa: 'Sarimi%20Ayam%20Kecap'
-            },
-            {
-                id: 7,
-                category: 'mie',
-                badge: 'new',
-                badgeText: '✨ PILIHAN HEMAT',
-                image: 'sarimi-ayam-kremess.png',
-                name: 'Sarimi Isi 2 - Ayam Kremess',
-                desc: 'Mie instant isi 2 dengan rasa ayam kremess yang creamy dan mantap',
-                rating: 4.8,
-                price: 'Rp 4.000',
-                stock: 'Stok Tersedia',
-                wa: 'Sarimi%20Ayam%20Kremess'
-            },
-            {
-                id: 8,
-                category: 'rokok',
-                badge: '',
-                badgeText: '',
-                image: 'sampoerna-mild.png',
-                name: 'Sampoerna A Mild',
-                desc: 'Rokok mild berkualitas premium - 12 batang per bungkus',
-                rating: 4.7,
-                price: 'Rp 27.000',
-                stock: 'Stok Tersedia',
-                wa: 'Sampoerna%20A%20Mild'
-            },
-            {
-                id: 9,
-                category: 'rokok',
-                badge: '',
-                badgeText: '',
-                image: 'surya-12.png',
-                name: 'Surya Gudang Garam 12',
-                desc: 'Rokok kretek berkualitas - 12 batang per bungkus',
-                rating: 4.6,
-                price: 'Rp 27.000',
-                stock: 'Stok Tersedia',
-                wa: 'Surya%2012'
-            },
-            {
-                id: 10,
-                category: 'rokok',
-                badge: '',
-                badgeText: '',
-                image: 'marlboro-filterblack.png',
-                name: 'Marlboro Filter Black 16',
-                desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
-                rating: 4.6,
-                price: 'Rp 32.000',
-                stock: 'Stok Tersedia',
-                wa: 'Marlboro%2016'
-            },
-            {
-                id: 11,
-                category: 'rokok',
-                badge: '',
-                badgeText: '',
-                image: 'mld-freshcola.png',
-                name: 'MLD Freshcola 16',
-                desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
-                rating: 4.6,
-                price: 'Rp 32.000',
-                stock: 'Stok Tersedia',
-                wa: 'MLD-Freshcola%2016'
-            },
-            {
-                id: 12,
-                category: 'rokok',
-                badge: '',
-                badgeText: '',
-                image: 'la-purple.png',
-                name: 'LA Purple Boost',
-                desc: 'Rokok Filter berkualitas - 16 batang per bungkus',
-                rating: 4.6,
-                price: 'Rp 35.000',
-                stock: 'Stok Tersedia',
-                wa: 'LA-purple%2016'
-            },
-            {
-                id: 13,
-                category: 'rokok',
-                badge: 'promo',
-                badgeText: '🔥 ECERAN',
-                image: 'surya-kaleng.png',
-                name: 'Surya Gudang Garam Kaleng',
-                desc: 'Rokok kretek premium dalam kemasan kaleng - Tersedia eceran per batang',
-                rating: 4.7,
-                price: 'Rp 2.500',
-                stock: 'Per Batang',
-                wa: 'Surya%20Kaleng'
-            }
-        ];
+        // HAPUS SEMUA DEFAULT PRODUCTS YANG MENGGUNAKAN FILE LOKAL
+        const defaultProducts = [];
 
         // ===== CATEGORIES DATABASE =====
         const defaultCategories = ['mie', 'rokok', 'sembako', 'minuman', 'snack', 'lainnya'];
@@ -2710,10 +2547,8 @@
         let allProducts = [];
         let allCategories = [];
 
-        // ===== ADMIN CREDENTIALS (HANYA UNTUK REFERENSI - TIDAK DISIMPAN DI JAVASCRIPT) =====
-        const ADMIN_EMAIL = 'admin@berkatyakin.com'; // Email untuk Supabase Auth
+        // ===== ADMIN CREDENTIALS (UNTUK REFERENSI USER) =====
         const ADMIN_USERNAME = 'berkatdyy';
-        const ADMIN_PASSWORD = '75354e17';
 
         // ===== NOTIFICATION SYSTEM =====
         function showNotification(type, title, message, duration = 5000) {
@@ -2795,11 +2630,20 @@
             }
             
             // Image validation
-            if (!data.image) {
-                errors.image = 'Gambar produk harus diupload';
+            if (!data.image || !isValidUrl(data.image)) {
+                errors.image = 'URL gambar tidak valid';
             }
             
             return errors;
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
         }
 
         function showValidationErrors(errors) {
@@ -2840,37 +2684,54 @@
                 return;
             }
             
-            // Validasi credentials (hanya untuk format, validasi sebenarnya di Supabase)
-            if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-                document.getElementById('loginError').textContent = 'Username atau password salah';
-                document.getElementById('loginError').classList.add('show');
-                return;
-            }
-            
             showLoading('Memverifikasi login...');
             
             try {
-                // Gunakan Supabase Auth untuk validasi
-                // Karena kita tidak bisa membuat user baru, kita akan menggunakan magic link
-                // atau membuat custom authentication
-                // Solusi: Buat user di Supabase Auth dengan email admin@berkatyakin.com
-                // dan password 75354e17, lalu login dengan email/password
+                // VERIFIKASI DENGAN TABEL PROFILES DI SUPABASE
+                // 1. Cari user dengan username yang sesuai
+                const { data: profiles, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('username', username)
+                    .single();
                 
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: ADMIN_EMAIL,
-                    password: ADMIN_PASSWORD
+                if (profileError || !profiles) {
+                    document.getElementById('loginError').textContent = 'Username atau password salah';
+                    document.getElementById('loginError').classList.add('show');
+                    throw new Error('User tidak ditemukan');
+                }
+                
+                // 2. Verifikasi role admin
+                if (profiles.role !== 'admin') {
+                    document.getElementById('loginError').textContent = 'Akses ditolak. Bukan admin.';
+                    document.getElementById('loginError').classList.add('show');
+                    throw new Error('Bukan admin');
+                }
+                
+                // 3. Password bisa diverifikasi dengan cara yang aman
+                // Karena Supabase tidak menyimpan password di profiles, kita bisa:
+                // a. Gunakan Supabase Auth dengan email yang sesuai
+                // b. Atau buat custom auth dengan RLS
+                
+                // SOLUSI: Gunakan Supabase Auth dengan email yang sudah ada
+                // Asumsi: email = username + '@berkatyakin.com
+                const adminEmail = `${username}@berkatyakin.com`;
+                
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                    email: adminEmail,
+                    password: password
                 });
                 
-                if (error) {
-                    // Fallback: Jika user belum ada, buat dulu
-                    if (error.message.includes('Invalid login credentials')) {
-                        // Buat user baru
+                if (authError) {
+                    // Jika user belum ada di auth, buat dulu
+                    if (authError.message.includes('Invalid login credentials')) {
+                        // Buat user baru di auth
                         const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                            email: ADMIN_EMAIL,
-                            password: ADMIN_PASSWORD,
+                            email: adminEmail,
+                            password: password,
                             options: {
                                 data: {
-                                    username: ADMIN_USERNAME,
+                                    username: username,
                                     role: 'admin'
                                 }
                             }
@@ -2882,8 +2743,8 @@
                         
                         // Login dengan user yang baru dibuat
                         const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
-                            email: ADMIN_EMAIL,
-                            password: ADMIN_PASSWORD
+                            email: adminEmail,
+                            password: password
                         });
                         
                         if (loginError) throw loginError;
@@ -2891,18 +2752,20 @@
                         // Simpan session
                         localStorage.setItem('supabase.auth.token', JSON.stringify(loginData.session));
                         localStorage.setItem('admin_logged_in', 'true');
+                        localStorage.setItem('admin_username', username);
                         
                         closeLoginModal();
                         openAdminModal();
                         updateAdminMenu(true);
                         showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
                     } else {
-                        throw error;
+                        throw authError;
                     }
                 } else {
                     // Login berhasil
-                    localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
+                    localStorage.setItem('supabase.auth.token', JSON.stringify(authData.session));
                     localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_username', username);
                     
                     closeLoginModal();
                     openAdminModal();
@@ -2911,7 +2774,7 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                document.getElementById('loginError').textContent = 'Gagal login. Coba lagi nanti.';
+                document.getElementById('loginError').textContent = 'Username atau password salah';
                 document.getElementById('loginError').classList.add('show');
                 showNotification('error', 'Login Gagal', 'Terjadi kesalahan saat login');
             } finally {
@@ -2919,29 +2782,45 @@
             }
         }
 
-        function checkAdminLogin() {
-            // Cek session dari localStorage
-            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-            const authToken = localStorage.getItem('supabase.auth.token');
-            
-            if (isLoggedIn && authToken) {
-                // Cek validitas token dengan Supabase
-                supabaseClient.auth.getSession().then(({ data: { session } }) => {
-                    if (session) {
-                        updateAdminMenu(true);
-                    } else {
-                        // Session expired
-                        localStorage.removeItem('admin_logged_in');
-                        localStorage.removeItem('supabase.auth.token');
-                        updateAdminMenu(false);
+        async function checkAdminLogin() {
+            try {
+                // Cek session dari Supabase Auth
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                
+                if (session) {
+                    // Cek apakah user ada di tabel profiles dengan role admin
+                    const { data: userData } = await supabaseClient.auth.getUser();
+                    
+                    if (userData.user) {
+                        // Cek username dari user metadata atau email
+                        const email = userData.user.email;
+                        const username = email ? email.split('@')[0] : null;
+                        
+                        if (username) {
+                            // Cek di tabel profiles
+                            const { data: profile } = await supabaseClient
+                                .from('profiles')
+                                .select('role')
+                                .eq('username', username)
+                                .single();
+                            
+                            if (profile && profile.role === 'admin') {
+                                updateAdminMenu(true);
+                                localStorage.setItem('admin_logged_in', 'true');
+                                localStorage.setItem('admin_username', username);
+                                return true;
+                            }
+                        }
                     }
-                }).catch(() => {
-                    localStorage.removeItem('admin_logged_in');
-                    localStorage.removeItem('supabase.auth.token');
-                    updateAdminMenu(false);
-                });
-            } else {
+                }
+                
+                // Jika tidak valid, logout
+                logoutAdmin();
+                return false;
+            } catch (error) {
+                console.error('Check login error:', error);
                 updateAdminMenu(false);
+                return false;
             }
         }
 
@@ -2949,6 +2828,7 @@
             try {
                 await supabaseClient.auth.signOut();
                 localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_username');
                 localStorage.removeItem('supabase.auth.token');
                 
                 closeAdminModal();
@@ -3012,24 +2892,29 @@
                 const { data: products, error } = await supabaseClient
                     .from('products')
                     .select('*')
-                    .order('id', { ascending: true });
+                    .order('created_at', { ascending: false });
                 
                 if (error) {
                     console.error('Error loading products:', error);
-                    // Fallback ke default products
                     allProducts = [...defaultProducts];
                 } else {
-                    allProducts = products || [...defaultProducts];
+                    // FIX: Pastikan URL gambar benar dengan format Supabase Storage
+                    allProducts = (products || []).map(product => ({
+                        ...product,
+                        // Fix URL gambar jika masih menggunakan path lokal
+                        image: fixImageUrl(product.image)
+                    }));
                 }
                 
-                // Load categories dari Supabase (jika ada tabel categories)
-                // Jika tidak ada, gunakan default
+                // Load categories dari tabel categories atau extract dari products
                 const { data: categories, error: categoriesError } = await supabaseClient
                     .from('categories')
-                    .select('*');
+                    .select('name');
                 
                 if (categoriesError || !categories || categories.length === 0) {
-                    allCategories = [...defaultCategories];
+                    // Extract unique categories dari products
+                    const uniqueCategories = [...new Set(allProducts.map(p => p.category))].filter(c => c);
+                    allCategories = [...new Set([...defaultCategories, ...uniqueCategories])];
                 } else {
                     allCategories = categories.map(c => c.name);
                 }
@@ -3039,13 +2924,32 @@
                 renderAdminProductList();
                 updateCategoryLists();
                 
-                showNotification('success', 'Berhasil', 'Data produk berhasil dimuat');
+                if (allProducts.length === 0) {
+                    showNotification('info', 'Info', 'Belum ada produk. Silakan tambah produk baru.');
+                } else {
+                    showNotification('success', 'Berhasil', `${allProducts.length} produk berhasil dimuat`);
+                }
             } catch (error) {
                 console.error('Error loading data:', error);
                 showNotification('error', 'Error', 'Gagal memuat data produk');
             } finally {
                 hideLoading();
             }
+        }
+
+        function fixImageUrl(imageUrl) {
+            if (!imageUrl) return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
+            
+            // Jika URL sudah lengkap, return as is
+            if (imageUrl.startsWith('http')) return imageUrl;
+            
+            // Jika hanya nama file, tambahkan base URL Supabase Storage
+            if (imageUrl.includes('.')) {
+                return `${SUPABASE_URL}/storage/v1/object/public/product-images/${imageUrl}`;
+            }
+            
+            // Default placeholder
+            return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
         }
 
         async function saveProduct() {
@@ -3094,40 +2998,42 @@
                             badge_text: badgeText,
                             updated_at: new Date().toISOString()
                         })
-                        .eq('id', parseInt(id));
+                        .eq('id', id);
                     
                     if (error) throw error;
+                    
+                    showNotification('success', 'Berhasil', 'Produk berhasil diupdate!');
                 } else {
                     // Add new product
-                    const newId = allProducts.length > 0 ? Math.max(...allProducts.map(p => p.id)) + 1 : 1;
                     const { data, error } = await supabaseClient
                         .from('products')
                         .insert([{
-                            id: newId,
                             ...productData,
                             badge_text: badgeText,
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString()
-                        }]);
+                        }])
+                        .select();
                     
                     if (error) throw error;
+                    
+                    showNotification('success', 'Berhasil', 'Produk berhasil ditambahkan!');
                 }
                 
                 // Reload data
                 await loadProducts();
                 resetForm();
-                showNotification('success', 'Berhasil', id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
             } catch (error) {
                 console.error('Error saving product:', error);
-                showNotification('error', 'Error', 'Gagal menyimpan produk');
+                showNotification('error', 'Error', 'Gagal menyimpan produk: ' + error.message);
             } finally {
                 hideLoading();
             }
         }
 
         async function deleteProduct(id = null) {
-            if (!id && editingProductId) {
-                id = editingProductId;
+            if (!id) {
+                id = document.getElementById('productId').value;
             }
             
             if (!id) return;
@@ -3174,13 +3080,12 @@
             showLoading('Menambahkan kategori...');
             
             try {
-                // Simpan kategori ke Supabase (jika ada tabel categories)
+                // Coba simpan ke tabel categories
                 const { data, error } = await supabaseClient
                     .from('categories')
                     .insert([{ name: categoryName }]);
                 
-                if (error) {
-                    // Jika tabel categories tidak ada, cukup tambah ke array lokal
+                if (error && !error.message.includes('duplicate key')) {
                     console.log('Categories table not available, using local array');
                 }
                 
@@ -3197,12 +3102,6 @@
         }
 
         async function deleteCategory(categoryName) {
-            // Prevent deletion of default categories
-            if (['mie', 'rokok'].includes(categoryName)) {
-                showNotification('error', 'Error', 'Kategori default tidak bisa dihapus!');
-                return;
-            }
-            
             if (!confirm(`Yakin ingin menghapus kategori "${categoryName}"?`)) {
                 return;
             }
@@ -3210,7 +3109,7 @@
             showLoading('Menghapus kategori...');
             
             try {
-                // Hapus dari Supabase (jika ada tabel categories)
+                // Hapus dari tabel categories
                 const { error } = await supabaseClient
                     .from('categories')
                     .delete()
@@ -3236,16 +3135,16 @@
             const file = e.target.files[0];
             if (!file) return;
             
-            // Check if file is JPG
-            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
-                showNotification('error', 'Format Error', 'Hanya format JPG yang diperbolehkan!');
+            // Check file type
+            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg') && !file.type.match('image/png')) {
+                showNotification('error', 'Format Error', 'Hanya format JPG/PNG yang diperbolehkan!');
                 this.value = '';
                 return;
             }
             
-            // Check file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 2MB!');
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 5MB!');
                 this.value = '';
                 return;
             }
@@ -3254,10 +3153,13 @@
                 showLoading('Mengupload gambar...');
                 
                 // Upload ke Supabase Storage
-                const fileName = `product_${Date.now()}_${file.name}`;
+                const fileName = `product_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
                 const { data, error } = await supabaseClient.storage
                     .from('product-images')
-                    .upload(fileName, file);
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
                 
                 if (error) throw error;
                 
@@ -3296,7 +3198,8 @@
                             img.classList.add('loaded');
                         };
                         img.onerror = () => {
-                            img.src = `https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(img.alt)}`;
+                            // Fallback ke placeholder jika gambar error
+                            img.src = `https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(img.alt || 'Produk')}`;
                             img.classList.add('loaded');
                         };
                         img.removeAttribute('data-src');
@@ -3310,24 +3213,27 @@
 
         // ===== GENERATE PRODUCT CARD =====
         function generateProductCard(product) {
-            const stars = '★'.repeat(5);
+            const stars = '★'.repeat(Math.floor(product.rating || 4.5));
             const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badge_text || ''}</div>` : '';
+            
+            // Gunakan data-src untuk lazy loading
+            const imageUrl = fixImageUrl(product.image);
             
             return `
                 <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${product.desc.toLowerCase()} ${product.category.toLowerCase()}">
                     ${badgeHTML}
                     <div class="product-image">
-                        <img data-src="${product.image}" alt="${product.name}" loading="lazy">
+                        <img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(product.name)}'">
                     </div>
                     <div class="product-info">
-                        <div class="product-category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</div>
+                        <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-desc">${product.desc}</p>
                         <div class="product-rating">
                             <div class="stars">
                                 ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
                             </div>
-                            <span class="rating-text">(${product.rating}/5)</span>
+                            <span class="rating-text">(${product.rating || 4.5}/5)</span>
                         </div>
                         <div class="product-price-wrapper">
                             <div class="product-price">${product.price}</div>
@@ -3359,9 +3265,9 @@
             if (currentSearch) {
                 const searchTerm = currentSearch.toLowerCase();
                 productsToShow = productsToShow.filter(product => 
-                    product.name.toLowerCase().includes(searchTerm) ||
-                    product.desc.toLowerCase().includes(searchTerm) ||
-                    product.category.toLowerCase().includes(searchTerm)
+                    (product.name && product.name.toLowerCase().includes(searchTerm)) ||
+                    (product.desc && product.desc.toLowerCase().includes(searchTerm)) ||
+                    (product.category && product.category.toLowerCase().includes(searchTerm))
                 );
                 
                 // Update search results info
@@ -3398,6 +3304,7 @@
                 productGrid.insertAdjacentHTML('beforeend', generateProductCard(product));
             });
             
+            // Apply lazy loading to images
             const images = productGrid.querySelectorAll('img[data-src]');
             images.forEach(img => imageObserver.observe(img));
             
@@ -3641,18 +3548,23 @@
             const container = document.getElementById('productListAdmin');
             container.innerHTML = '';
             
+            if (allProducts.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary)">Belum ada produk. Silakan tambah produk baru.</div>';
+                return;
+            }
+            
             allProducts.forEach(product => {
                 const div = document.createElement('div');
                 div.className = 'admin-product-item';
                 div.innerHTML = `
-                    <img src="${product.image}" class="admin-product-image" alt="${product.name}">
+                    <img src="${fixImageUrl(product.image)}" class="admin-product-image" alt="${product.name}" onerror="this.src='https://via.placeholder.com/60x60/0071e3/ffffff?text=Img'">
                     <div class="admin-product-info">
                         <div class="admin-product-name">${product.name}</div>
                         <div class="admin-product-price">${product.price}</div>
                     </div>
                     <div class="admin-product-actions">
-                        <button class="action-btn edit-btn" onclick="editProduct(${product.id})">Edit</button>
-                        <button class="action-btn delete-btn" onclick="confirmDeleteProduct(${product.id})">Hapus</button>
+                        <button class="action-btn edit-btn" onclick="editProduct('${product.id}')">Edit</button>
+                        <button class="action-btn delete-btn" onclick="confirmDeleteProduct('${product.id}')">Hapus</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -3671,12 +3583,12 @@
             document.getElementById('productPrice').value = product.price;
             document.getElementById('productDesc').value = product.desc;
             document.getElementById('productStock').value = product.stock;
-            document.getElementById('productRating').value = product.rating;
+            document.getElementById('productRating').value = product.rating || 4.5;
             document.getElementById('productBadge').value = product.badge || '';
             
             // Set image preview
             const preview = document.getElementById('imagePreview');
-            preview.src = product.image;
+            preview.src = fixImageUrl(product.image);
             preview.classList.add('show');
             document.getElementById('productImageData').value = product.image;
             
@@ -3715,6 +3627,8 @@
             preview.src = '';
             preview.classList.remove('show');
             
+            document.getElementById('productImageInput').value = '';
+            
             document.getElementById('formTitle').textContent = 'Tambah Produk Baru';
             document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
             document.getElementById('deleteProductBtn').style.display = 'none';
@@ -3752,7 +3666,7 @@
                 tag.className = 'category-tag';
                 tag.innerHTML = `
                     ${category}
-                    <button class="delete-category" onclick="deleteCategory('${category}')" ${['mie', 'rokok'].includes(category) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>×</button>
+                    <button class="delete-category" onclick="deleteCategory('${category}')">×</button>
                 `;
                 container.appendChild(tag);
             });
@@ -3806,7 +3720,7 @@
             productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
             
             // Cek login status
-            checkAdminLogin();
+            await checkAdminLogin();
             
             // Load data dari Supabase
             await loadProducts();
@@ -3821,23 +3735,17 @@
                 openAdminModal();
             });
             
-            // Keyboard shortcut untuk admin
-            document.addEventListener('keydown', (e) => {
-                // Ctrl+Shift+A untuk admin panel
-                if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                    e.preventDefault();
-                    openAdminModal();
-                }
-                
-                // Escape untuk close modal
-                if (e.key === 'Escape') {
-                    closeLoginModal();
-                    closeAdminModal();
-                }
-            });
-            
             // Auto refresh session
             setInterval(checkAdminLogin, 30000); // Cek setiap 30 detik
+            
+            // Check session on page load
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    logoutAdmin();
+                } else if (event === 'SIGNED_IN') {
+                    checkAdminLogin();
+                }
+            });
         });
     </script>
 </body>
