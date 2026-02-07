@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berkat Yakin — Pusat Belanja & Layanan Keuangan Banjarmasin</title>
+    <meta name="description" content="Toko Berkat Yakin - Pusat belanja sembako, snack, minuran, dan layanan keuangan terlengkap di Banjarmasin. Buka setiap hari 08:00-22:00 WITA.">
+    <meta name="keywords" content="toko, sembako, banjarmasin, pulsa, token pln, snack, minuman, berkat yakin">
+    <meta name="author" content="Toko Berkat Yakin">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Berkat Yakin - Pusat Belanja Banjarmasin">
+    <meta property="og:description" content="Sembako berkualitas, snack favorit, minuman segar, dan layanan keuangan lengkap.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/warung.jpg">
+    
+    <!-- Preconnect untuk performa -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- CSS External -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Dropdown Overlay -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <div class="nav-brand">
+                <span style="font-size: 1.75rem; margin-right: 0.5rem;">🏪</span>
+                <span class="brand-text">Berkat Yakin</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link">Beranda</a></li>
+                
+                <li class="dropdown">
+                    <a href="#produk" class="nav-link dropdown-toggle">
+                        Produk
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="#produk">🍚 Sembako</a>
+                        <a href="#produk">🍿 Snack & Kue</a>
+                        <a href="#produk">🥤 Minuman</a>
+                        <a href="#produk">🧹 Kebutuhan Rumah</a>
+                    </div>
+                </li>
+                
+                <li class="dropdown">
+                    <a href="#layanan" class="nav-link dropdown-toggle">
+                        Layanan
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="#layanan">📱 Pulsa & Paket Data</a>
+                        <a href="#layanan">⚡ Token PLN</a>
+                        <a href="#layanan">💳 Pembayaran Tagihan</a>
+                    </div>
+                </li>
+                
+                <li><a href="#kontak" class="nav-link">Kontak</a></li>
+                
+                <li>
+                    <a href="#" class="nav-link" id="navAdmin">
+                        <span id="adminStatusIndicator"></span>
+                        <span id="adminButtonText">Admin</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-container">
+            <div class="hero-content animate-on-scroll">
+                <div class="hero-badge">
+                    <span class="badge-icon">🎉</span>
+                    <span>Promo Spesial Hari Ini</span>
+                </div>
+                <h1 class="hero-title">
+                    Belanja Mudah,<br>
+                    <span class="gradient-text">Berkualitas</span> dan Terpercaya
+                </h1>
+                <p class="hero-description">
+                    Toko Berkat Yakin hadir dengan produk sembako, snack, minuman, dan layanan keuangan terlengkap di Banjarmasin. Buka setiap hari 08:00-22:00 WITA.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#produk" class="btn btn-primary">
+                        <span>Lihat Produk</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="#layanan" class="btn btn-outline">
+                        Layanan Kami
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Produk</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Pelanggan</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">4.9★</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image animate-on-scroll">
+                <div class="image-glow"></div>
+                <img src="assets/images/warung.jpg" alt="Toko Berkat Yakin" loading="eager">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section features-section">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Pengiriman Cepat</h3>
+                    <p>Antar dalam area Banjarmasin, dikirim hari yang sama</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">💎</div>
+                    <h3>Kualitas Terjamin</h3>
+                    <p>Semua produk original dan terjamin kualitasnya</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">💰</div>
+                    <h3>Harga Terbaik</h3>
+                    <p>Harga kompetitif dengan promo menarik setiap hari</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Layanan 24/7</h3>
+                    <p>Tersedia layanan keuangan digital kapan saja</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="section" id="produk">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div>
+                    <div class="section-badge">
+                        <span>📦</span>
+                        <span>Katalog Produk</span>
+                    </div>
+                    <h2 class="section-title">Produk Pilihan Kami</h2>
+                    <p class="section-description">
+                        Pilihan produk lengkap untuk kebutuhan sehari-hari Anda
+                    </p>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container animate-on-scroll">
+                <div class="search-box">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        class="search-input" 
+                        placeholder="Cari produk... (ketik minimal 2 huruf)"
+                        autocomplete="off"
+                    >
+                </div>
+                <div id="searchResultsInfo" class="search-results-info"></div>
+            </div>
+
+            <!-- Category Filters -->
+            <div class="filter-container animate-on-scroll">
+                <button class="filter-tab active" data-filter="all">
+                    <span>🌟</span>
+                    <span>Semua</span>
+                </button>
+                <button class="filter-tab" data-filter="Sembako">
+                    <span>🍚</span>
+                    <span>Sembako</span>
+                </button>
+                <button class="filter-tab" data-filter="Snack">
+                    <span>🍿</span>
+                    <span>Snack</span>
+                </button>
+                <button class="filter-tab" data-filter="Minuman">
+                    <span>🥤</span>
+                    <span>Minuman</span>
+                </button>
+                <button class="filter-tab" data-filter="Kebutuhan Rumah">
+                    <span>🧹</span>
+                    <span>Rumah Tangga</span>
+                </button>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="product-grid" id="productGrid">
+                <!-- Products will be loaded here -->
+            </div>
+
+            <!-- Load More Button -->
+            <div class="load-more-container">
+                <button class="btn btn-outline" id="loadMoreBtn" style="display: none;">
+                    Muat Lebih Banyak
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="section services-section" id="layanan">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-badge">
+                    <span>⚡</span>
+                    <span>Layanan Kami</span>
+                </div>
+                <h2 class="section-title">Layanan Keuangan Digital</h2>
+                <p class="section-description">
+                    Kemudahan transaksi digital di ujung jari Anda
+                </p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">📱</div>
+                    <h3>Pulsa & Paket Data</h3>
+                    <ul class="service-list">
+                        <li>✓ Semua operator (Telkomsel, Indosat, XL, Tri, Smartfren)</li>
+                        <li>✓ Proses instan 1-3 menit</li>
+                        <li>✓ Harga kompetitif</li>
+                        <li>✓ Tersedia paket internet murah</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">⚡</div>
+                    <h3>Token PLN</h3>
+                    <ul class="service-list">
+                        <li>✓ Token langsung masuk ke meteran</li>
+                        <li>✓ Nominal mulai Rp20.000</li>
+                        <li>✓ Proses cepat & aman</li>
+                        <li>✓ Struk otomatis</li>
+                    </ul>
+                </div>
+
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">💳</div>
+                    <h3>Pembayaran Tagihan</h3>
+                    <ul class="service-list">
+                        <li>✓ BPJS Kesehatan</li>
+                        <li>✓ PDAM</li>
+                        <li>✓ Tagihan Listrik PLN</li>
+                        <li>✓ Cicilan & Angsuran</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact-section" id="kontak">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <div class="section-badge">
+                    <span>📍</span>
+                    <span>Hubungi Kami</span>
+                </div>
+                <h2 class="section-title">Kunjungi Toko Kami</h2>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-card animate-on-scroll">
+                    <div class="contact-icon">📍</div>
+                    <h3>Alamat</h3>
+                    <p>Jl. Pasar Lama No. 45<br>Banjarmasin Tengah, Kalimantan Selatan</p>
+                </div>
+
+                <div class="contact-card animate-on-scroll">
+                    <div class="contact-icon">📞</div>
+                    <h3>Telepon</h3>
+                    <p>
+                        <a href="tel:+628123456789">(+62) 812-3456-789</a><br>
+                        <a href="tel:+625114567890">(0511) 456-7890</a>
+                    </p>
+                </div>
+
+                <div class="contact-card animate-on-scroll">
+                    <div class="contact-icon">🕐</div>
+                    <h3>Jam Buka</h3>
+                    <p>Senin - Minggu<br>08:00 - 22:00 WITA</p>
+                </div>
+
+                <div class="contact-card animate-on-scroll">
+                    <div class="contact-icon">💬</div>
+                    <h3>WhatsApp</h3>
+                    <p>
+                        <a href="https://wa.me/628123456789" target="_blank">Chat via WhatsApp</a><br>
+                        <span style="color: var(--text-secondary); font-size: 0.875rem;">Fast response guaranteed</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏪</div>
+                    <h3>Berkat Yakin</h3>
+                    <p>Toko terpercaya sejak 2015</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Produk</h4>
+                    <a href="#produk">Sembako</a>
+                    <a href="#produk">Snack & Kue</a>
+                    <a href="#produk">Minuman</a>
+                    <a href="#produk">Kebutuhan Rumah</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Layanan</h4>
+                    <a href="#layanan">Pulsa & Paket Data</a>
+                    <a href="#layanan">Token PLN</a>
+                    <a href="#layanan">Pembayaran Tagihan</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Kontak</h4>
+                    <a href="tel:+628123456789">Telepon</a>
+                    <a href="https://wa.me/628123456789">WhatsApp</a>
+                    <a href="#kontak">Lokasi</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Berkat Yakin. All rights reserved.</p>
+                <p>Made with ❤️ in Banjarmasin</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Modal -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeAdminModal">&times;</button>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="admin-section">
+                <h2>Admin Login</h2>
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="adminEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="adminPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div id="loginError" class="error-message"></div>
+                </form>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="adminPanel" class="admin-section" style="display: none;">
+                <div class="admin-header">
+                    <h2>Admin Panel</h2>
+                    <button class="btn btn-outline" id="logoutBtn">Logout</button>
+                </div>
+
+                <!-- Category Management -->
+                <div class="category-management">
+                    <div class="category-header">
+                        <h3>Kelola Kategori</h3>
+                        <button class="btn btn-primary btn-sm" id="addCategoryBtn">+ Tambah Kategori</button>
+                    </div>
+                    <div id="addCategoryForm" style="display: none; margin-top: 1rem;">
+                        <div class="form-group">
+                            <input type="text" id="newCategoryName" placeholder="Nama kategori baru" style="width: 100%;">
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button class="btn btn-primary btn-sm" id="saveCategoryBtn">Simpan</button>
+                            <button class="btn btn-outline btn-sm" id="cancelCategoryBtn">Batal</button>
+                        </div>
+                    </div>
+                    <div class="category-list" id="categoryList"></div>
+                </div>
+
+                <!-- Add Product Form -->
+                <form id="addProductForm" class="product-form">
+                    <h3>Tambah Produk Baru</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nama Produk</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Harga</label>
+                            <input type="number" id="productPrice" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kategori</label>
+                            <select id="productCategory" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stok</label>
+                            <input type="number" id="productStock" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi</label>
+                        <textarea id="productDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>URL Gambar</label>
+                        <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Tambah Produk</button>
+                </form>
+
+                <!-- Product List -->
+                <div class="product-list">
+                    <h3>Daftar Produk</h3>
+                    <div id="adminProductList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript External -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
