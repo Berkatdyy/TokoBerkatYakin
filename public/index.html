@@ -2688,30 +2688,15 @@
             const name = document.getElementById('productName').value.trim();
             const category = document.getElementById('productCategory').value.trim().toLowerCase();
             const price = document.getElementById('productPrice').value.trim();
-            const description = document.getElementById('productDesc').value.trim();
+            const desc = document.getElementById('productDesc').value.trim();
             const stock = document.getElementById('productStock').value.trim();
             const rating = parseFloat(document.getElementById('productRating').value);
             const badge = document.getElementById('productBadge').value;
-            const image_url = document.getElementById('productImageUrl').value;
+            const imageUrl = document.getElementById('productImageUrl').value;
             
             // Validasi
-            if (!name || !category || !price || !description || !stock) {
+            if (!name || !category || !price || !desc || !stock || !imageUrl) {
                 showNotification('error', 'Validasi Gagal', 'Harap isi semua field yang wajib diisi');
-                return;
-            }
-            
-            // Jika edit produk dan tidak ada gambar baru, gunakan image_url lama
-            let finalImageUrl = image_url;
-            if (id && !finalImageUrl) {
-                const existingProduct = allProducts.find(p => p.id === id);
-                if (existingProduct && existingProduct.image_url) {
-                    finalImageUrl = existingProduct.image_url;
-                }
-            }
-            
-            // Validasi gambar wajib untuk produk baru
-            if (!id && !finalImageUrl) {
-                showNotification('error', 'Validasi Gagal', 'Gambar produk wajib diupload');
                 return;
             }
             
@@ -2719,19 +2704,20 @@
                              badge === 'new' ? '✨ PILIHAN HEMAT' :
                              badge === 'promo' ? '🔥 ECERAN' : '';
             
-            showLoading(id ? 'Mengupdate produk...' : 'Menyimpan produk...');
+            showLoading('Menyimpan produk...');
             
             try {
                 const productData = {
                     name,
                     category,
                     price,
-                    description,
+                    desc,
                     stock,
                     rating: rating || 4.5,
                     badge,
                     badge_text: badgeText,
-                    image_url: finalImageUrl
+                    image: imageUrl,
+                    wa: encodeURIComponent(name)
                 };
                 
                 if (id) {
@@ -2917,19 +2903,16 @@
             const stars = '★'.repeat(Math.floor(product.rating || 4.5));
             const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badge_text || ''}</div>` : '';
             
-            // Gunakan image_url dari database
-            const imageUrl = product.image_url || 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
-            
             return `
                 <div class="product-card animate-on-scroll visible" data-category="${product.category}">
                     ${badgeHTML}
                     <div class="product-image">
-                        <img src="${imageUrl}" alt="${product.name}" loading="lazy">
+                        <img src="${product.image || 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk'}" alt="${product.name}" loading="lazy">
                     </div>
                     <div class="product-info">
                         <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
                         <h3 class="product-name">${product.name}</h3>
-                        <p class="product-desc">${product.description}</p>
+                        <p class="product-desc">${product.desc}</p>
                         <div class="product-rating">
                             <div class="stars">
                                 ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
@@ -2966,7 +2949,7 @@
                 const searchTerm = currentSearch.toLowerCase();
                 productsToShow = productsToShow.filter(product => 
                     (product.name && product.name.toLowerCase().includes(searchTerm)) ||
-                    (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                    (product.desc && product.desc.toLowerCase().includes(searchTerm)) ||
                     (product.category && product.category.toLowerCase().includes(searchTerm))
                 );
                 
@@ -3019,13 +3002,10 @@
             }
             
             allProducts.forEach(product => {
-                // Gunakan image_url dari database
-                const imageUrl = product.image_url || 'https://via.placeholder.com/60x60/0071e3/ffffff?text=Img';
-                
                 const div = document.createElement('div');
                 div.className = 'admin-product-item';
                 div.innerHTML = `
-                    <img src="${imageUrl}" class="admin-product-image" alt="${product.name}">
+                    <img src="${product.image || 'https://via.placeholder.com/60x60/0071e3/ffffff?text=Img'}" class="admin-product-image" alt="${product.name}">
                     <div class="admin-product-info">
                         <div class="admin-product-name">${product.name}</div>
                         <div class="admin-product-price">${product.price}</div>
@@ -3049,16 +3029,16 @@
             document.getElementById('productName').value = product.name;
             document.getElementById('productCategory').value = product.category;
             document.getElementById('productPrice').value = product.price;
-            document.getElementById('productDesc').value = product.description;
+            document.getElementById('productDesc').value = product.desc;
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productRating').value = product.rating || 4.5;
             document.getElementById('productBadge').value = product.badge || '';
-            document.getElementById('productImageUrl').value = product.image_url || '';
+            document.getElementById('productImageUrl').value = product.image;
             
-            // Set image preview jika ada image_url
+            // Set image preview
             const preview = document.getElementById('imagePreview');
-            if (product.image_url) {
-                preview.src = product.image_url;
+            if (product.image) {
+                preview.src = product.image;
                 preview.classList.add('show');
             } else {
                 preview.src = '';
