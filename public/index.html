@@ -2683,6 +2683,56 @@
             }
         }
 
+        // ===== PERBAIKAN WAJIB: UPLOAD GAMBAR MENGGUNAKAN BASE64 (FileReader) =====
+        document.getElementById('productImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Check file type
+            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg') && !file.type.match('image/png')) {
+                showNotification('error', 'Format Error', 'Hanya format JPG/PNG yang diperbolehkan!');
+                this.value = '';
+                return;
+            }
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 5MB!');
+                this.value = '';
+                return;
+            }
+            
+            showLoading('Mengkonversi gambar ke Base64...');
+            
+            // Gunakan FileReader untuk membaca file sebagai Base64
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const base64String = event.target.result;
+                
+                // Simpan Base64 ke dalam input hidden productImageUrl
+                document.getElementById('productImageUrl').value = base64String;
+                
+                // Tampilkan preview
+                const preview = document.getElementById('imagePreview');
+                preview.src = base64String;
+                preview.classList.add('show');
+                
+                hideLoading();
+                showNotification('success', 'Berhasil', 'Gambar berhasil diupload sebagai Base64');
+            };
+            
+            reader.onerror = function() {
+                hideLoading();
+                showNotification('error', 'Error', 'Gagal membaca file gambar!');
+                e.target.value = '';
+            };
+            
+            // Baca file sebagai Data URL (Base64)
+            reader.readAsDataURL(file);
+        });
+
+        // ===== PERBAIKAN WAJIB: FUNGSI saveProduct() YANG DIPERBAIKI =====
         async function saveProduct() {
             const id = document.getElementById('productId').value;
             const name = document.getElementById('productName').value.trim();
@@ -2692,10 +2742,16 @@
             const stock = document.getElementById('productStock').value.trim();
             const rating = parseFloat(document.getElementById('productRating').value);
             const badge = document.getElementById('productBadge').value;
-            const imageUrl = document.getElementById('productImageUrl').value;
+            const imageBase64 = document.getElementById('productImageUrl').value;
             
-            // Validasi
-            if (!name || !category || !price || !desc || !stock || !imageUrl) {
+            // Validasi wajib: gambar harus ada
+            if (!imageBase64) {
+                showNotification('error', 'Validasi Gagal', 'Harap upload gambar produk!');
+                return;
+            }
+            
+            // Validasi lainnya
+            if (!name || !category || !price || !desc || !stock) {
                 showNotification('error', 'Validasi Gagal', 'Harap isi semua field yang wajib diisi');
                 return;
             }
@@ -2716,7 +2772,7 @@
                     rating: rating || 4.5,
                     badge,
                     badge_text: badgeText,
-                    image: imageUrl,
+                    image: imageBase64, // Simpan Base64 langsung ke database
                     wa: encodeURIComponent(name)
                 };
                 
@@ -2783,63 +2839,6 @@
             }
         }
 
-        // ===== IMAGE UPLOAD =====
-        document.getElementById('productImageInput').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Check file type
-            if (!file.type.match('image/jpeg') && !file.type.match('image/jpg') && !file.type.match('image/png')) {
-                showNotification('error', 'Format Error', 'Hanya format JPG/PNG yang diperbolehkan!');
-                this.value = '';
-                return;
-            }
-            
-            // Check file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 5MB!');
-                this.value = '';
-                return;
-            }
-            
-            try {
-                showLoading('Mengupload gambar...');
-                
-                // Generate unique filename
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-                
-                // Upload ke Supabase Storage bucket 'product-images'
-                const { data, error } = await supabaseClient.storage
-                    .from('product-images')
-                    .upload(fileName, file, {
-                        cacheControl: '3600',
-                        upsert: false
-                    });
-                
-                if (error) throw error;
-                
-                // Dapatkan public URL
-                const { data: { publicUrl } } = supabaseClient.storage
-                    .from('product-images')
-                    .getPublicUrl(fileName);
-                
-                document.getElementById('productImageUrl').value = publicUrl;
-                
-                // Tampilkan preview
-                const preview = document.getElementById('imagePreview');
-                preview.src = publicUrl;
-                preview.classList.add('show');
-                
-                showNotification('success', 'Berhasil', 'Gambar berhasil diupload');
-            } catch (error) {
-                console.error('Error uploading image:', error);
-                showNotification('error', 'Error', 'Gagal mengupload gambar: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        });
-
         // ===== CATEGORY MANAGEMENT =====
         function addNewCategory() {
             const input = document.getElementById('newCategoryInput');
@@ -2903,11 +2902,14 @@
             const stars = '★'.repeat(Math.floor(product.rating || 4.5));
             const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badge_text || ''}</div>` : '';
             
+            // Gunakan product.image (Base64) langsung di src
+            const imageSrc = product.image || 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
+            
             return `
                 <div class="product-card animate-on-scroll visible" data-category="${product.category}">
                     ${badgeHTML}
                     <div class="product-image">
-                        <img src="${product.image || 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk'}" alt="${product.name}" loading="lazy">
+                        <img src="${imageSrc}" alt="${product.name}" loading="lazy">
                     </div>
                     <div class="product-info">
                         <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
@@ -3019,6 +3021,7 @@
             });
         }
 
+        // ===== PERBAIKAN WAJIB: EDIT PRODUK DENGAN BASE64 =====
         function editProduct(id) {
             const product = allProducts.find(p => p.id === id);
             if (!product) return;
@@ -3033,9 +3036,12 @@
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productRating').value = product.rating || 4.5;
             document.getElementById('productBadge').value = product.badge || '';
+            
+            // PERBAIKAN PENTING: Simpan gambar lama ke productImageUrl
+            // Saat edit, gambar lama disimpan di hidden field
             document.getElementById('productImageUrl').value = product.image;
             
-            // Set image preview
+            // Tampilkan preview gambar lama
             const preview = document.getElementById('imagePreview');
             if (product.image) {
                 preview.src = product.image;
@@ -3044,6 +3050,9 @@
                 preview.src = '';
                 preview.classList.remove('show');
             }
+            
+            // Reset input file
+            document.getElementById('productImageInput').value = '';
             
             // Update form title
             document.getElementById('formTitle').textContent = 'Edit Produk';
