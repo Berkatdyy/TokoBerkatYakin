@@ -2535,6 +2535,23 @@
                 
                 if (error) throw error;
                 
+                // Cek role admin di tabel profiles
+                const userId = data.user.id;
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', userId)
+                    .single();
+                
+                if (profileError) throw profileError;
+                
+                if (!profile || profile.role !== 'admin') {
+                    // Jika bukan admin, logout dan alert
+                    await supabaseClient.auth.signOut();
+                    showNotification('error', 'Akses Ditolak', 'Anda bukan admin!');
+                    return;
+                }
+                
                 // Login berhasil
                 closeLoginModal();
                 openAdminModal();
@@ -2555,8 +2572,20 @@
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 
                 if (session) {
-                    updateAdminMenu(true);
-                    return true;
+                    const userId = session.user.id;
+                    const { data: profile } = await supabaseClient
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', userId)
+                        .single();
+                    
+                    if (profile && profile.role === 'admin') {
+                        updateAdminMenu(true);
+                        return true;
+                    } else {
+                        logoutAdmin();
+                        return false;
+                    }
                 }
                 return false;
             } catch (error) {
@@ -2682,12 +2711,12 @@
                     name,
                     category,
                     price,
-                    description: desc,
+                    desc,
                     stock,
                     rating: rating || 4.5,
                     badge,
                     badge_text: badgeText,
-                    image_url: imageUrl,
+                    image: imageUrl,
                     wa: encodeURIComponent(name)
                 };
                 
@@ -2878,12 +2907,12 @@
                 <div class="product-card animate-on-scroll visible" data-category="${product.category}">
                     ${badgeHTML}
                     <div class="product-image">
-                        <img src="${product.image_url || 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk'}" alt="${product.name}" loading="lazy">
+                        <img src="${product.image || 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk'}" alt="${product.name}" loading="lazy">
                     </div>
                     <div class="product-info">
                         <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
                         <h3 class="product-name">${product.name}</h3>
-                        <p class="product-desc">${product.description}</p>
+                        <p class="product-desc">${product.desc}</p>
                         <div class="product-rating">
                             <div class="stars">
                                 ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
@@ -2920,7 +2949,7 @@
                 const searchTerm = currentSearch.toLowerCase();
                 productsToShow = productsToShow.filter(product => 
                     (product.name && product.name.toLowerCase().includes(searchTerm)) ||
-                    (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                    (product.desc && product.desc.toLowerCase().includes(searchTerm)) ||
                     (product.category && product.category.toLowerCase().includes(searchTerm))
                 );
                 
@@ -2976,7 +3005,7 @@
                 const div = document.createElement('div');
                 div.className = 'admin-product-item';
                 div.innerHTML = `
-                    <img src="${product.image_url || 'https://via.placeholder.com/60x60/0071e3/ffffff?text=Img'}" class="admin-product-image" alt="${product.name}">
+                    <img src="${product.image || 'https://via.placeholder.com/60x60/0071e3/ffffff?text=Img'}" class="admin-product-image" alt="${product.name}">
                     <div class="admin-product-info">
                         <div class="admin-product-name">${product.name}</div>
                         <div class="admin-product-price">${product.price}</div>
@@ -3000,16 +3029,16 @@
             document.getElementById('productName').value = product.name;
             document.getElementById('productCategory').value = product.category;
             document.getElementById('productPrice').value = product.price;
-            document.getElementById('productDesc').value = product.description;
+            document.getElementById('productDesc').value = product.desc;
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productRating').value = product.rating || 4.5;
             document.getElementById('productBadge').value = product.badge || '';
-            document.getElementById('productImageUrl').value = product.image_url;
+            document.getElementById('productImageUrl').value = product.image;
             
             // Set image preview
             const preview = document.getElementById('imagePreview');
-            if (product.image_url) {
-                preview.src = product.image_url;
+            if (product.image) {
+                preview.src = product.image;
                 preview.classList.add('show');
             } else {
                 preview.src = '';
