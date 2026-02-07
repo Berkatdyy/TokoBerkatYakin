@@ -1996,8 +1996,8 @@
                 <button class="btn-close" onclick="closeLoginModal()">×</button>
             </div>
             <div class="form-group">
-                <label for="adminToken">75354e17</label>
-                <input type="password" id="adminToken" placeholder="M75354e17">
+                <label for="adminToken">Token Admin:</label>
+                <input type="password" id="adminToken" placeholder="Masukkan token admin">
                 <div class="validation-error" id="tokenError"></div>
             </div>
             <div class="login-error" id="loginError">Token salah!</div>
@@ -2485,9 +2485,8 @@
 
     <script>
         // ===== SUPABASE CONFIGURATION =====
-        // GANTI DENGAN CREDENTIALS SUPABASE ANDA
-        const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';  // Ganti dengan URL project Anda
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';  // Ganti dengan Anon Key Anda
+        const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';
         const ADMIN_TOKEN = "75354e17";
 
         // Inisialisasi Supabase client
@@ -2675,8 +2674,8 @@
         let currentFilter = 'all';
         let currentSearch = '';
         let filteredProducts = [];
-        let allProducts = [];
-        let allCategories = [];
+        let allProducts = [...defaultProducts];
+        let allCategories = [...defaultCategories];
 
         // ===== NOTIFICATION SYSTEM =====
         function showNotification(type, title, message, duration = 5000) {
@@ -2819,6 +2818,9 @@
                 allProducts = backupData.products;
                 allCategories = backupData.categories;
                 console.log('🔄 Rollback ke backup data');
+                renderProducts();
+                renderAdminProductList();
+                updateCategoryLists();
                 return true;
             }
             return false;
@@ -2841,15 +2843,11 @@
                 
                 if (error) throw error;
                 
-                console.log("✅ Data berhasil diambil dari Supabase");
+                console.log("✅ Data berhasil diambil dari Supabase:", data);
                 
                 if (!data) {
                     console.log("⚠️ Data tidak ditemukan, menggunakan data default");
-                    return {
-                        products: defaultProducts,
-                        categories: defaultCategories,
-                        lastUpdated: new Date().toISOString()
-                    };
+                    return null;
                 }
                 
                 const isValidProducts = Array.isArray(data.products) && 
@@ -2858,32 +2856,21 @@
                 
                 if (!isValidProducts || !isValidCategories) {
                     console.log("⚠️ Struktur data tidak valid, menggunakan data default");
-                    return {
-                        products: defaultProducts,
-                        categories: defaultCategories,
-                        lastUpdated: new Date().toISOString()
-                    };
+                    return null;
                 }
                 
                 return {
-                    products: data.products || defaultProducts,
-                    categories: data.categories || defaultCategories,
+                    products: data.products || [],
+                    categories: data.categories || [],
                     lastUpdated: data.last_updated || new Date().toISOString()
                 };
             } catch (error) {
                 console.error("❌ Error mengambil data dari Supabase:", error);
-                
-                showNotification('error', 'Koneksi Error', 'Gagal mengambil data dari server, menggunakan data lokal');
-                
-                return {
-                    products: defaultProducts,
-                    categories: defaultCategories,
-                    lastUpdated: new Date().toISOString()
-                };
+                return null;
             }
         }
 
-        async function saveToDatabase(data) {
+        async function saveToDatabase() {
             createBackup();
             
             try {
@@ -2892,12 +2879,12 @@
                 const saveOperation = async () => {
                     const { error } = await supabase
                         .from('store')
-                        .update({
-                            products: data.products,
-                            categories: data.categories,
+                        .upsert({
+                            id: 1,
+                            products: allProducts,
+                            categories: allCategories,
                             last_updated: new Date().toISOString()
-                        })
-                        .eq('id', 1);
+                        });
                     
                     if (error) throw error;
                     
@@ -2919,22 +2906,6 @@
                     `Error: ${error.message}. Data dikembalikan ke versi sebelumnya.`,
                     10000);
                 
-                setTimeout(() => {
-                    const notification = document.querySelector('.notification.error');
-                    if (notification) {
-                        const retryButton = document.createElement('button');
-                        retryButton.className = 'retry-button';
-                        retryButton.textContent = 'Coba Lagi';
-                        retryButton.onclick = async () => {
-                            const success = await saveProducts();
-                            if (success) {
-                                showNotification('success', 'Berhasil', 'Data berhasil disimpan setelah retry');
-                            }
-                        };
-                        notification.querySelector('.notification-content').appendChild(retryButton);
-                    }
-                }, 1000);
-                
                 return { success: false, error: error.message, rollback: rollbackSuccess };
             }
         }
@@ -2946,12 +2917,20 @@
             try {
                 const dbData = await loadFromDatabase();
                 
-                if (dbData) {
-                    allProducts = dbData.products || [...defaultProducts];
-                    allCategories = dbData.categories || [...defaultCategories];
+                if (dbData && dbData.products.length > 0) {
+                    allProducts = dbData.products;
+                    allCategories = dbData.categories;
+                    console.log("✅ Data dari Supabase dimuat:", allProducts.length, "produk");
                 } else {
+                    // Gunakan data default jika Supabase kosong
                     allProducts = [...defaultProducts];
                     allCategories = [...defaultCategories];
+                    console.log("✅ Data default dimuat:", allProducts.length, "produk");
+                    
+                    // Simpan data default ke Supabase
+                    if (dbData === null) {
+                        await saveToDatabase();
+                    }
                 }
                 
                 filteredProducts = [...allProducts];
@@ -2961,6 +2940,7 @@
                 
                 showNotification('success', 'Berhasil', 'Data produk berhasil dimuat');
             } catch (error) {
+                console.error("❌ Error memuat data:", error);
                 showNotification('error', 'Error', 'Gagal memuat data produk');
             } finally {
                 hideLoading();
@@ -2971,39 +2951,12 @@
         async function saveProducts() {
             showLoading('Menyimpan data produk...');
             
-            const data = {
-                products: allProducts,
-                categories: allCategories,
-                lastUpdated: new Date().toISOString()
-            };
-            
-            const result = await saveToDatabase(data);
+            const result = await saveToDatabase();
             
             hideLoading();
             
             if (result.success) {
                 showNotification('success', 'Berhasil', 'Data produk berhasil disimpan');
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        async function saveCategories() {
-            showLoading('Menyimpan kategori...');
-            
-            const data = {
-                products: allProducts,
-                categories: allCategories,
-                lastUpdated: new Date().toISOString()
-            };
-            
-            const result = await saveToDatabase(data);
-            
-            hideLoading();
-            
-            if (result.success) {
-                showNotification('success', 'Berhasil', 'Kategori berhasil disimpan');
                 return true;
             } else {
                 return false;
@@ -3047,11 +3000,16 @@
             const tabsContainer = document.querySelector('.filter-tabs');
             if (!tabsContainer) return;
             
-            const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
-            const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
+            // Hapus semua tab kecuali "Semua Produk"
+            const allTab = tabsContainer.querySelector('.filter-tab[data-filter="all"]');
+            tabsContainer.innerHTML = '';
+            if (allTab) tabsContainer.appendChild(allTab);
             
-            allCategories.forEach(category => {
-                if (!existingFilters.includes(category) && category !== 'all') {
+            // Tambahkan tab untuk setiap kategori unik
+            const uniqueCategories = [...new Set(allProducts.map(p => p.category))];
+            
+            uniqueCategories.forEach(category => {
+                if (category && category !== 'all') {
                     const tab = document.createElement('button');
                     tab.className = 'filter-tab';
                     tab.dataset.filter = category;
@@ -3087,7 +3045,7 @@
             }
             
             allCategories.push(categoryName);
-            const success = await saveCategories();
+            const success = await saveProducts();
             
             if (success) {
                 updateCategoryLists();
@@ -3116,7 +3074,7 @@
             }
             
             allCategories = allCategories.filter(cat => cat !== categoryName);
-            const success = await saveCategories();
+            const success = await saveProducts();
             
             if (success) {
                 updateCategoryLists();
@@ -3151,7 +3109,7 @@
 
         // ===== GENERATE PRODUCT CARD =====
         function generateProductCard(product) {
-            const stars = '★'.repeat(5);
+            const stars = '★'.repeat(Math.round(product.rating));
             const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badgeText || ''}</div>` : '';
             
             return `
@@ -3177,7 +3135,7 @@
                             <div class="stock-indicator"></div>
                             <span class="stock-text">${product.stock}</span>
                         </div>
-                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20${encodeURIComponent(product.name)}" class="btn-buy" target="_blank" rel="noopener">
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20${product.wa || encodeURIComponent(product.name)}" class="btn-buy" target="_blank" rel="noopener">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
                             </svg>
@@ -3310,15 +3268,17 @@
         });
 
         // ===== FILTER TABS =====
-        const filterTabs = document.querySelectorAll('.filter-tab');
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                filterTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                const filterValue = tab.getAttribute('data-filter');
-                filterProducts(filterValue);
+        function setupFilterTabs() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const filterValue = tab.getAttribute('data-filter');
+                    filterProducts(filterValue);
+                });
             });
-        });
+        }
 
         // ===== NAVBAR SCROLL EFFECT =====
         const navbar = document.getElementById('navbar');
@@ -3341,21 +3301,6 @@
             });
             dropdownOverlay.classList.remove('active');
             activeDropdown = null;
-            
-            if (window.innerWidth > 768) {
-                dropdowns.forEach(dropdown => {
-                    const content = dropdown.querySelector('.dropdown-content');
-                    if (content) {
-                        content.style.position = 'absolute';
-                        content.style.bottom = '';
-                        content.style.left = '';
-                        content.style.right = '';
-                        content.style.width = '';
-                        content.style.maxHeight = '';
-                        content.style.borderRadius = '';
-                    }
-                });
-            }
         }
 
         dropdowns.forEach(dropdown => {
@@ -3699,7 +3644,7 @@
             createBackup();
             
             try {
-                allProducts = allProducts.filter(p => p.id !== id);
+                allProducts = allProducts.filter(p => p.id !== parseInt(id));
                 const success = await saveProducts();
                 
                 if (success) {
@@ -3816,7 +3761,12 @@
         // ===== NAVBAR ADMIN MENU CLICK =====
         document.getElementById('navAdmin').addEventListener('click', function(e) {
             e.preventDefault();
-            openAdminModal();
+            const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+            if (isLoggedIn) {
+                openAdminModal();
+            } else {
+                openLoginModal();
+            }
         });
 
         // ===== RESPONSIVE ADJUSTMENTS =====
@@ -3860,9 +3810,11 @@
 
         // ===== INITIALIZE =====
         window.addEventListener('DOMContentLoaded', async () => {
+            // Tampilkan loading
             const productGrid = document.getElementById('productGrid');
             productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
             
+            // Coba load dari local backup dulu untuk tampilan cepat
             const localBackup = loadLocalBackup();
             if (localBackup) {
                 allProducts = localBackup.products;
@@ -3873,34 +3825,47 @@
                 showNotification('info', 'Memuat...', 'Menampilkan data lokal sambil mengambil update...');
             }
             
+            // Load data dari Supabase
             await loadProducts();
+            
+            // Setup lainnya
             checkAdminLogin();
             filterProducts('all');
             setupSearch();
+            setupFilterTabs();
             
-            setInterval(saveLocalBackup, 60000);
-            
-            document.getElementById('navAdmin').addEventListener('click', function(e) {
-                e.preventDefault();
-                const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
-                if (isLoggedIn) {
-                    openAdminModal();
-                } else {
-                    openLoginModal();
-                }
+            // Setup filter tabs event listeners
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    filterProducts(this.dataset.filter);
+                });
             });
             
+            // Auto-save backup lokal setiap 1 menit
+            setInterval(saveLocalBackup, 60000);
+            
+            // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.shiftKey && e.key === 'A') {
                     e.preventDefault();
-                    openAdminModal();
+                    const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+                    if (isLoggedIn) {
+                        openAdminModal();
+                    } else {
+                        openLoginModal();
+                    }
                 }
                 
                 if (e.key === 'Escape') {
                     closeLoginModal();
                     closeAdminModal();
+                    closeAllDropdowns();
                 }
             });
+            
+            console.log("✅ Aplikasi berhasil diinisialisasi");
         });
     </script>
 </body>
