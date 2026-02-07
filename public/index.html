@@ -19,6 +19,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Supabase Client Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
     <style>
         :root {
             --primary: #0071e3;
@@ -2481,17 +2484,14 @@
     </footer>
 
     <script>
-        // ===== JSONBIN CONFIGURATION =====
-        const BIN_ID = "6986547aae596e708f16b404";
-        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OVOCMyX3gP0sxM7qI5LA6jEsXz3n/K7a";
+        // ===== SUPABASE CONFIGURATION =====
+        // GANTI DENGAN CREDENTIALS SUPABASE ANDA
+        const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';  // Ganti dengan URL project Anda
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';  // Ganti dengan Anon Key Anda
         const ADMIN_TOKEN = "75354e17";
 
-        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-        const JSONBIN_HEADERS = {
-            "Content-Type": "application/json",
-            "X-Master-Key": API_KEY,
-            "X-Bin-Versioning": "false"
-        };
+        // Inisialisasi Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ===== PRODUCT DATABASE (DEFAULT) =====
         const defaultProducts = [
@@ -2828,31 +2828,23 @@
             backupData = null;
         }
 
-        // ===== IMPROVED DATABASE FUNCTIONS =====
+        // ===== SUPABASE DATABASE FUNCTIONS =====
         async function loadFromDatabase() {
             try {
-                console.log("📡 Mengambil data dari JSONBin...");
+                console.log("📡 Mengambil data dari Supabase...");
                 
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const { data, error } = await supabase
+                    .from('store')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
                 
-                const response = await fetch(JSONBIN_URL, {
-                    method: 'GET',
-                    headers: JSONBIN_HEADERS,
-                    signal: controller.signal
-                });
+                if (error) throw error;
                 
-                clearTimeout(timeoutId);
+                console.log("✅ Data berhasil diambil dari Supabase");
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log("✅ Data berhasil diambil dari JSONBin");
-                
-                if (!data.record || typeof data.record !== 'object') {
-                    console.log("⚠️ Data tidak valid, menggunakan data default");
+                if (!data) {
+                    console.log("⚠️ Data tidak ditemukan, menggunakan data default");
                     return {
                         products: defaultProducts,
                         categories: defaultCategories,
@@ -2860,9 +2852,9 @@
                     };
                 }
                 
-                const isValidProducts = Array.isArray(data.record.products) && 
-                    data.record.products.every(p => p.id && p.name);
-                const isValidCategories = Array.isArray(data.record.categories);
+                const isValidProducts = Array.isArray(data.products) && 
+                    data.products.every(p => p.id && p.name);
+                const isValidCategories = Array.isArray(data.categories);
                 
                 if (!isValidProducts || !isValidCategories) {
                     console.log("⚠️ Struktur data tidak valid, menggunakan data default");
@@ -2873,15 +2865,15 @@
                     };
                 }
                 
-                return data.record;
+                return {
+                    products: data.products || defaultProducts,
+                    categories: data.categories || defaultCategories,
+                    lastUpdated: data.last_updated || new Date().toISOString()
+                };
             } catch (error) {
-                console.error("❌ Error mengambil data:", error);
+                console.error("❌ Error mengambil data dari Supabase:", error);
                 
-                if (error.name === 'AbortError') {
-                    showNotification('warning', 'Timeout', 'Koneksi timeout, menggunakan data lokal');
-                } else {
-                    showNotification('error', 'Koneksi Error', 'Gagal mengambil data dari server, menggunakan data lokal');
-                }
+                showNotification('error', 'Koneksi Error', 'Gagal mengambil data dari server, menggunakan data lokal');
                 
                 return {
                     products: defaultProducts,
@@ -2895,23 +2887,22 @@
             createBackup();
             
             try {
-                console.log("💾 Menyimpan data ke JSONBin...");
+                console.log("💾 Menyimpan data ke Supabase...");
                 
                 const saveOperation = async () => {
-                    const response = await fetch(JSONBIN_URL, {
-                        method: 'PUT',
-                        headers: JSONBIN_HEADERS,
-                        body: JSON.stringify(data)
-                    });
+                    const { error } = await supabase
+                        .from('store')
+                        .update({
+                            products: data.products,
+                            categories: data.categories,
+                            last_updated: new Date().toISOString()
+                        })
+                        .eq('id', 1);
                     
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`HTTP ${response.status}: ${errorText}`);
-                    }
+                    if (error) throw error;
                     
-                    const result = await response.json();
-                    console.log("✅ Data berhasil disimpan ke JSONBin");
-                    return result;
+                    console.log("✅ Data berhasil disimpan ke Supabase");
+                    return { success: true };
                 };
                 
                 const result = await withRetry(saveOperation, 3, 1000);
@@ -2920,7 +2911,7 @@
                 return { success: true, data: result };
                 
             } catch (error) {
-                console.error("❌ Error menyimpan data:", error);
+                console.error("❌ Error menyimpan data ke Supabase:", error);
                 
                 const rollbackSuccess = rollback();
                 
@@ -2948,7 +2939,7 @@
             }
         }
 
-        // ===== LOAD PRODUCTS & CATEGORIES FROM JSONBIN =====
+        // ===== LOAD PRODUCTS & CATEGORIES FROM SUPABASE =====
         async function loadProducts() {
             showLoading('Memuat data produk...');
             
@@ -2976,7 +2967,7 @@
             }
         }
 
-        // ===== SAVE PRODUCTS & CATEGORIES TO JSONBIN =====
+        // ===== SAVE PRODUCTS & CATEGORIES TO SUPABASE =====
         async function saveProducts() {
             showLoading('Menyimpan data produk...');
             
