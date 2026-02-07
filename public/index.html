@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berkat Yakin — Pusat Belanja & Layanan Keuangan Banjarmasin</title>
-    <meta name="description" content="Toko Berkat Yakin - Pusat belanja sembako, snack, minuman, dan layanan keuangan terlengkap di Banjarmasin. Buka setiap hari 08:00-22:00 WITA.">
+    <meta name="description" content="Toko Berkat Yakin - Pusat belanja sembako, snack, minuran, dan layanan keuangan terlengkap di Banjarmasin. Buka setiap hari 08:00-22:00 WITA.">
     <meta name="keywords" content="toko, sembako, banjarmasin, pulsa, token pln, snack, minuman, berkat yakin">
     <meta name="author" content="Toko Berkat Yakin">
     
@@ -581,6 +581,159 @@
         .animate-on-scroll.visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* NOTIFICATION SYSTEM */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 99999;
+            max-width: 350px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateX(400px);
+            transition: transform 0.3s var(--transition);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--accent-green);
+            color: white;
+            border-left: 4px solid var(--accent-green-light);
+        }
+
+        .notification.error {
+            background: var(--accent-red);
+            color: white;
+            border-left: 4px solid #e5342a;
+        }
+
+        .notification.warning {
+            background: var(--accent-orange);
+            color: white;
+            border-left: 4px solid #ff8c00;
+        }
+
+        .notification.info {
+            background: var(--primary);
+            color: white;
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .notification-icon {
+            font-size: 1.25rem;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-message {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            gap: 1rem;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* VALIDATION ERROR STYLES */
+        .validation-error {
+            color: var(--accent-red);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .validation-error.show {
+            display: block;
+        }
+
+        .form-group.error input,
+        .form-group.error textarea,
+        .form-group.error select {
+            border-color: var(--accent-red);
+            background-color: rgba(255, 59, 48, 0.05);
+        }
+
+        /* RETRY BUTTON */
+        .retry-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .retry-button:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* NAVIGATION - IMPROVED FOR MOBILE */
@@ -1845,6 +1998,15 @@
     </style>
 </head>
 <body>
+    <!-- NOTIFICATION SYSTEM -->
+    <div id="notificationContainer"></div>
+    
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Menyimpan data...</div>
+    </div>
+
     <!-- OVERLAY UNTUK DROPDOWN MOBILE -->
     <div class="dropdown-overlay" id="dropdownOverlay"></div>
 
@@ -1858,6 +2020,7 @@
             <div class="form-group">
                 <label for="adminToken">Token Admin</label>
                 <input type="password" id="adminToken" placeholder="Masukkan Token Admin">
+                <div class="validation-error" id="tokenError"></div>
             </div>
             <div class="login-error" id="loginError">Token salah!</div>
             <div class="form-actions">
@@ -1899,40 +2062,46 @@
             
             <h3 style="margin-bottom: 1rem;" id="formTitle">Tambah Produk Baru</h3>
             
-            <div class="form-group">
-                <label for="productName">Nama Produk</label>
+            <div class="form-group" id="nameGroup">
+                <label for="productName">Nama Produk *</label>
                 <input type="text" id="productName" placeholder="Contoh: Indomie Soto Banjar">
+                <div class="validation-error" id="nameError"></div>
             </div>
             
-            <div class="form-group">
-                <label for="productCategory">Kategori</label>
+            <div class="form-group" id="categoryGroup">
+                <label for="productCategory">Kategori *</label>
                 <input type="text" id="productCategory" list="categoryOptions" placeholder="Pilih atau ketik kategori baru">
                 <datalist id="categoryOptions">
                     <!-- Opsi kategori akan diisi oleh JavaScript -->
                 </datalist>
+                <div class="validation-error" id="categoryError"></div>
             </div>
             
-            <div class="form-group">
-                <label for="productPrice">Harga</label>
+            <div class="form-group" id="priceGroup">
+                <label for="productPrice">Harga *</label>
                 <input type="text" id="productPrice" placeholder="Contoh: Rp 3.000">
+                <div class="validation-error" id="priceError"></div>
             </div>
             
-            <div class="form-group">
-                <label for="productDesc">Deskripsi</label>
+            <div class="form-group" id="descGroup">
+                <label for="productDesc">Deskripsi *</label>
                 <textarea id="productDesc" placeholder="Deskripsi produk"></textarea>
+                <div class="validation-error" id="descError"></div>
             </div>
             
-            <div class="form-group">
-                <label for="productStock">Status Stok</label>
+            <div class="form-group" id="stockGroup">
+                <label for="productStock">Status Stok *</label>
                 <input type="text" id="productStock" placeholder="Contoh: Stok Tersedia">
+                <div class="validation-error" id="stockError"></div>
             </div>
             
-            <div class="form-group">
+            <div class="form-group" id="ratingGroup">
                 <label for="productRating">Rating (1-5)</label>
                 <input type="number" id="productRating" min="1" max="5" step="0.1" value="4.5">
+                <div class="validation-error" id="ratingError"></div>
             </div>
             
-            <div class="form-group">
+            <div class="form-group" id="badgeGroup">
                 <label for="productBadge">Badge</label>
                 <select id="productBadge">
                     <option value="">Tidak ada badge</option>
@@ -1942,8 +2111,8 @@
                 </select>
             </div>
             
-            <div class="form-group">
-                <label>Gambar Produk</label>
+            <div class="form-group" id="imageGroup">
+                <label>Gambar Produk *</label>
                 <div class="image-upload" onclick="document.getElementById('productImageInput').click()">
                     <div style="font-size: 3rem; margin-bottom: 0.5rem;">📷</div>
                     <div>Klik untuk upload gambar</div>
@@ -1953,6 +2122,7 @@
                 </div>
                 <input type="file" id="productImageInput" accept="image/jpeg,image/jpg" style="display: none;">
                 <img id="imagePreview" class="image-preview" alt="Preview">
+                <div class="validation-error" id="imageError"></div>
             </div>
             
             <input type="hidden" id="productId">
@@ -2337,11 +2507,9 @@
 
     <script>
         // ===== JSONBIN CONFIGURATION =====
-        // ===== GANTI DENGAN DATA ANDA =====
-        const BIN_ID = "6986547aae596e708f16b404"; // 
-        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OVOCMyX3gP0sxM7qI5LA6jEsXz3n/K7a"; // 
-        const ADMIN_TOKEN = "75354e17";  // <- Inilah token Anda
-        // ===== AKHIR CONFIGURATION =====
+        const BIN_ID = "6986547aae596e708f16b404";
+        const API_KEY = "$2a$10$rDR/q6udEL00n69Clr3e.OVOCMyX3gP0sxM7qI5LA6jEsXz3n/K7a";
+        const ADMIN_TOKEN = "75354e17";
 
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         const JSONBIN_HEADERS = {
@@ -2535,14 +2703,180 @@
         let allProducts = [];
         let allCategories = [];
 
-        // ===== DATABASE FUNCTIONS =====
+        // ===== NOTIFICATION SYSTEM =====
+        function showNotification(type, title, message, duration = 5000) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // ===== LOADING OVERLAY =====
+        function showLoading(message = 'Menyimpan data...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const text = document.getElementById('loadingText');
+            text.textContent = message;
+            overlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('active');
+        }
+
+        // ===== VALIDATION FUNCTIONS =====
+        function validateProductData(data) {
+            const errors = {};
+            
+            // Nama produk validation
+            if (!data.name || data.name.trim().length < 3) {
+                errors.name = 'Nama produk harus minimal 3 karakter';
+            }
+            
+            // Kategori validation
+            if (!data.category || data.category.trim().length < 2) {
+                errors.category = 'Kategori harus minimal 2 karakter';
+            }
+            
+            // Harga validation
+            if (!data.price || !data.price.includes('Rp')) {
+                errors.price = 'Harga harus dalam format Rp (contoh: Rp 3.000)';
+            }
+            
+            // Deskripsi validation
+            if (!data.desc || data.desc.trim().length < 10) {
+                errors.desc = 'Deskripsi harus minimal 10 karakter';
+            }
+            
+            // Stok validation
+            if (!data.stock || data.stock.trim().length < 2) {
+                errors.stock = 'Status stok harus diisi';
+            }
+            
+            // Rating validation
+            if (data.rating < 1 || data.rating > 5) {
+                errors.rating = 'Rating harus antara 1-5';
+            }
+            
+            // Image validation
+            if (!data.image) {
+                errors.image = 'Gambar produk harus diupload';
+            }
+            
+            return errors;
+        }
+
+        function showValidationErrors(errors) {
+            // Reset semua error
+            document.querySelectorAll('.validation-error').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+            
+            document.querySelectorAll('.form-group').forEach(el => {
+                el.classList.remove('error');
+            });
+            
+            // Tampilkan error yang ada
+            Object.keys(errors).forEach(field => {
+                const errorEl = document.getElementById(`${field}Error`);
+                const groupEl = document.getElementById(`${field}Group`);
+                
+                if (errorEl && groupEl) {
+                    errorEl.textContent = errors[field];
+                    errorEl.classList.add('show');
+                    groupEl.classList.add('error');
+                }
+            });
+            
+            return Object.keys(errors).length === 0;
+        }
+
+        // ===== RETRY MECHANISM =====
+        async function withRetry(fn, maxRetries = 3, delay = 1000) {
+            let lastError;
+            
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    return await fn();
+                } catch (error) {
+                    lastError = error;
+                    console.log(`🔄 Retry ${i + 1}/${maxRetries} setelah gagal:`, error.message);
+                    
+                    if (i < maxRetries - 1) {
+                        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+                    }
+                }
+            }
+            
+            throw lastError;
+        }
+
+        // ===== ROLLBACK SYSTEM =====
+        let backupData = null;
+
+        function createBackup() {
+            backupData = {
+                products: JSON.parse(JSON.stringify(allProducts)),
+                categories: JSON.parse(JSON.stringify(allCategories)),
+                timestamp: Date.now()
+            };
+            console.log('💾 Backup data dibuat');
+        }
+
+        function rollback() {
+            if (backupData) {
+                allProducts = backupData.products;
+                allCategories = backupData.categories;
+                console.log('🔄 Rollback ke backup data');
+                return true;
+            }
+            return false;
+        }
+
+        function clearBackup() {
+            backupData = null;
+        }
+
+        // ===== IMPROVED DATABASE FUNCTIONS =====
         async function loadFromDatabase() {
             try {
                 console.log("📡 Mengambil data dari JSONBin...");
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik timeout
+                
                 const response = await fetch(JSONBIN_URL, {
                     method: 'GET',
-                    headers: JSONBIN_HEADERS
+                    headers: JSONBIN_HEADERS,
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -2551,9 +2885,23 @@
                 const data = await response.json();
                 console.log("✅ Data berhasil diambil dari JSONBin");
                 
-                // Jika bin kosong, inisialisasi dengan data default
-                if (!data.record || Object.keys(data.record).length === 0) {
-                    console.log("📦 Bin kosong, menginisialisasi dengan data default...");
+                // Validasi data yang diterima
+                if (!data.record || typeof data.record !== 'object') {
+                    console.log("⚠️ Data tidak valid, menggunakan data default");
+                    return {
+                        products: defaultProducts,
+                        categories: defaultCategories,
+                        lastUpdated: new Date().toISOString()
+                    };
+                }
+                
+                // Validasi struktur data
+                const isValidProducts = Array.isArray(data.record.products) && 
+                    data.record.products.every(p => p.id && p.name);
+                const isValidCategories = Array.isArray(data.record.categories);
+                
+                if (!isValidProducts || !isValidCategories) {
+                    console.log("⚠️ Struktur data tidak valid, menggunakan data default");
                     return {
                         products: defaultProducts,
                         categories: defaultCategories,
@@ -2564,7 +2912,13 @@
                 return data.record;
             } catch (error) {
                 console.error("❌ Error mengambil data:", error);
-                console.log("🔄 Menggunakan data default karena error...");
+                
+                if (error.name === 'AbortError') {
+                    showNotification('warning', 'Timeout', 'Koneksi timeout, menggunakan data lokal');
+                } else {
+                    showNotification('error', 'Koneksi Error', 'Gagal mengambil data dari server, menggunakan data lokal');
+                }
+                
                 return {
                     products: defaultProducts,
                     categories: defaultCategories,
@@ -2574,67 +2928,138 @@
         }
 
         async function saveToDatabase(data) {
+            // Buat backup sebelum menyimpan
+            createBackup();
+            
             try {
                 console.log("💾 Menyimpan data ke JSONBin...");
-                const response = await fetch(JSONBIN_URL, {
-                    method: 'PUT',
-                    headers: JSONBIN_HEADERS,
-                    body: JSON.stringify(data)
-                });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                const saveOperation = async () => {
+                    const response = await fetch(JSONBIN_URL, {
+                        method: 'PUT',
+                        headers: JSONBIN_HEADERS,
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    console.log("✅ Data berhasil disimpan ke JSONBin");
+                    return result;
+                };
                 
-                const result = await response.json();
-                console.log("✅ Data berhasil disimpan ke JSONBin");
-                return true;
+                // Gunakan retry mechanism
+                const result = await withRetry(saveOperation, 3, 1000);
+                
+                // Clear backup setelah berhasil
+                clearBackup();
+                return { success: true, data: result };
+                
             } catch (error) {
                 console.error("❌ Error menyimpan data:", error);
-                alert("⚠️ Gagal menyimpan data ke server. Silakan coba lagi.");
-                return false;
+                
+                // Rollback ke backup
+                const rollbackSuccess = rollback();
+                
+                // Tampilkan notifikasi dengan opsi retry
+                const notificationId = Date.now();
+                showNotification('error', 'Gagal Menyimpan', 
+                    `Error: ${error.message}. Data dikembalikan ke versi sebelumnya.`,
+                    10000);
+                
+                // Tambahkan opsi retry manual
+                setTimeout(() => {
+                    const notification = document.querySelector(`[data-id="${notificationId}"]`);
+                    if (notification) {
+                        const retryButton = document.createElement('button');
+                        retryButton.className = 'retry-button';
+                        retryButton.textContent = 'Coba Lagi';
+                        retryButton.onclick = async () => {
+                            const success = await saveProducts();
+                            if (success) {
+                                showNotification('success', 'Berhasil', 'Data berhasil disimpan setelah retry');
+                            }
+                        };
+                        notification.querySelector('.notification-content').appendChild(retryButton);
+                    }
+                }, 1000);
+                
+                return { success: false, error: error.message, rollback: rollbackSuccess };
             }
         }
 
         // ===== LOAD PRODUCTS & CATEGORIES FROM JSONBIN =====
         async function loadProducts() {
-            const dbData = await loadFromDatabase();
+            showLoading('Memuat data produk...');
             
-            if (dbData) {
-                allProducts = dbData.products || [...defaultProducts];
-                allCategories = dbData.categories || [...defaultCategories];
-            } else {
-                allProducts = [...defaultProducts];
-                allCategories = [...defaultCategories];
+            try {
+                const dbData = await loadFromDatabase();
+                
+                if (dbData) {
+                    allProducts = dbData.products || [...defaultProducts];
+                    allCategories = dbData.categories || [...defaultCategories];
+                } else {
+                    allProducts = [...defaultProducts];
+                    allCategories = [...defaultCategories];
+                }
+                
+                filteredProducts = [...allProducts];
+                renderProducts();
+                renderAdminProductList();
+                updateCategoryLists();
+                
+                showNotification('success', 'Berhasil', 'Data produk berhasil dimuat');
+            } catch (error) {
+                showNotification('error', 'Error', 'Gagal memuat data produk');
+            } finally {
+                hideLoading();
             }
-            
-            filteredProducts = [...allProducts];
-            renderProducts();
-            renderAdminProductList();
-            updateCategoryLists();
         }
 
         // ===== SAVE PRODUCTS & CATEGORIES TO JSONBIN =====
         async function saveProducts() {
+            showLoading('Menyimpan data produk...');
+            
             const data = {
                 products: allProducts,
                 categories: allCategories,
                 lastUpdated: new Date().toISOString()
             };
             
-            const success = await saveToDatabase(data);
-            return success;
+            const result = await saveToDatabase(data);
+            
+            hideLoading();
+            
+            if (result.success) {
+                showNotification('success', 'Berhasil', 'Data produk berhasil disimpan');
+                return true;
+            } else {
+                return false;
+            }
         }
 
         async function saveCategories() {
+            showLoading('Menyimpan kategori...');
+            
             const data = {
                 products: allProducts,
                 categories: allCategories,
                 lastUpdated: new Date().toISOString()
             };
             
-            const success = await saveToDatabase(data);
-            return success;
+            const result = await saveToDatabase(data);
+            
+            hideLoading();
+            
+            if (result.success) {
+                showNotification('success', 'Berhasil', 'Kategori berhasil disimpan');
+                return true;
+            } else {
+                return false;
+            }
         }
 
         // ===== UPDATE CATEGORY LISTS =====
@@ -2705,12 +3130,17 @@
             const categoryName = input.value.trim().toLowerCase();
             
             if (!categoryName) {
-                alert('Nama kategori tidak boleh kosong!');
+                showNotification('error', 'Error', 'Nama kategori tidak boleh kosong!');
                 return;
             }
             
             if (allCategories.includes(categoryName)) {
-                alert('Kategori sudah ada!');
+                showNotification('warning', 'Peringatan', 'Kategori sudah ada!');
+                return;
+            }
+            
+            if (categoryName.length < 2) {
+                showNotification('error', 'Error', 'Nama kategori minimal 2 karakter!');
                 return;
             }
             
@@ -2720,7 +3150,7 @@
             if (success) {
                 updateCategoryLists();
                 input.value = '';
-                alert(`Kategori "${categoryName}" berhasil ditambahkan!`);
+                showNotification('success', 'Berhasil', `Kategori "${categoryName}" berhasil ditambahkan!`);
             }
         }
 
@@ -2728,7 +3158,7 @@
         async function deleteCategory(categoryName) {
             // Prevent deletion of default categories
             if (['mie', 'rokok'].includes(categoryName)) {
-                alert('Kategori default tidak bisa dihapus!');
+                showNotification('error', 'Error', 'Kategori default tidak bisa dihapus!');
                 return;
             }
             
@@ -2751,7 +3181,7 @@
             if (success) {
                 updateCategoryLists();
                 filterProducts(currentFilter);
-                alert(`Kategori "${categoryName}" berhasil dihapus!`);
+                showNotification('success', 'Berhasil', `Kategori "${categoryName}" berhasil dihapus!`);
             }
         }
 
@@ -2767,7 +3197,6 @@
                             img.classList.add('loaded');
                         };
                         img.onerror = () => {
-                            // Fallback to placeholder if image not found
                             img.src = `https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(img.alt)}`;
                             img.classList.add('loaded');
                         };
@@ -3109,6 +3538,13 @@
         // ===== ADMIN FUNCTIONS =====
         function loginAdmin() {
             const token = document.getElementById('adminToken').value;
+            const tokenError = document.getElementById('tokenError');
+            
+            if (!token) {
+                tokenError.textContent = 'Token tidak boleh kosong';
+                tokenError.classList.add('show');
+                return;
+            }
             
             if (token === ADMIN_TOKEN) {
                 // Login berhasil
@@ -3116,6 +3552,7 @@
                 closeLoginModal();
                 openAdminModal();
                 updateAdminMenu(true);
+                showNotification('success', 'Berhasil Login', 'Selamat datang di panel admin');
             } else {
                 showLoginError();
             }
@@ -3149,7 +3586,7 @@
             sessionStorage.removeItem('admin_logged_in');
             closeAdminModal();
             updateAdminMenu(false);
-            alert('Anda telah logout dari admin.');
+            showNotification('info', 'Logout', 'Anda telah logout dari admin.');
         }
 
         function openLoginModal() {
@@ -3160,6 +3597,7 @@
         function closeLoginModal() {
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('adminToken').value = '';
+            document.getElementById('tokenError').classList.remove('show');
         }
 
         function openAdminModal() {
@@ -3194,7 +3632,7 @@
                     </div>
                     <div class="admin-product-actions">
                         <button class="action-btn edit-btn" onclick="editProduct(${product.id})">Edit</button>
-                        <button class="action-btn delete-btn" onclick="deleteProduct(${product.id})">Hapus</button>
+                        <button class="action-btn delete-btn" onclick="confirmDeleteProduct(${product.id})">Hapus</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -3229,48 +3667,78 @@
             document.getElementById('saveProductBtn').textContent = 'Update Produk';
             document.getElementById('deleteProductBtn').style.display = 'block';
             
+            // Clear validation errors
+            showValidationErrors({});
+            
             // Scroll to form
             document.querySelector('.modal-content').scrollTop = 0;
         }
 
         async function saveProduct() {
             const id = document.getElementById('productId').value;
-            const name = document.getElementById('productName').value;
+            const name = document.getElementById('productName').value.trim();
             const category = document.getElementById('productCategory').value.trim().toLowerCase();
-            const price = document.getElementById('productPrice').value;
-            const desc = document.getElementById('productDesc').value;
-            const stock = document.getElementById('productStock').value;
-            const rating = document.getElementById('productRating').value;
+            const price = document.getElementById('productPrice').value.trim();
+            const desc = document.getElementById('productDesc').value.trim();
+            const stock = document.getElementById('productStock').value.trim();
+            const rating = parseFloat(document.getElementById('productRating').value);
             const badge = document.getElementById('productBadge').value;
             const imageData = document.getElementById('productImageData').value;
             
-            if (!name || !price || !desc || !stock || !imageData) {
-                alert('Harap isi semua field yang wajib!');
+            const productData = {
+                name,
+                category,
+                price,
+                desc,
+                stock,
+                rating,
+                badge,
+                image: imageData
+            };
+            
+            // Validasi data
+            const errors = validateProductData(productData);
+            if (!showValidationErrors(errors)) {
+                showNotification('error', 'Validasi Gagal', 'Harap perbaiki field yang error');
                 return;
             }
             
-            if (!category) {
-                alert('Harap masukkan kategori!');
-                return;
-            }
+            // Buat backup sebelum perubahan
+            createBackup();
             
-            // Add new category if it doesn't exist
-            if (!allCategories.includes(category)) {
-                allCategories.push(category);
-                await saveCategories();
-                updateCategoryLists();
-            }
-            
-            const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
-                             badge === 'new' ? '✨ PILIHAN HEMAT' :
-                             badge === 'promo' ? '🔥 ECERAN' : '';
-            
-            if (id) {
-                // Update existing product
-                const index = allProducts.findIndex(p => p.id === parseInt(id));
-                if (index !== -1) {
-                    allProducts[index] = {
-                        ...allProducts[index],
+            try {
+                // Add new category if it doesn't exist
+                if (!allCategories.includes(category)) {
+                    allCategories.push(category);
+                }
+                
+                const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
+                                 badge === 'new' ? '✨ PILIHAN HEMAT' :
+                                 badge === 'promo' ? '🔥 ECERAN' : '';
+                
+                if (id) {
+                    // Update existing product
+                    const index = allProducts.findIndex(p => p.id === parseInt(id));
+                    if (index !== -1) {
+                        allProducts[index] = {
+                            ...allProducts[index],
+                            name,
+                            category,
+                            price,
+                            desc,
+                            stock,
+                            rating: parseFloat(rating),
+                            badge,
+                            badgeText,
+                            image: imageData,
+                            wa: encodeURIComponent(name)
+                        };
+                    }
+                } else {
+                    // Add new product
+                    const newId = allProducts.length > 0 ? Math.max(...allProducts.map(p => p.id)) + 1 : 1;
+                    const newProduct = {
+                        id: newId,
                         name,
                         category,
                         price,
@@ -3282,33 +3750,28 @@
                         image: imageData,
                         wa: encodeURIComponent(name)
                     };
+                    allProducts.push(newProduct);
                 }
-            } else {
-                // Add new product
-                const newId = allProducts.length > 0 ? Math.max(...allProducts.map(p => p.id)) + 1 : 1;
-                const newProduct = {
-                    id: newId,
-                    name,
-                    category,
-                    price,
-                    desc,
-                    stock,
-                    rating: parseFloat(rating),
-                    badge,
-                    badgeText,
-                    image: imageData,
-                    wa: encodeURIComponent(name)
-                };
-                allProducts.push(newProduct);
+                
+                const success = await saveProducts();
+                if (success) {
+                    renderProducts();
+                    renderAdminProductList();
+                    updateFilterTabs();
+                    updateCategoryLists();
+                    resetForm();
+                    showNotification('success', 'Berhasil', id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
+                }
+            } catch (error) {
+                // Rollback jika error
+                rollback();
+                showNotification('error', 'Error', 'Gagal menyimpan produk. Data dikembalikan.');
             }
-            
-            const success = await saveProducts();
-            if (success) {
-                renderProducts();
-                renderAdminProductList();
-                updateFilterTabs();
-                resetForm();
-                alert(id ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!');
+        }
+
+        function confirmDeleteProduct(id) {
+            if (confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) {
+                deleteProduct(id);
             }
         }
 
@@ -3319,7 +3782,10 @@
             
             if (!id) return;
             
-            if (confirm('Yakin ingin menghapus produk ini?')) {
+            // Buat backup sebelum penghapusan
+            createBackup();
+            
+            try {
                 allProducts = allProducts.filter(p => p.id !== id);
                 const success = await saveProducts();
                 
@@ -3327,8 +3793,12 @@
                     renderProducts();
                     renderAdminProductList();
                     resetForm();
-                    alert('Produk berhasil dihapus!');
+                    showNotification('success', 'Berhasil', 'Produk berhasil dihapus!');
                 }
+            } catch (error) {
+                // Rollback jika error
+                rollback();
+                showNotification('error', 'Error', 'Gagal menghapus produk. Data dikembalikan.');
             }
         }
 
@@ -3352,6 +3822,9 @@
             document.getElementById('formTitle').textContent = 'Tambah Produk Baru';
             document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
             document.getElementById('deleteProductBtn').style.display = 'none';
+            
+            // Clear validation errors
+            showValidationErrors({});
         }
 
         // ===== IMAGE UPLOAD AND COMPRESSION =====
@@ -3361,21 +3834,36 @@
             
             // Check if file is JPG
             if (!file.type.match('image/jpeg') && !file.type.match('image/jpg')) {
-                alert('Hanya format JPG yang diperbolehkan!');
+                showNotification('error', 'Format Error', 'Hanya format JPG yang diperbolehkan!');
+                this.value = '';
+                return;
+            }
+            
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('error', 'Ukuran Error', 'Ukuran file maksimal 2MB!');
                 this.value = '';
                 return;
             }
             
             try {
+                showLoading('Mengkompresi gambar...');
                 const compressedImage = await compressImage(file);
                 document.getElementById('productImageData').value = compressedImage;
                 
                 const preview = document.getElementById('imagePreview');
                 preview.src = compressedImage;
                 preview.classList.add('show');
+                
+                // Clear image error
+                document.getElementById('imageError').classList.remove('show');
+                
+                showNotification('success', 'Berhasil', 'Gambar berhasil diupload dan dikompresi');
             } catch (error) {
                 console.error('Error compressing image:', error);
-                alert('Gagal mengkompresi gambar. Silakan coba lagi.');
+                showNotification('error', 'Error', 'Gagal mengkompresi gambar. Silakan coba lagi.');
+            } finally {
+                hideLoading();
             }
         });
 
@@ -3436,16 +3924,62 @@
 
         window.addEventListener('resize', handleResize);
 
+        // ===== AUTO-SAVE LOCAL BACKUP =====
+        function saveLocalBackup() {
+            try {
+                const backup = {
+                    products: allProducts,
+                    categories: allCategories,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('product_backup', JSON.stringify(backup));
+                console.log('💾 Local backup saved');
+            } catch (error) {
+                console.error('Failed to save local backup:', error);
+            }
+        }
+
+        function loadLocalBackup() {
+            try {
+                const backup = localStorage.getItem('product_backup');
+                if (backup) {
+                    const data = JSON.parse(backup);
+                    // Check if backup is not too old (24 hours)
+                    if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+                        return data;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load local backup:', error);
+            }
+            return null;
+        }
+
         // ===== INITIALIZE =====
         window.addEventListener('DOMContentLoaded', async () => {
             // Tampilkan loading state
             const productGrid = document.getElementById('productGrid');
             productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
             
+            // Coba load dari local backup dulu untuk tampilan cepat
+            const localBackup = loadLocalBackup();
+            if (localBackup) {
+                allProducts = localBackup.products;
+                allCategories = localBackup.categories;
+                filteredProducts = [...allProducts];
+                renderProducts();
+                updateCategoryLists();
+                showNotification('info', 'Memuat...', 'Menampilkan data lokal sambil mengambil update...');
+            }
+            
+            // Kemudian load data terbaru dari server
             await loadProducts();
             checkAdminLogin();
             filterProducts('all');
             setupSearch();
+            
+            // Auto-save local backup ketika data berubah
+            setInterval(saveLocalBackup, 60000); // Setiap 1 menit
             
             // Inisialisasi event listener untuk admin
             document.getElementById('navAdmin').addEventListener('click', function(e) {
@@ -3455,6 +3989,21 @@
                     openAdminModal();
                 } else {
                     openLoginModal();
+                }
+            });
+            
+            // Keyboard shortcut untuk admin
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+Shift+A untuk admin panel
+                if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                    e.preventDefault();
+                    openAdminModal();
+                }
+                
+                // Escape untuk close modal
+                if (e.key === 'Escape') {
+                    closeLoginModal();
+                    closeAdminModal();
                 }
             });
         });
