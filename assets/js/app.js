@@ -263,8 +263,8 @@ async function saveProduct() {
     const name = document.getElementById('productName').value.trim();
     const category = document.getElementById('productCategory').value.trim();
     const price = document.getElementById('productPrice').value.trim();
-    const description = document.getElementById('productDesc').value.trim();
-    const stock = document.getElementById('productStock').value.trim();
+    const desc = document.getElementById('productDesc').value.trim();  // ← UBAH dari description ke desc
+    const stock = document.getElementById('productStock').value.trim();  // ← UBAH dari stock_status ke stock
     const rating = parseFloat(document.getElementById('productRating').value) || 4.5;
     const badge = document.getElementById('productBadge').value;
     const imageInput = document.getElementById('productImageInput');
@@ -288,12 +288,12 @@ async function saveProduct() {
         isValid = false;
     }
     
-    if (!description) {
+    if (!desc) {  // ← UBAH dari description ke desc
         showValidationError('descError', 'Deskripsi harus diisi');
         isValid = false;
     }
     
-    if (!stock) {
+    if (!stock) {  // ← UBAH dari stock_status ke stock
         showValidationError('stockError', 'Status stok harus diisi');
         isValid = false;
     }
@@ -319,7 +319,7 @@ async function saveProduct() {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
             
-            // PERBAIKAN: Upload langsung ke root bucket, bukan ke folder products/
+            // Upload langsung ke root bucket
             const filePath = fileName;
             
             console.log('Uploading image to:', filePath);
@@ -347,19 +347,19 @@ async function saveProduct() {
             console.log('Image URL:', finalImageUrl);
         }
         
-        // Prepare product data
+        // ⚠️ PENTING: Prepare product data dengan KOLOM YANG BENAR sesuai database
         const productData = {
             name,
             category,
             price,
-            description,
-            stock_status: stock,
+            desc,        // ← BENAR: sesuai kolom database
+            stock,       // ← BENAR: sesuai kolom database
             rating,
             badge: badge || null,
             image_url: finalImageUrl
         };
         
-        console.log('Saving product:', productData);
+        console.log('Saving product with data:', productData);
         
         if (productId) {
             // UPDATE existing product
@@ -419,6 +419,8 @@ async function saveProduct() {
             errorMessage = 'Akses ditolak. Pastikan Anda login sebagai admin.';
         } else if (error.message.includes('RLS')) {
             errorMessage = 'RLS Policy: Anda tidak memiliki izin untuk operasi ini.';
+        } else if (error.message.includes('column')) {
+            errorMessage = 'Error kolom database: ' + error.message;
         }
         
         showNotification('error', 'Gagal Menyimpan Produk', errorMessage);
@@ -474,8 +476,8 @@ function editProduct(productId) {
     document.getElementById('productName').value = product.name;
     document.getElementById('productCategory').value = product.category;
     document.getElementById('productPrice').value = product.price;
-    document.getElementById('productDesc').value = product.description;
-    document.getElementById('productStock').value = product.stock_status;
+    document.getElementById('productDesc').value = product.desc;        // ← BENAR: sesuai kolom database
+    document.getElementById('productStock').value = product.stock;      // ← BENAR: sesuai kolom database
     document.getElementById('productRating').value = product.rating;
     document.getElementById('productBadge').value = product.badge || '';
     document.getElementById('productImageUrl').value = product.image_url;
@@ -648,7 +650,6 @@ function renderProducts(append = false) {
         const productCard = document.createElement('div');
         productCard.className = 'product-card animate-on-scroll';
         
-        // PERBAIKAN: Konstruksi image URL dengan benar
         const imageUrl = product.image_url;
         
         productCard.innerHTML = `
@@ -657,10 +658,10 @@ function renderProducts(append = false) {
             <div class="product-content">
                 <div class="product-category">${product.category}</div>
                 <h3 class="product-title">${product.name}</h3>
-                <p class="product-description">${product.description}</p>
+                <p class="product-description">${product.desc}</p>
                 <div class="product-meta">
                     <span class="product-price">${product.price}</span>
-                    <span class="product-stock">${product.stock_status}</span>
+                    <span class="product-stock">${product.stock}</span>
                 </div>
                 <div class="product-rating">
                     ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
@@ -691,7 +692,6 @@ function renderAdminProductList() {
     }
     
     adminList.innerHTML = allProducts.map(product => {
-        // PERBAIKAN: Konstruksi image URL dengan benar
         const imageUrl = product.image_url;
         
         return `
@@ -729,14 +729,14 @@ function setupSearch() {
         if (currentFilter === 'all') {
             filteredProducts = allProducts.filter(p => 
                 p.name.toLowerCase().includes(query) ||
-                p.description.toLowerCase().includes(query) ||
+                p.desc.toLowerCase().includes(query) ||        // ← BENAR: sesuai kolom database
                 p.category.toLowerCase().includes(query)
             );
         } else {
             filteredProducts = allProducts.filter(p => 
                 p.category === currentFilter &&
                 (p.name.toLowerCase().includes(query) ||
-                 p.description.toLowerCase().includes(query) ||
+                 p.desc.toLowerCase().includes(query) ||       // ← BENAR: sesuai kolom database
                  p.category.toLowerCase().includes(query))
             );
         }
