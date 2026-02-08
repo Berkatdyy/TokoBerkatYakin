@@ -1,5 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
-
+// ===== SUPABASE CONFIGURATION =====
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
         
