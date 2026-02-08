@@ -12,7 +12,7 @@
     <meta property="og:title" content="Berkat Yakin - Pusat Belanja Banjarmasin">
     <meta property="og:description" content="Sembako berkualitas, snack favorit, minuman segar, dan layanan keuangan lengkap.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="warung.jpg">
+    <meta property="og:image" content="assets/images/warung.jpg">
     
     <!-- Preconnect untuk performa -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,50 +102,33 @@
             
             <div class="form-group" id="priceGroup">
                 <label for="productPrice">Harga *</label>
-                <input type="text" id="productPrice" placeholder="Contoh: Rp 3.000">
+                <input type="text" id="productPrice" placeholder="Contoh: 3500">
                 <div class="validation-error" id="priceError"></div>
             </div>
             
-            <div class="form-group" id="descGroup">
-                <label for="productDesc">Deskripsi *</label>
-                <textarea id="productDesc" placeholder="Deskripsi produk"></textarea>
-                <div class="validation-error" id="descError"></div>
+            <div class="form-group">
+                <label for="productDesc">Deskripsi</label>
+                <textarea id="productDesc" rows="3" placeholder="Deskripsi produk (opsional)"></textarea>
             </div>
             
-            <div class="form-group" id="stockGroup">
-                <label for="productStock">Status Stok *</label>
-                <input type="text" id="productStock" placeholder="Contoh: Stok Tersedia">
-                <div class="validation-error" id="stockError"></div>
+            <div class="form-group">
+                <label for="productStock">Stok</label>
+                <input type="number" id="productStock" value="0" min="0">
             </div>
             
-            <div class="form-group" id="ratingGroup">
+            <div class="form-group">
                 <label for="productRating">Rating (1-5)</label>
-                <input type="number" id="productRating" min="1" max="5" step="0.1" value="4.5">
-                <div class="validation-error" id="ratingError"></div>
+                <input type="number" id="productRating" value="5.0" min="1" max="5" step="0.1">
             </div>
             
-            <div class="form-group" id="badgeGroup">
+            <div class="form-group">
                 <label for="productBadge">Badge</label>
                 <select id="productBadge">
-                    <option value="">Tidak ada badge</option>
-                    <option value="bestseller">Bestseller</option>
+                    <option value="">Tidak ada</option>
+                    <option value="best-seller">Terlaris</option>
                     <option value="new">Baru</option>
                     <option value="promo">Promo</option>
                 </select>
-            </div>
-            
-            <div class="form-group" id="imageGroup">
-                <label>Gambar Produk *</label>
-                <div class="image-upload" onclick="document.getElementById('productImageInput').click()">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">📷</div>
-                    <div>Klik untuk upload gambar</div>
-                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                        Max 5MB, format JPG/PNG
-                    </div>
-                </div>
-                <input type="file" id="productImageInput" accept="image/jpeg,image/jpg,image/png" style="display: none;">
-                <img id="imagePreview" class="image-preview" alt="Preview">
-                <div class="validation-error" id="imageError"></div>
             </div>
             
             <input type="hidden" id="productId">
@@ -211,7 +194,8 @@
                 </div>
             </div>
             <div class="hero-image animate-on-scroll">
-                <img src="warung.jpg" alt="Toko Berkat Yakin" loading="lazy">
+                <!-- ✅ PATH GAMBAR DIPERBAIKI -->
+                <img src="assets/images/warung.jpg" alt="Toko Berkat Yakin" loading="lazy" onerror="this.style.display='none'">
             </div>
         </div>
     </section>
@@ -239,6 +223,8 @@
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
+                    <button id="searchBtn" class="search-btn">Cari</button>
+                    <button id="clearSearch" class="clear-search-btn" style="display: none;">×</button>
                 </div>
             </div>
 
@@ -252,86 +238,33 @@
         </div>
     </section>
 
-    <section id="layanan" class="section" style="background: var(--bg-secondary);">
+    <section id="layanan" class="section bg-light">
         <div class="section-container">
             <div class="section-header">
                 <div class="section-subtitle">Layanan Keuangan</div>
-                <h2 class="section-title">Semua Transaksi di Satu Tempat</h2>
+                <h2 class="section-title">Lengkap & Praktis</h2>
             </div>
-            <div class="card-grid">
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                            <line x1="12" y1="18" x2="12.01" y2="18"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Top Up Pulsa</h3>
-                    <p class="card-description">Semua operator — Telkomsel, Indosat, XL, Tri, Smartfren, Axis.</p>
-                </div>
 
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 20h9"/>
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Paket Data</h3>
-                    <p class="card-description">Paket internet harian hingga bulanan untuk semua operator.</p>
+            <div class="service-grid">
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">📱</div>
+                    <h3>Pulsa & Paket Data</h3>
+                    <p>Isi ulang pulsa dan paket data untuk semua operator. Proses cepat, harga bersaing.</p>
                 </div>
-
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Token PLN</h3>
-                    <p class="card-description">Beli token listrik prabayar cepat, langsung ke meteran Anda.</p>
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">💡</div>
+                    <h3>Token PLN</h3>
+                    <p>Beli token listrik PLN dengan mudah. Tersedia dalam berbagai nominal sesuai kebutuhan Anda.</p>
                 </div>
-
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                            <line x1="1" y1="10" x2="23" y2="10"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Top Up E-Wallet</h3>
-                    <p class="card-description">OVO, GoPay, Dana, ShopeePay, LinkAja — isi saldo mudah & cepat.</p>
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">🎮</div>
+                    <h3>Voucher Game</h3>
+                    <p>Top up game favorit Anda seperti Mobile Legends, Free Fire, PUBG, dan lainnya.</p>
                 </div>
-
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Bayar PDAM</h3>
-                    <p class="card-description">Pembayaran tagihan air tanpa antri, proses cepat & aman.</p>
-                </div>
-
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="1" x2="12" y2="23"/>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Tarik Tunai</h3>
-                    <p class="card-description">Solusi praktis saat ATM jauh atau antri panjang.</p>
-                </div>
-
-                <div class="card animate-on-scroll">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Voucher Game</h3>
-                    <p class="card-description">Top up Mobile Legends, Free Fire, PUBG & game lainnya.</p>
+                <div class="service-card animate-on-scroll">
+                    <div class="service-icon">💳</div>
+                    <h3>E-Wallet</h3>
+                    <p>Top up saldo e-wallet seperti GoPay, OVO, Dana, dan ShopeePay dengan praktis.</p>
                 </div>
             </div>
         </div>
@@ -341,67 +274,114 @@
         <div class="section-container">
             <div class="section-header">
                 <div class="section-subtitle">Hubungi Kami</div>
-                <h2 class="section-title">Kunjungi Toko Kami</h2>
+                <h2 class="section-title">Kami Siap Melayani</h2>
             </div>
+
             <div class="contact-grid">
                 <div class="contact-card animate-on-scroll">
-                    <div class="contact-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                            <circle cx="12" cy="10" r="3"/>
-                        </svg>
-                    </div>
-                    <h3>Alamat Toko</h3>
-                    <p>Jalan Alalak Selatan RT/RW 01<br>
-                    Seberang Langgar Nurul Ibadah<br>
-                    Banjarmasin, Kalimantan Selatan</p>
+                    <div class="contact-icon">📍</div>
+                    <h3>Alamat</h3>
+                    <p>Jl. A. Yani Km. 5,5<br>Banjarmasin, Kalimantan Selatan</p>
                 </div>
-
                 <div class="contact-card animate-on-scroll">
-                    <div class="contact-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </div>
-                    <h3>Jam Operasional</h3>
-                    <p>Setiap Hari · 08:00 – 22:00 WITA<br>
-                    Buka 14 jam untuk kemudahan Anda</p>
+                    <div class="contact-icon">📞</div>
+                    <h3>Telepon</h3>
+                    <p><a href="tel:+6281253680904">+62 812-5368-0904</a></p>
                 </div>
-
                 <div class="contact-card animate-on-scroll">
-                    <div class="contact-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                        </svg>
-                    </div>
-                    <h3>Hubungi Kami</h3>
-                    <p>WhatsApp: 081253680904<br>
-                    Pesan produk atau tanyakan stok</p>
+                    <div class="contact-icon">🕒</div>
+                    <h3>Jam Buka</h3>
+                    <p>Senin – Minggu<br>08:00 – 22:00 WITA</p>
+                </div>
+                <div class="contact-card animate-on-scroll">
+                    <div class="contact-icon">💬</div>
+                    <h3>WhatsApp</h3>
+                    <p><a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin" target="_blank" rel="noopener">Chat Sekarang</a></p>
                 </div>
             </div>
-            <div class="text-center mt-3">
-                <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" class="btn btn-primary" target="_blank" rel="noopener">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                    </svg>
-                    Hubungi via WhatsApp
-                </a>
+
+            <div class="map-container animate-on-scroll">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.123456789!2d114.591234!3d-3.123456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM8KwMDcnMjQuNCJTIDExNMKwMzUnMzAuNCJF!5e0!3m2!1sid!2sid!4v1234567890" 
+                    width="100%" 
+                    height="400" 
+                    style="border:0; border-radius: 12px;" 
+                    allowfullscreen="" 
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
         </div>
     </section>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-logo">Berkat Yakin</div>
-            <div class="footer-subtitle">Pusat Belanja & Layanan Keuangan Terpercaya di Banjarmasin</div>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Berkat Yakin</h3>
+                    <p>Toko sembako & layanan keuangan terpercaya sejak 2020. Melayani dengan sepenuh hati untuk kemudahan Anda.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Navigasi</h4>
+                    <ul>
+                        <li><a href="#hero">Beranda</a></li>
+                        <li><a href="#produk">Produk</a></li>
+                        <li><a href="#layanan">Layanan</a></li>
+                        <li><a href="#kontak">Kontak</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Kontak</h4>
+                    <ul>
+                        <li>📞 +62 812-5368-0904</li>
+                        <li>📍 Jl. A. Yani Km. 5,5, Banjarmasin</li>
+                        <li>🕒 08:00 – 22:00 WITA</li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                © 2026 Toko Berkat Yakin. Melayani dengan Sepenuh Hati 
+                <p>&copy; 2025 Berkat Yakin. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- ⚡ 3. Load app.js TERAKHIR (setelah Supabase dan DOM ready) -->
+    <!-- 3. Load app.js SETELAH Supabase -->
     <script src="assets/js/app.js"></script>
+
+    <script>
+        // ✅ TAMBAHAN: Update search button visibility
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.trim()) {
+                clearSearchBtn.style.display = 'block';
+            } else {
+                clearSearchBtn.style.display = 'none';
+            }
+        });
+        
+        // Filter links dari dropdown
+        document.querySelectorAll('.filter-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const filter = link.getAttribute('data-filter');
+                
+                // Update active tab
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.getAttribute('data-filter') === filter) {
+                        tab.classList.add('active');
+                    }
+                });
+                
+                // Filter products
+                filterProducts(filter);
+                
+                // Scroll to products
+                document.getElementById('produk').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
 </body>
 </html>
