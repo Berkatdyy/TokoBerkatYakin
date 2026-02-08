@@ -1,6 +1,8 @@
-        // ===== SUPABASE CONFIGURATION =====
+// ===== SUPABASE CONFIGURATION =====
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
+        // PENTING: Gunakan ANON KEY (JWT Token), BUKAN Publishable Key
+        // Anon Key diperlukan untuk Supabase JS Client di browser
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';
         
         // Inisialisasi Supabase client
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -372,10 +374,12 @@
                 
                 if (error) throw error;
                 
-                // Dapatkan public URL
-                const { data: { publicUrl } } = supabaseClient.storage
+                // Dapatkan public URL - perbaiki format response
+                const { data: publicUrlData } = supabaseClient.storage
                     .from('product-images')
                     .getPublicUrl(fileName);
+                
+                const publicUrl = publicUrlData.publicUrl;
                 
                 document.getElementById('productImageUrl').value = publicUrl;
                 
