@@ -334,7 +334,8 @@
                     stock: stock,
                     rating,
                     badge: badge || null,
-                    image: finalImageName
+                    image: finalImageName,
+                    wa: '+62' // Default WhatsApp number untuk avoid NOT NULL constraint
                 };
                 
                 if (productId) {
@@ -582,7 +583,12 @@
                     imageUrl = product.image;
                 } else if (product.image) {
                     // Hanya nama file, tambahkan base URL
-                    imageUrl = STORAGE_BASE_URL + product.image;
+                    // Pastikan tidak ada double slash
+                    const cleanImageName = product.image.startsWith('/') ? product.image.substring(1) : product.image;
+                    imageUrl = STORAGE_BASE_URL + cleanImageName;
+                    
+                    // Debug log untuk troubleshoot
+                    console.log(`📷 ${product.name}: ${product.image} → ${imageUrl}`);
                 } else {
                     // Tidak ada image
                     imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
@@ -633,7 +639,9 @@
                 if (product.image && product.image.startsWith('http')) {
                     imageUrl = product.image;
                 } else if (product.image) {
-                    imageUrl = STORAGE_BASE_URL + product.image;
+                    // Pastikan tidak ada double slash
+                    const cleanImageName = product.image.startsWith('/') ? product.image.substring(1) : product.image;
+                    imageUrl = STORAGE_BASE_URL + cleanImageName;
                 } else {
                     imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';
                 }
