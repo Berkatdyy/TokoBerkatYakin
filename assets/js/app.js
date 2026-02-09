@@ -3,6 +3,26 @@
         // Gunakan Anon Public Key (JWT format)
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';
         const STORAGE_BASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co/storage/v1/object/public/product-images/';
+
+        // Build public URL for images stored in Supabase Storage bucket "product-images".
+        // If already a full URL, return as-is.
+        function buildPublicImageUrl(nameOrUrl) {
+            if (!nameOrUrl) return '';
+            if (typeof nameOrUrl !== 'string') return '';
+            if (/^https?:\/\//i.test(nameOrUrl)) return nameOrUrl;
+
+            // Encode each path segment (safe for spaces, etc.)
+            const segments = nameOrUrl.split('/').map(s => encodeURIComponent(s));
+            return STORAGE_BASE_URL + segments.join('/');
+        }
+
+        // Solusi 2: background hero pakai file warung.jpg dari Supabase Storage (bucket product-images)
+        function setHeroBackgroundFromStorage() {
+            const hero = document.querySelector('.hero');
+            if (!hero) return;
+            const bgUrl = buildPublicImageUrl('warung.jpg');
+            document.documentElement.style.setProperty('--hero-bg', `url("${bgUrl}")`);
+        }
         
         // Inisialisasi Supabase client
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -425,7 +445,7 @@
                 if (product.image.startsWith('http')) {
                     preview.src = product.image;
                 } else {
-                    preview.src = STORAGE_BASE_URL + product.image;
+                    preview.src = buildPublicImageUrl(product.image);
                 }
                 preview.style.display = 'block';
             } else {
@@ -553,7 +573,15 @@
 
         // ===== RENDER PRODUCTS =====
         function renderProducts(append = false) {
-            const productGrid = document.getElementById('productGrid');
+            let productGrid = document.getElementById('productGrid');
+            // Defensive: kalau ada masalah DOM/ID, coba recover
+            if (productGrid && typeof productGrid.appendChild !== 'function') {
+                productGrid = document.querySelector('#productGrid');
+            }
+            if (!productGrid || typeof productGrid.appendChild !== 'function') {
+                console.error('productGrid element tidak valid. Pastikan ada <div id="productGrid"></div> di HTML.');
+                return;
+            }
             const loadMoreBtn = document.getElementById('loadMoreBtn');
             
             if (!append) {
@@ -572,114 +600,44 @@
             }
             
             productsToShow.forEach(product => {
+                try {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card animate-on-scroll';
                 
-                // Smart image URL: cek apakah sudah full URL atau hanya nama file
-                let imageUrl;
-                if (product.image && product.image.startsWith('http')) {
-                    // Sudah full URL
-                    imageUrl = product.image;
-                } else if (product.image) {
-                    // Hanya nama file, tambahkan base URL
-                    imageUrl = STORAGE_BASE_URL + product.image;
-                } else {
-                    // Tidak ada image
-                    imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
-                }
-                
+                // Smart image URL
+                const imageUrl = buildPublicImageUrl(product.image) || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
                 productCard.innerHTML = `
-    ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
-    <div class="product-image">
-        <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.style.display='none';">
-    </div>
-    <div class="product-info">
-        <div class="product-category">${product.category}</div>
-        <h3 class="product-title">${product.name}</h3>
-        <p class="product-description">${product.desc}</p>
-        <div class="product-meta">
-            <span class="product-price">${product.price}</span>
-            <span class="product-stock">${product.stock}</span>
-        </div>
-        <div class="product-rating">
-            ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
-            <span>${product.rating}</span>
-        </div>
-    </div>
-`;
-
-productGrid.appendChild(productCard)(productCard);
+                    ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
+                    <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.paddingTop='2rem';">
+                    <div class="product-content">
+                        <div class="product-category">${product.category}</div>
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-description">${product.desc}</p>
+                        <div class="product-meta">
+                            <span class="product-price">${product.price}</span>
+                            <span class="product-stock">${product.stock}</span>
+                        </div>
+                        <div class="product-rating">
+                            ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
+                            <span>${product.rating}</span>
+                        </div>
+                    </div>
+                `;
+                productGrid.appendChild(productCard);
                 
                 setTimeout(() => {
                     productCard.classList.add('visible');
                 }, 50);
+                } catch (err) {
+                    console.error('Render product card error:', err, product);
+                }
             });
             
-            updatePagination();
-
             if (endIndex >= filteredProducts.length) {
                 loadMoreBtn.style.display = 'none';
             } else {
                 loadMoreBtn.style.display = 'block';
             }
-// ===== PAGINATION UI (tambahan, tidak menghapus fitur Load More) =====
-function updatePagination() {
-    const pagination = document.getElementById('pagination');
-    if (!pagination) return;
-
-    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
-    // Sembunyikan kalau produk sedikit
-    if (filteredProducts.length <= PRODUCTS_PER_PAGE) {
-        pagination.innerHTML = '';
-        return;
-    }
-
-    const maxButtons = 7; // biar rapi
-    let start = Math.max(1, currentPage - 3);
-    let end = Math.min(totalPages, start + (maxButtons - 1));
-    start = Math.max(1, end - (maxButtons - 1));
-
-    const btn = (label, page, opts = {}) => {
-        const disabled = opts.disabled ? 'disabled' : '';
-        const active = opts.active ? 'active' : '';
-        return `<button class="page-btn ${active}" ${disabled} data-page="${page}">${label}</button>`;
-    };
-
-    let html = '';
-    html += btn('«', 1, { disabled: currentPage === 1 });
-    html += btn('‹', Math.max(1, currentPage - 1), { disabled: currentPage === 1 });
-
-    if (start > 1) html += `<span style="padding:0.5rem 0.25rem;color:var(--text-secondary)">…</span>`;
-
-    for (let p = start; p <= end; p++) {
-        html += btn(p, p, { active: p === currentPage });
-    }
-
-    if (end < totalPages) html += `<span style="padding:0.5rem 0.25rem;color:var(--text-secondary)">…</span>`;
-
-    html += btn('›', Math.min(totalPages, currentPage + 1), { disabled: currentPage === totalPages });
-    html += btn('»', totalPages, { disabled: currentPage === totalPages });
-
-    pagination.innerHTML = html;
-}
-
-// Delegation click pagination
-document.addEventListener('click', (e) => {
-    const t = e.target;
-    if (!(t instanceof Element)) return;
-    if (!t.classList.contains('page-btn')) return;
-    if (t.hasAttribute('disabled')) return;
-
-    const page = parseInt(t.getAttribute('data-page') || '1', 10);
-    if (Number.isNaN(page)) return;
-
-    currentPage = page;
-    renderProducts(false);
-    // Scroll ke atas produk agar UX sama seperti index 3
-    const prod = document.getElementById('produk');
-    if (prod) prod.scrollIntoView({ behavior: 'smooth', block: 'start' });
-});
-
         }
 
         function renderAdminProductList() {
@@ -691,16 +649,8 @@ document.addEventListener('click', (e) => {
             }
             
             adminList.innerHTML = allProducts.map(product => {
-                // Smart image URL: cek apakah sudah full URL atau hanya nama file
-                let imageUrl;
-                if (product.image && product.image.startsWith('http')) {
-                    imageUrl = product.image;
-                } else if (product.image) {
-                    imageUrl = STORAGE_BASE_URL + product.image;
-                } else {
-                    imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';
-                }
-                
+                // Smart image URL
+                const imageUrl = buildPublicImageUrl(product.image) || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
                 return `
                 <div class="admin-product-item">
                     <img src="${imageUrl}" alt="${product.name}" onerror="this.style.opacity='0.3';">
@@ -957,7 +907,15 @@ document.addEventListener('click', (e) => {
 
         // ===== INITIALIZATION =====
         window.addEventListener('DOMContentLoaded', async () => {
-            const productGrid = document.getElementById('productGrid');
+            let productGrid = document.getElementById('productGrid');
+            // Defensive: kalau ada masalah DOM/ID, coba recover
+            if (productGrid && typeof productGrid.appendChild !== 'function') {
+                productGrid = document.querySelector('#productGrid');
+            }
+            if (!productGrid || typeof productGrid.appendChild !== 'function') {
+                console.error('productGrid element tidak valid. Pastikan ada <div id="productGrid"></div> di HTML.');
+                return;
+            }
             productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
             
             await checkAdminLogin();
@@ -978,3 +936,6 @@ document.addEventListener('click', (e) => {
                 }
             });
         });
+
+
+document.addEventListener('DOMContentLoaded', function(){ setHeroBackgroundFromStorage(); });
