@@ -1,9 +1,9 @@
+```javascript
 // ===== SUPABASE CONFIGURATION =====
 const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';
 const STORAGE_BASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co/storage/v1/object/public/product-images/';
 
-// Inisialisasi Supabase client
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         autoRefreshToken: true,
@@ -12,22 +12,18 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     }
 });
 
-// ===== HELPER FUNCTION: BUILD IMAGE URL =====
 function buildImageUrl(imagePath) {
     if (!imagePath) {
         return 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
     }
     
-    // If already a full URL, return as-is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         return imagePath;
     }
     
-    // Otherwise, construct URL from base + filename
     return STORAGE_BASE_URL + imagePath;
 }
 
-// ===== STATE VARIABLES =====
 const PRODUCTS_PER_PAGE = 6;
 let currentPage = 1;
 let currentFilter = 'all';
@@ -37,7 +33,6 @@ let allProducts = [];
 let allCategories = ['mie', 'rokok', 'sembako', 'minuman', 'snack', 'lainnya'];
 let editingProductId = null;
 
-// ===== NOTIFICATION SYSTEM =====
 function showNotification(type, title, message, duration = 5000) {
     const container = document.getElementById('notificationContainer');
     const notification = document.createElement('div');
@@ -69,7 +64,6 @@ function showNotification(type, title, message, duration = 5000) {
     }, duration);
 }
 
-// ===== LOADING OVERLAY =====
 function showLoading(message = 'Menyimpan data...') {
     const overlay = document.getElementById('loadingOverlay');
     const text = document.getElementById('loadingText');
@@ -82,7 +76,6 @@ function hideLoading() {
     overlay.classList.remove('active');
 }
 
-// ===== AUTHENTICATION =====
 async function loginAdmin() {
     const email = document.getElementById('adminEmail').value.trim();
     const password = document.getElementById('adminPassword').value.trim();
@@ -213,7 +206,6 @@ function closeAdminModal() {
     resetForm();
 }
 
-// ===== DATABASE OPERATIONS =====
 async function loadProducts() {
     try {
         console.log('🔍 Loading products from Supabase...');
@@ -262,8 +254,6 @@ async function saveProduct() {
     const price = document.getElementById('productPrice').value.trim();
     const description = document.getElementById('productDesc').value.trim();
     const stock = document.getElementById('productStock').value.trim();
-    const rating = parseFloat(document.getElementById('productRating').value) || 4.5;
-    const badge = document.getElementById('productBadge').value;
     const imageInput = document.getElementById('productImageInput');
     const currentImageUrl = document.getElementById('productImageUrl').value;
     const productId = document.getElementById('productId').value;
@@ -295,7 +285,6 @@ async function saveProduct() {
         isValid = false;
     }
     
-    // Validation: new product must have image
     if (!productId && !imageInput.files.length) {
         showValidationError('imageError', 'Gambar produk harus diupload');
         isValid = false;
@@ -311,7 +300,6 @@ async function saveProduct() {
     try {
         let finalImageName = currentImageUrl;
         
-        // Only upload new image if user selected a file
         if (imageInput.files.length > 0) {
             const file = imageInput.files[0];
             const fileExt = file.name.split('.').pop();
@@ -337,8 +325,6 @@ async function saveProduct() {
             price,
             desc: description,
             stock: stock,
-            rating,
-            badge: badge || null,
             image: finalImageName
         };
         
@@ -420,8 +406,6 @@ function editProduct(productId) {
     document.getElementById('productPrice').value = product.price;
     document.getElementById('productDesc').value = product.desc;
     document.getElementById('productStock').value = product.stock;
-    document.getElementById('productRating').value = product.rating;
-    document.getElementById('productBadge').value = product.badge || '';
     document.getElementById('productImageUrl').value = product.image;
     
     const preview = document.getElementById('imagePreview');
@@ -442,8 +426,6 @@ function resetForm() {
     document.getElementById('productPrice').value = '';
     document.getElementById('productDesc').value = '';
     document.getElementById('productStock').value = '';
-    document.getElementById('productRating').value = '4.5';
-    document.getElementById('productBadge').value = '';
     document.getElementById('productImageUrl').value = '';
     document.getElementById('productImageInput').value = '';
     
@@ -471,7 +453,6 @@ function clearValidationErrors() {
     });
 }
 
-// ===== CATEGORY MANAGEMENT =====
 function updateCategoryLists() {
     const categoryOptions = document.getElementById('categoryOptions');
     categoryOptions.innerHTML = allCategories.map(cat => `<option value="${cat}">`).join('');
@@ -527,7 +508,6 @@ function deleteCategory(category) {
     showNotification('success', 'Kategori Dihapus', `Kategori "${category}" telah dihapus`);
 }
 
-// ===== IMAGE PREVIEW =====
 document.getElementById('productImageInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -547,7 +527,6 @@ document.getElementById('productImageInput').addEventListener('change', function
     }
 });
 
-// ===== RENDER PRODUCTS =====
 function renderProducts(append = false) {
     const productGrid = document.getElementById('productGrid');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -574,7 +553,6 @@ function renderProducts(append = false) {
         const imageUrl = buildImageUrl(product.image);
         
         productCard.innerHTML = `
-            ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
             <img src="${imageUrl}" 
                  alt="${product.name}" 
                  loading="lazy" 
@@ -586,10 +564,6 @@ function renderProducts(append = false) {
                 <div class="product-meta">
                     <span class="product-price">${product.price}</span>
                     <span class="product-stock">${product.stock}</span>
-                </div>
-                <div class="product-rating">
-                    ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
-                    <span>${product.rating}</span>
                 </div>
             </div>
         `;
@@ -631,7 +605,6 @@ function renderAdminProductList() {
     }).join('');
 }
 
-// ===== SEARCH FUNCTIONALITY =====
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -704,7 +677,6 @@ function filterProducts(filter) {
     renderProducts(false);
 }
 
-// ===== EVENT LISTENERS =====
 document.getElementById('loadMoreBtn').addEventListener('click', () => {
     currentPage++;
     renderProducts(true);
@@ -727,7 +699,6 @@ filterTabs.forEach(tab => {
     });
 });
 
-// ===== DROPDOWN HANDLING =====
 const dropdowns = document.querySelectorAll('.dropdown');
 const dropdownOverlay = document.getElementById('dropdownOverlay');
 let activeDropdown = null;
@@ -818,7 +789,6 @@ document.addEventListener('click', (e) => {
 
 dropdownOverlay.addEventListener('click', closeAllDropdowns);
 
-// ===== NAVIGATION =====
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
     if (window.pageYOffset > 50) {
@@ -850,7 +820,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ===== SCROLL ANIMATION =====
 const scrollObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -866,13 +835,11 @@ document.querySelectorAll('.animate-on-scroll').forEach(el => {
     scrollObserver.observe(el);
 });
 
-// ===== ADMIN MENU CLICK =====
 document.getElementById('navAdmin').addEventListener('click', function(e) {
     e.preventDefault();
     openAdminModal();
 });
 
-// ===== INITIALIZATION =====
 window.addEventListener('DOMContentLoaded', async () => {
     const productGrid = document.getElementById('productGrid');
     productGrid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-secondary)">Memuat data...</div>';
@@ -893,3 +860,4 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+```
