@@ -19,19 +19,51 @@ let allProducts = [];
 let allCategories = ['mie', 'rokok', 'sembako', 'minuman', 'snack', 'lainnya'];
 let editingProductId = null;
 
-// ========== HELPER FUNCTION UNTUK IMAGE ==========
+// ========== PERBAIKAN: HELPER FUNCTION UNTUK IMAGE ==========
 function getImageUrl(imageData) {
     if (!imageData) {
         return 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
     }
     
-    // Jika sudah URL lengkap (https://...), langsung pakai
+    // PERBAIKAN: Jika sudah URL lengkap (https://...), langsung pakai
     if (imageData.startsWith('http')) {
         return imageData;
     }
     
-    // Jika hanya nama file, gabung dengan base URL
-    return STORAGE_BASE_URL + imageData;
+    // PERBAIKAN: Jika hanya nama file, gabung dengan base URL
+    return STORAGE_BASE_URL + encodeURIComponent(imageData);
+}
+
+// ========== PERBAIKAN: Fungsi untuk memuat gambar dengan class loaded ==========
+function loadImageWithClass(imgElement, src) {
+    return new Promise((resolve) => {
+        const tempImg = new Image();
+        tempImg.onload = () => {
+            imgElement.src = src;
+            imgElement.classList.add('loaded');
+            resolve();
+        };
+        tempImg.onerror = () => {
+            imgElement.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
+            imgElement.classList.add('loaded');
+            resolve();
+        };
+        tempImg.src = src;
+    });
+}
+
+// ========== PERBAIKAN: Load background image ==========
+async function loadBackgroundImage() {
+    const bgUrl = STORAGE_BASE_URL + 'warung.jpg';
+    try {
+        const response = await fetch(bgUrl, { method: 'HEAD' });
+        if (response.ok) {
+            document.getElementById('hero').style.backgroundImage = `url('${bgUrl}')`;
+            document.getElementById('hero').classList.add('loaded');
+        }
+    } catch (error) {
+        console.log('Background image tidak ditemukan');
+    }
 }
 
 function showNotification(type, title, message, duration = 5000) {
@@ -227,6 +259,9 @@ async function loadProducts() {
         });
         
         updateCategoryLists();
+        
+        // PERBAIKAN: Load background image setelah produk dimuat
+        await loadBackgroundImage();
     } catch (error) {
         console.error('Load products error:', error);
         showNotification('error', 'Gagal Memuat Produk', error.message || 'Periksa koneksi internet dan API key Supabase');
@@ -244,7 +279,7 @@ async function saveProduct() {
     const rating = parseFloat(document.getElementById('productRating').value) || 4.5;
     const badge = document.getElementById('productBadge').value;
     const imageInput = document.getElementById('productImageInput');
-    const imageUrl = document.getElementById('productImageUrl').value;
+    const imageUrl = document.getElementById('productImageUrl').value.trim();
     const productId = document.getElementById('productId').value;
     
     let isValid = true;
@@ -282,7 +317,7 @@ async function saveProduct() {
     showLoading(productId ? 'Mengupdate produk...' : 'Menyimpan produk...');
     
     try {
-        let finalImageName = imageUrl; // Simpan URL gambar saat ini
+        let finalImageName = imageUrl;
         
         const hasNewImage = imageInput.files && imageInput.files.length > 0;
         
@@ -303,6 +338,11 @@ async function saveProduct() {
             if (uploadError) throw uploadError;
             
             finalImageName = fileName;
+        } else if (!imageUrl && !productId) {
+            // PERBAIKAN: Produk baru harus ada gambar
+            showNotification('error', 'Gambar Diperlukan', 'Gambar produk harus diupload');
+            hideLoading();
+            return;
         }
         
         const productData = {
@@ -315,19 +355,19 @@ async function saveProduct() {
             badge: badge || null
         };
         
-        // TAMBAHKAN LOGIKA PENTING: Selalu sertakan gambar
+        // PERBAIKAN: Selalu sertakan field image pada update
         if (productId) {
-            // Jika edit produk: gunakan gambar baru jika ada, jika tidak tetap gunakan gambar lama
+            // Untuk edit produk: gunakan gambar baru jika ada, jika tidak tetap gunakan gambar lama
             if (hasNewImage) {
+                productData.image = finalImageName;
+            } else if (imageUrl) {
+                // PERBAIKAN: Jika ada URL di form, gunakan itu
                 productData.image = finalImageName;
             } else {
                 // Pertahankan gambar lama yang ada di database
                 const currentProduct = allProducts.find(p => p.id === productId);
                 if (currentProduct && currentProduct.image) {
                     productData.image = currentProduct.image;
-                } else if (finalImageName) {
-                    // Fallback ke URL yang ada di form
-                    productData.image = finalImageName;
                 }
             }
             
@@ -340,13 +380,7 @@ async function saveProduct() {
             
             showNotification('success', 'Produk Berhasil Diupdate', `${name} telah diperbarui.`);
         } else {
-            // Jika produk baru: gambar wajib ada
-            if (!finalImageName && !hasNewImage) {
-                showNotification('error', 'Gambar Diperlukan', 'Gambar produk harus diupload');
-                hideLoading();
-                return;
-            }
-            
+            // Untuk produk baru
             productData.image = finalImageName;
             
             const { error } = await supabaseClient
@@ -389,14 +423,7 @@ async function deleteProduct() {
             .delete()
             .eq('id', productId);
         
-        if (error) {
-            // Jika error karena RLS, coba dengan policy yang berbeda
-            if (error.message.includes('policy')) {
-                showNotification('error', 'Gagal Menghapus', 'Anda tidak memiliki izin untuk menghapus produk. Periksa RLS policy di Supabase.');
-                throw error;
-            }
-            throw error;
-        }
+        if (error) throw error;
         
         showNotification('success', 'Produk Berhasil Dihapus', `${productName} telah dihapus dari katalog.`);
         
@@ -427,13 +454,16 @@ function editProduct(productId) {
     document.getElementById('productStock').value = product.stock;
     document.getElementById('productRating').value = product.rating;
     document.getElementById('productBadge').value = product.badge || '';
-    document.getElementById('productImageUrl').value = product.image;
+    
+    // PERBAIKAN: Tampilkan nama file gambar, bukan URL lengkap
+    const imageFileName = product.image ? product.image.split('/').pop() : '';
+    document.getElementById('productImageUrl').value = imageFileName;
     
     const preview = document.getElementById('imagePreview');
     if (product.image) {
-        // Gunakan helper function untuk mendapatkan URL yang benar
         preview.src = getImageUrl(product.image);
         preview.style.display = 'block';
+        preview.classList.add('loaded');
     } else {
         preview.style.display = 'none';
     }
@@ -461,6 +491,7 @@ function resetForm() {
     const preview = document.getElementById('imagePreview');
     preview.style.display = 'none';
     preview.src = '';
+    preview.classList.remove('loaded');
     
     document.getElementById('deleteProductBtn').style.display = 'none';
     document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
@@ -551,12 +582,14 @@ document.getElementById('productImageInput').addEventListener('change', function
             const preview = document.getElementById('imagePreview');
             preview.src = e.target.result;
             preview.style.display = 'block';
+            preview.classList.add('loaded');
         };
         reader.readAsDataURL(file);
     }
 });
 
-function renderProducts(append = false) {
+// ========== PERBAIKAN UTAMA: Fungsi render produk yang benar ==========
+async function renderProducts(append = false) {
     const productGrid = document.getElementById('productGrid');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     
@@ -575,7 +608,9 @@ function renderProducts(append = false) {
         return;
     }
     
-    productsToShow.forEach(product => {
+    // PERBAIKAN: Gunakan for loop untuk menghindari return prematur
+    for (let i = 0; i < productsToShow.length; i++) {
+        const product = productsToShow[i];
         const productCard = document.createElement('div');
         productCard.className = 'product-card animate-on-scroll';
         
@@ -584,8 +619,7 @@ function renderProducts(append = false) {
         
         productCard.innerHTML = `
             ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
-            <img src="${imageUrl}" alt="${product.name}" loading="lazy" 
-                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
+            <img src="" alt="${product.name}" loading="lazy" class="product-image">
             <div class="product-content">
                 <div class="product-category">${product.category}</div>
                 <h3 class="product-title">${product.name}</h3>
@@ -602,10 +636,15 @@ function renderProducts(append = false) {
         `;
         productGrid.appendChild(productCard);
         
+        // PERBAIKAN: Load gambar secara asinkron dengan class loaded
+        const imgElement = productCard.querySelector('.product-image');
+        await loadImageWithClass(imgElement, imageUrl);
+        
+        // PERBAIKAN: Tambahkan visible setelah gambar dimuat
         setTimeout(() => {
             productCard.classList.add('visible');
         }, 50);
-    });
+    }
     
     if (endIndex >= filteredProducts.length) {
         loadMoreBtn.style.display = 'none';
@@ -614,6 +653,7 @@ function renderProducts(append = false) {
     }
 }
 
+// ========== PERBAIKAN: Fungsi render admin product list ==========
 function renderAdminProductList() {
     const adminList = document.getElementById('productListAdmin');
     
@@ -622,22 +662,29 @@ function renderAdminProductList() {
         return;
     }
     
-    adminList.innerHTML = allProducts.map(product => {
-        // PERBAIKAN: Gunakan helper function untuk mendapatkan URL gambar yang benar
+    // PERBAIKAN: Gunakan for loop untuk render item admin
+    adminList.innerHTML = '';
+    for (let i = 0; i < allProducts.length; i++) {
+        const product = allProducts[i];
+        const adminProductItem = document.createElement('div');
+        adminProductItem.className = 'admin-product-item';
+        
         const imageUrl = getImageUrl(product.image);
         
-        return `
-        <div class="admin-product-item">
-            <img src="${imageUrl}" alt="${product.name}" 
-                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'; this.style.opacity='0.3';">
+        adminProductItem.innerHTML = `
+            <img src="" alt="${product.name}" class="admin-product-image">
             <div class="admin-product-info">
                 <h4>${product.name}</h4>
                 <div style="font-size: 0.875rem; color: var(--text-secondary);">${product.category} • ${product.price}</div>
             </div>
             <button class="btn-small btn-primary" onclick="editProduct('${product.id}')">Edit</button>
-        </div>
-    `;
-    }).join('');
+        `;
+        adminList.appendChild(adminProductItem);
+        
+        // PERBAIKAN: Load gambar untuk admin list
+        const imgElement = adminProductItem.querySelector('.admin-product-image');
+        loadImageWithClass(imgElement, imageUrl);
+    }
 }
 
 function setupSearch() {
@@ -705,16 +752,19 @@ function filterProducts(filter) {
         filteredProducts = allProducts.filter(p => p.category === filter);
     }
     
+    // PERBAIKAN: Reset pencarian
     document.getElementById('searchInput').value = '';
     currentSearch = '';
     document.getElementById('searchResultsInfo').textContent = '';
+    document.getElementById('clearSearchBtn').style.display = 'none';
     
     renderProducts(false);
 }
 
-document.getElementById('loadMoreBtn').addEventListener('click', () => {
+// PERBAIKAN: Event listener yang benar untuk load more button
+document.getElementById('loadMoreBtn').addEventListener('click', async () => {
     currentPage++;
-    renderProducts(true);
+    await renderProducts(true);
     
     setTimeout(() => {
         const firstNewProduct = document.querySelector('.product-grid').children[(currentPage - 1) * PRODUCTS_PER_PAGE];
@@ -724,6 +774,7 @@ document.getElementById('loadMoreBtn').addEventListener('click', () => {
     }, 100);
 });
 
+// PERBAIKAN: Event listener untuk filter tabs
 const filterTabs = document.querySelectorAll('.filter-tab');
 filterTabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -733,6 +784,11 @@ filterTabs.forEach(tab => {
         filterProducts(filterValue);
     });
 });
+
+// PERBAIKAN: Event listener untuk admin buttons
+document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
+document.getElementById('deleteProductBtn').addEventListener('click', deleteProduct);
+document.getElementById('newCategoryBtn').addEventListener('click', addNewCategory);
 
 const dropdowns = document.querySelectorAll('.dropdown');
 const dropdownOverlay = document.getElementById('dropdownOverlay');
@@ -870,9 +926,20 @@ document.querySelectorAll('.animate-on-scroll').forEach(el => {
     scrollObserver.observe(el);
 });
 
+// PERBAIKAN: Event listener untuk admin nav
 document.getElementById('navAdmin').addEventListener('click', function(e) {
     e.preventDefault();
     openAdminModal();
+});
+
+// PERBAIKAN: Event listener untuk modal close buttons
+document.querySelectorAll('.modal-close').forEach(button => {
+    button.addEventListener('click', function() {
+        this.closest('.modal').classList.remove('active');
+        if (this.closest('#adminModal')) {
+            resetForm();
+        }
+    });
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -884,6 +951,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     filterProducts('all');
     setupSearch();
+    
+    // PERBAIKAN: Event listener untuk cancel buttons
+    document.getElementById('cancelProductBtn').addEventListener('click', resetForm);
+    document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
     
     setInterval(checkAdminLogin, 30000);
     
