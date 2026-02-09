@@ -1256,8 +1256,11 @@
         }
 
         .load-more-container {
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-top: 3rem;
+            width: 100%;
         }
 
         .btn-load-more {
