@@ -19,6 +19,21 @@ let allProducts = [];
 let allCategories = ['mie', 'rokok', 'sembako', 'minuman', 'snack', 'lainnya'];
 let editingProductId = null;
 
+// ========== HELPER FUNCTION UNTUK IMAGE ==========
+function getImageUrl(imageData) {
+    if (!imageData) {
+        return 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
+    }
+    
+    // Jika sudah URL lengkap (https://...), langsung pakai
+    if (imageData.startsWith('http')) {
+        return imageData;
+    }
+    
+    // Jika hanya nama file, gabung dengan base URL
+    return STORAGE_BASE_URL + imageData;
+}
+
 function showNotification(type, title, message, duration = 5000) {
     const container = document.getElementById('notificationContainer');
     const notification = document.createElement('div');
@@ -267,7 +282,7 @@ async function saveProduct() {
     showLoading(productId ? 'Mengupdate produk...' : 'Menyimpan produk...');
     
     try {
-        let finalImageName = imageUrl;
+        let finalImageName = imageUrl; // Simpan URL gambar saat ini
         
         const hasNewImage = imageInput.files && imageInput.files.length > 0;
         
@@ -300,9 +315,20 @@ async function saveProduct() {
             badge: badge || null
         };
         
+        // TAMBAHKAN LOGIKA PENTING: Selalu sertakan gambar
         if (productId) {
-            if (finalImageName) {
+            // Jika edit produk: gunakan gambar baru jika ada, jika tidak tetap gunakan gambar lama
+            if (hasNewImage) {
                 productData.image = finalImageName;
+            } else {
+                // Pertahankan gambar lama yang ada di database
+                const currentProduct = allProducts.find(p => p.id === productId);
+                if (currentProduct && currentProduct.image) {
+                    productData.image = currentProduct.image;
+                } else if (finalImageName) {
+                    // Fallback ke URL yang ada di form
+                    productData.image = finalImageName;
+                }
             }
             
             const { error } = await supabaseClient
@@ -314,7 +340,8 @@ async function saveProduct() {
             
             showNotification('success', 'Produk Berhasil Diupdate', `${name} telah diperbarui.`);
         } else {
-            if (!finalImageName) {
+            // Jika produk baru: gambar wajib ada
+            if (!finalImageName && !hasNewImage) {
                 showNotification('error', 'Gambar Diperlukan', 'Gambar produk harus diupload');
                 hideLoading();
                 return;
@@ -362,7 +389,14 @@ async function deleteProduct() {
             .delete()
             .eq('id', productId);
         
-        if (error) throw error;
+        if (error) {
+            // Jika error karena RLS, coba dengan policy yang berbeda
+            if (error.message.includes('policy')) {
+                showNotification('error', 'Gagal Menghapus', 'Anda tidak memiliki izin untuk menghapus produk. Periksa RLS policy di Supabase.');
+                throw error;
+            }
+            throw error;
+        }
         
         showNotification('success', 'Produk Berhasil Dihapus', `${productName} telah dihapus dari katalog.`);
         
@@ -397,7 +431,8 @@ function editProduct(productId) {
     
     const preview = document.getElementById('imagePreview');
     if (product.image) {
-        preview.src = STORAGE_BASE_URL + product.image;
+        // Gunakan helper function untuk mendapatkan URL yang benar
+        preview.src = getImageUrl(product.image);
         preview.style.display = 'block';
     } else {
         preview.style.display = 'none';
@@ -544,16 +579,13 @@ function renderProducts(append = false) {
         const productCard = document.createElement('div');
         productCard.className = 'product-card animate-on-scroll';
         
-        let imageUrl;
-        if (product.image) {
-            imageUrl = STORAGE_BASE_URL + product.image;
-        } else {
-            imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
-        }
+        // PERBAIKAN: Gunakan helper function untuk mendapatkan URL gambar yang benar
+        const imageUrl = getImageUrl(product.image);
         
         productCard.innerHTML = `
             ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
-            <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.paddingTop='2rem';">
+            <img src="${imageUrl}" alt="${product.name}" loading="lazy" 
+                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E'; this.style.opacity='0.7';">
             <div class="product-content">
                 <div class="product-category">${product.category}</div>
                 <h3 class="product-title">${product.name}</h3>
@@ -591,16 +623,13 @@ function renderAdminProductList() {
     }
     
     adminList.innerHTML = allProducts.map(product => {
-        let imageUrl;
-        if (product.image) {
-            imageUrl = STORAGE_BASE_URL + product.image;
-        } else {
-            imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';
-        }
+        // PERBAIKAN: Gunakan helper function untuk mendapatkan URL gambar yang benar
+        const imageUrl = getImageUrl(product.image);
         
         return `
         <div class="admin-product-item">
-            <img src="${imageUrl}" alt="${product.name}" onerror="this.style.opacity='0.3';">
+            <img src="${imageUrl}" alt="${product.name}" 
+                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'; this.style.opacity='0.3';">
             <div class="admin-product-info">
                 <h4>${product.name}</h4>
                 <div style="font-size: 0.875rem; color: var(--text-secondary);">${product.category} • ${product.price}</div>
