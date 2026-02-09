@@ -1,16 +1,40 @@
 
-        // ===== SUPABASE CONFIGURATION =====
+                // ===== SUPABASE CONFIGURATION =====
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
-        
-        // Inisialisasi Supabase client
+
+        // Safe storage untuk browser yang memblokir akses storage (Tracking Prevention / 3rd-party context)
+        function getSafeStorage() {
+            try {
+                const testKey = '__sb_test__';
+                window.localStorage.setItem(testKey, '1');
+                window.localStorage.removeItem(testKey);
+                return window.localStorage;
+            } catch (e) {
+                console.warn('[SB] localStorage diblokir (Tracking Prevention). Session akan non-persisten.', e);
+                // Memory storage fallback
+                const mem = new Map();
+                return {
+                    getItem: (k) => (mem.has(k) ? mem.get(k) : null),
+                    setItem: (k, v) => { mem.set(k, String(v)); },
+                    removeItem: (k) => { mem.delete(k); }
+                };
+            }
+        }
+
+        // Inisialisasi Supabase client (Supabase JS v2)
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
                 autoRefreshToken: true,
                 persistSession: true,
-                detectSessionInUrl: false
+                detectSessionInUrl: true,
+                storage: getSafeStorage()
             }
         });
+
+        // Attach ke window untuk debugging (sesuai requirement: window scope)
+        window.supabaseClient = supabaseClient;
+        window.SUPABASE_URL = SUPABASE_URL;
 
         // ===== PRODUCT DATABASE (DEFAULT) =====
         // HAPUS SEMUA DEFAULT PRODUCTS YANG MENGGUNAKAN FILE LOKAL
@@ -154,6 +178,105 @@
         }
 
         // ===== SUPABASE AUTHENTICATION FUNCTIONS =====
+        // ===== AUTH DEBUG & SESSION HELPERS =====
+        function logAuthDebug(label, payload) {
+            try {
+                console.debug(`[AUTH] ${label}`, payload || '');
+            } catch (_) {}
+        }
+
+        async function getCurrentSession() {
+            try {
+                const { data, error } = await supabaseClient.auth.getSession();
+                if (error) throw error;
+                return data.session || null;
+            } catch (e) {
+                console.warn('[AUTH] getSession gagal:', e);
+                return null;
+            }
+        }
+
+        async function getCurrentUser() {
+            try {
+                const { data, error } = await supabaseClient.auth.getUser();
+                if (error) throw error;
+                return data.user || null;
+            } catch (e) {
+                console.warn('[AUTH] getUser gagal:', e);
+                return null;
+            }
+        }
+
+        async function isAdminUser(user) {
+            try {
+                if (!user || !user.email) return false;
+                const username = user.email.split('@')[0];
+
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('username', username)
+                    .single();
+
+                if (error) {
+                    console.warn('[AUTH] profiles check error:', error);
+                    return false;
+                }
+                return profile && profile.role === 'admin';
+            } catch (e) {
+                console.warn('[AUTH] isAdminUser error:', e);
+                return false;
+            }
+        }
+
+        async function requireAdminOrPromptLogin() {
+            const session = await getCurrentSession();
+            const user = await getCurrentUser();
+
+            logAuthDebug('session', session);
+            logAuthDebug('user', user);
+
+            if (!session || !user) {
+                updateAdminMenu(false);
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_username');
+                showNotification('warning', 'Butuh Login', 'Silakan login admin terlebih dahulu.');
+                openLoginModal();
+                return { ok: false, session: null, user: null, isAdmin: false };
+            }
+
+            const admin = await isAdminUser(user);
+            if (!admin) {
+                updateAdminMenu(false);
+                showNotification('error', 'Akses Ditolak', 'Akun ini bukan admin.');
+                openLoginModal();
+                return { ok: false, session, user, isAdmin: false };
+            }
+
+            // Sync legacy flags (jangan hapus fitur existing)
+            localStorage.setItem('admin_logged_in', 'true');
+            localStorage.setItem('admin_username', user.email ? user.email.split('@')[0] : '');
+
+            updateAdminMenu(true);
+            return { ok: true, session, user, isAdmin: true };
+        }
+
+        // Auto detect login perubahan auth state
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            logAuthDebug(`onAuthStateChange: ${event}`, session);
+            if (session && session.user) {
+                isAdminUser(session.user).then((admin) => {
+                    updateAdminMenu(!!admin);
+                    if (admin) {
+                        localStorage.setItem('admin_logged_in', 'true');
+                        localStorage.setItem('admin_username', session.user.email ? session.user.email.split('@')[0] : '');
+                    }
+                });
+            } else {
+                updateAdminMenu(false);
+            }
+        });
+
         async function loginAdmin() {
             const username = document.getElementById('adminUsername').value.trim();
             const password = document.getElementById('adminPassword').value.trim();
@@ -295,8 +418,10 @@
                     }
                 }
                 
-                // Jika tidak valid, logout
-                logoutAdmin();
+                // Jika tidak valid, reset status admin tanpa memaksa signOut (lebih aman di production)
+                updateAdminMenu(false);
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_username');
                 return false;
             } catch (error) {
                 console.error('Check login error:', error);
@@ -426,11 +551,69 @@
             
             // Jika hanya nama file, tambahkan base URL Supabase Storage
             if (imageUrl.includes('.')) {
-                return `${SUPABASE_URL}/storage/v1/object/public/product-images/${imageUrl}`;
+                return `${SUPABASE_URL}/storage/v1/object/public/product-images/${encodeURIComponent(imageUrl)}`;
             }
             
             // Default placeholder
             return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
+        }
+
+        // ===== RLS FRIENDLY INSERT/UPDATE (retry) =====
+        async function tryInsertProduct(payload) {
+            const variants = [
+                payload,
+                { ...payload, user_id: payload._user_id },
+                { ...payload, created_by: payload._user_id },
+                { ...payload, owner_id: payload._user_id },
+                { ...payload, user_id: payload._user_id, created_by: payload._user_id }
+            ];
+
+            let lastErr = null;
+
+            for (const p of variants) {
+                const { _user_id, ...clean } = p;
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .insert([clean])
+                    .select();
+
+                if (!error) return { data, error: null };
+                lastErr = error;
+
+                const msg = String(error.message || '').toLowerCase();
+                if (msg.includes('column') && msg.includes('does not exist')) continue;
+                if (msg.includes('row-level security') || msg.includes('violates row-level security')) break;
+            }
+
+            return { data: null, error: lastErr };
+        }
+
+        async function tryUpdateProduct(id, payload) {
+            const variants = [
+                payload,
+                { ...payload, user_id: payload._user_id },
+                { ...payload, updated_by: payload._user_id },
+                { ...payload, owner_id: payload._user_id }
+            ];
+
+            let lastErr = null;
+
+            for (const p of variants) {
+                const { _user_id, ...clean } = p;
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .update(clean)
+                    .eq('id', id);
+
+                if (!error) return { data, error: null };
+                lastErr = error;
+
+                const msg = String(error.message || '').toLowerCase();
+                if (msg.includes('column') && msg.includes('does not exist')) continue;
+                if (msg.includes('row-level security') || msg.includes('violates row-level security')) break;
+            }
+
+            return { data: null, error: lastErr };
         }
 
         async function saveProduct() {
@@ -464,37 +647,39 @@
             }
             
             showLoading('Menyimpan produk...');
-            
             try {
+                // Pastikan admin + session terbaca (RLS)
+                const auth = await requireAdminOrPromptLogin();
+                if (!auth.ok) {
+                    hideLoading();
+                    return;
+                }
+                const currentUserId = auth.user?.id || null;
                 const badgeText = badge === 'bestseller' ? '🏆 BEST SELLER' : 
                                  badge === 'new' ? '✨ PILIHAN HEMAT' :
                                  badge === 'promo' ? '🔥 ECERAN' : '';
                 
                 if (id) {
                     // Update existing product
-                    const { data, error } = await supabaseClient
-                        .from('products')
-                        .update({
+                    const { data, error } = await tryUpdateProduct(id, {
                             ...productData,
                             badge_text: badgeText,
                             updated_at: new Date().toISOString()
-                        })
-                        .eq('id', id);
+                            , _user_id: currentUserId
+                        });
                     
                     if (error) throw error;
                     
                     showNotification('success', 'Berhasil', 'Produk berhasil diupdate!');
                 } else {
                     // Add new product
-                    const { data, error } = await supabaseClient
-                        .from('products')
-                        .insert([{
+                    const { data, error } = await tryInsertProduct({
                             ...productData,
                             badge_text: badgeText,
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString()
-                        }])
-                        .select();
+                            , _user_id: currentUserId
+                        });
                     
                     if (error) throw error;
                     
