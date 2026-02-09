@@ -228,10 +228,15 @@
                 
                 console.log('✅ Products loaded:', data?.length || 0);
                 
-                // Debug: Log sample image paths
+                // Debug: Log semua image paths untuk troubleshooting
                 if (data && data.length > 0) {
-                    console.log('Sample product image:', data[0].image);
-                    console.log('Full image URL would be:', STORAGE_BASE_URL + data[0].image);
+                    console.log('=== DEBUG GAMBAR PRODUK ===');
+                    data.forEach((product, index) => {
+                        console.log(`${index + 1}. ${product.name}:`);
+                        console.log(`   - image field: "${product.image}"`);
+                        console.log(`   - URL akan jadi: ${STORAGE_BASE_URL}${product.image}`);
+                    });
+                    console.log('========================');
                 }
                 
                 allProducts = data || [];
@@ -326,6 +331,15 @@
                     finalImageName = fileName;
                 }
                 
+                // Ambil wa dari produk existing atau default
+                let waNumber = '+62';
+                if (productId) {
+                    const existingProduct = allProducts.find(p => p.id === productId);
+                    if (existingProduct && existingProduct.wa) {
+                        waNumber = existingProduct.wa;
+                    }
+                }
+                
                 const productData = {
                     name,
                     category,
@@ -335,7 +349,7 @@
                     rating,
                     badge: badge || null,
                     image: finalImageName,
-                    wa: '+62' // Default WhatsApp number untuk avoid NOT NULL constraint
+                    wa: waNumber
                 };
                 
                 if (productId) {
@@ -588,7 +602,10 @@
                     imageUrl = STORAGE_BASE_URL + cleanImageName;
                     
                     // Debug log untuk troubleshoot
-                    console.log(`📷 ${product.name}: ${product.image} → ${imageUrl}`);
+                    console.log(`📷 ${product.name}:`);
+                    console.log(`   - DB image: ${product.image}`);
+                    console.log(`   - Clean name: ${cleanImageName}`);
+                    console.log(`   - Full URL: ${imageUrl}`);
                 } else {
                     // Tidak ada image
                     imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
@@ -596,7 +613,10 @@
                 
                 productCard.innerHTML = `
                     ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
-                    <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.paddingTop='2rem';">
+                    <img src="${imageUrl}" 
+                         alt="${product.name}" 
+                         loading="lazy" 
+                         onerror="console.error('❌ Gagal load:', '${imageUrl}'); this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar Error%3C/text%3E%3C/svg%3E';">
                     <div class="product-content">
                         <div class="product-category">${product.category}</div>
                         <h3 class="product-title">${product.name}</h3>
