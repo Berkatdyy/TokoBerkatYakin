@@ -1,4 +1,4 @@
-        :root {
+:root {
             --primary: #0071e3;
             --primary-light: #0077ed;
             --primary-dark: #0066cc;
@@ -871,7 +871,7 @@
             min-height: 600px;
             display: flex;
             align-items: center;
-            background-image: url('warung.jpg');
+            background-image: url('../../warung.jpg');
             background-size: cover;
             background-position: center 65%;
             background-repeat: no-repeat;
