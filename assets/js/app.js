@@ -1,5 +1,6 @@
 // ===== SUPABASE CONFIGURATION =====
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
+        // Gunakan Anon Public Key (JWT format)
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpYWdpc2lid2prZ3BkZnh5aHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NDg3NzYsImV4cCI6MjA4NjAyNDc3Nn0.bAFsKmyOh3XME-Fdop3VKRltc8gThZydaeIdOiSiztI';
         const STORAGE_BASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co/storage/v1/object/public/product-images/';
         
@@ -205,12 +206,33 @@
         // ===== DATABASE OPERATIONS =====
         async function loadProducts() {
             try {
+                console.log('🔍 Loading products from Supabase...');
+                console.log('URL:', SUPABASE_URL);
+                console.log('Key format:', SUPABASE_ANON_KEY.substring(0, 20) + '...');
+                
                 const { data, error } = await supabaseClient
                     .from('products')
                     .select('*')
                     .order('created_at', { ascending: false });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Supabase error:', error);
+                    console.error('Error details:', {
+                        message: error.message,
+                        hint: error.hint,
+                        code: error.code,
+                        details: error.details
+                    });
+                    throw error;
+                }
+                
+                console.log('✅ Products loaded:', data?.length || 0);
+                
+                // Debug: Log sample image paths
+                if (data && data.length > 0) {
+                    console.log('Sample product image:', data[0].image);
+                    console.log('Full image URL would be:', STORAGE_BASE_URL + data[0].image);
+                }
                 
                 allProducts = data || [];
                 
@@ -225,7 +247,7 @@
                 updateCategoryLists();
             } catch (error) {
                 console.error('Load products error:', error);
-                showNotification('error', 'Gagal Memuat Produk', error.message);
+                showNotification('error', 'Gagal Memuat Produk', error.message || 'Periksa koneksi internet dan API key Supabase');
             }
         }
 
@@ -398,8 +420,17 @@
             document.getElementById('productImageUrl').value = product.image;
             
             const preview = document.getElementById('imagePreview');
-            preview.src = STORAGE_BASE_URL + product.image;
-            preview.style.display = 'block';
+            // Smart image URL untuk preview
+            if (product.image) {
+                if (product.image.startsWith('http')) {
+                    preview.src = product.image;
+                } else {
+                    preview.src = STORAGE_BASE_URL + product.image;
+                }
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
             
             document.getElementById('deleteProductBtn').style.display = 'inline-block';
             document.getElementById('saveProductBtn').textContent = 'Update Produk';
@@ -543,10 +574,23 @@
             productsToShow.forEach(product => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card animate-on-scroll';
-                const imageUrl = STORAGE_BASE_URL + product.image;
+                
+                // Smart image URL: cek apakah sudah full URL atau hanya nama file
+                let imageUrl;
+                if (product.image && product.image.startsWith('http')) {
+                    // Sudah full URL
+                    imageUrl = product.image;
+                } else if (product.image) {
+                    // Hanya nama file, tambahkan base URL
+                    imageUrl = STORAGE_BASE_URL + product.image;
+                } else {
+                    // Tidak ada image
+                    imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E';
+                }
+                
                 productCard.innerHTML = `
                     ${product.badge ? `<div class="badge badge-${product.badge}">${product.badge === 'bestseller' ? 'Bestseller' : product.badge === 'new' ? 'Baru' : 'Promo'}</div>` : ''}
-                    <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22%3EGambar tidak tersedia%3C/text%3E%3C/svg%3E'">
+                    <img src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.paddingTop='2rem';">
                     <div class="product-content">
                         <div class="product-category">${product.category}</div>
                         <h3 class="product-title">${product.name}</h3>
@@ -584,10 +628,19 @@
             }
             
             adminList.innerHTML = allProducts.map(product => {
-                const imageUrl = STORAGE_BASE_URL + product.image;
+                // Smart image URL: cek apakah sudah full URL atau hanya nama file
+                let imageUrl;
+                if (product.image && product.image.startsWith('http')) {
+                    imageUrl = product.image;
+                } else if (product.image) {
+                    imageUrl = STORAGE_BASE_URL + product.image;
+                } else {
+                    imageUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E';
+                }
+                
                 return `
                 <div class="admin-product-item">
-                    <img src="${imageUrl}" alt="${product.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
+                    <img src="${imageUrl}" alt="${product.name}" onerror="this.style.opacity='0.3';">
                     <div class="admin-product-info">
                         <h4>${product.name}</h4>
                         <div style="font-size: 0.875rem; color: var(--text-secondary);">${product.category} • ${product.price}</div>
