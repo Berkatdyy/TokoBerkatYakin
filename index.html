@@ -21,58 +21,6 @@
     
     <!-- Load Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Supabase global init (production hardening) -->
-    <script>
-      (function () {
-        try {
-          if (!window.supabase || !window.supabase.createClient) return;
-
-          function createMemoryStorage() {
-            const store = Object.create(null);
-            return {
-              getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
-              setItem: (key, value) => { store[key] = String(value); },
-              removeItem: (key) => { delete store[key]; }
-            };
-          }
-
-          function getSafeBrowserStorage() {
-            try {
-              const k = '__sb_test__';
-              window.localStorage.setItem(k, '1');
-              window.localStorage.removeItem(k);
-              return window.localStorage;
-            } catch (e) {
-              console.warn('[Supabase] localStorage blocked, fallback to memory storage.', e);
-              return createMemoryStorage();
-            }
-          }
-
-          // Expose createClient + supabaseClient globally (reused by app.js)
-          window.createClient = window.supabase.createClient;
-
-          // NOTE: URL & KEY dipakai dari app.js juga. Jika sudah dibuat di app.js, kita reuse.
-          if (!window.supabaseClient) {
-            window.supabaseClient = window.supabase.createClient(
-              'https://biagisibwjkgpdfxyhxg.supabase.co',
-              'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT',
-              {
-                auth: {
-                  persistSession: true,
-                  autoRefreshToken: true,
-                  detectSessionInUrl: true,
-                  storage: getSafeBrowserStorage()
-                }
-              }
-            );
-          }
-        } catch (e) {
-          console.warn('[Supabase] init warning:', e);
-        }
-      })();
-    </script>
-
     
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
@@ -412,11 +360,11 @@
                             <line x1="14" y1="1" x2="14" y2="4"/>
                         </svg>
                     </div>
-                    <h3 class="card-title">Minuman Segar</h3>
-                    <p class="card-description">Air mineral, teh, kopi, susu, hingga minuman dingin favorit setiap hari.</p>
+                    <h3 class="card-title">Minuman Kemasan</h3>
+                    <p class="card-description">Air mineral, soft drink, teh botol, kopi, susu — selalu dingin & segar.</p>
                     <div class="card-tags">
                         <span class="tag">Air Mineral</span>
-                        <span class="tag">Teh & Kopi</span>
+                        <span class="tag">Soft Drink</span>
                         <span class="tag">Susu</span>
                     </div>
                 </div>
@@ -424,16 +372,17 @@
                 <div class="card animate-on-scroll">
                     <div class="card-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1v22"/>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                            <path d="M7 2v20"/>
+                            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
                         </svg>
                     </div>
-                    <h3 class="card-title">Layanan Keuangan</h3>
-                    <p class="card-description">Pulsa, token PLN, pembayaran PDAM, voucher game, dan tarik tunai.</p>
+                    <h3 class="card-title">Makanan Instan</h3>
+                    <p class="card-description">Mie instan berbagai rasa, bumbu masak, saus, kecap, dan makanan siap saji.</p>
                     <div class="card-tags">
-                        <span class="tag">Pulsa</span>
-                        <span class="tag">Token PLN</span>
-                        <span class="tag">Tarik Tunai</span>
+                        <span class="tag">Mie Instan</span>
+                        <span class="tag">Bumbu Masak</span>
+                        <span class="tag">Saus & Kecap</span>
                     </div>
                 </div>
             </div>
@@ -441,41 +390,60 @@
     </section>
 
     <!-- SERVICES SECTION -->
-    <section id="layanan" class="section" style="background: white;">
+    <section id="layanan" class="section" style="background: var(--bg-secondary);">
         <div class="section-container">
             <div class="section-header">
-                <div class="section-subtitle">Layanan</div>
-                <h2 class="section-title">Layanan Keuangan Lengkap</h2>
-                <p class="section-description">Kemudahan transaksi harian Anda dalam satu tempat</p>
+                <div class="section-subtitle">Layanan Keuangan</div>
+                <h2 class="section-title">Semua Transaksi di Satu Tempat</h2>
             </div>
             <div class="card-grid">
                 <div class="card animate-on-scroll">
                     <div class="card-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1v22"/>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                            <line x1="12" y1="18" x2="12.01" y2="18"/>
                         </svg>
                     </div>
-                    <h3 class="card-title">Pulsa & Paket Data</h3>
-                    <p class="card-description">Isi ulang pulsa dan paket data semua operator dengan cepat dan aman.</p>
+                    <h3 class="card-title">Top Up Pulsa</h3>
+                    <p class="card-description">Semua operator — Telkomsel, Indosat, XL, Tri, Smartfren, Axis.</p>
                 </div>
 
                 <div class="card animate-on-scroll">
                     <div class="card-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 3h18v18H3z"/>
-                            <path d="M7 7h10v10H7z"/>
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Paket Data</h3>
+                    <p class="card-description">Paket internet harian hingga bulanan untuk semua operator.</p>
+                </div>
+
+                <div class="card animate-on-scroll">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Token PLN</h3>
-                    <p class="card-description">Beli token listrik kapan saja tanpa perlu keluar rumah.</p>
+                    <p class="card-description">Beli token listrik prabayar cepat, langsung ke meteran Anda.</p>
                 </div>
 
                 <div class="card animate-on-scroll">
                     <div class="card-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                            <circle cx="12" cy="10" r="3"/>
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Top Up E-Wallet</h3>
+                    <p class="card-description">OVO, GoPay, Dana, ShopeePay, LinkAja — isi saldo mudah & cepat.</p>
+                </div>
+
+                <div class="card animate-on-scroll">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Bayar PDAM</h3>
@@ -485,8 +453,8 @@
                 <div class="card animate-on-scroll">
                     <div class="card-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Tarik Tunai</h3>
