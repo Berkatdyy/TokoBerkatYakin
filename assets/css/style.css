@@ -890,7 +890,7 @@
             min-height: 600px;
             display: flex;
             align-items: center;
-            background-image: url('/assets/img/warung.jpg');
+            background-image: url('warung.jpg');
             background-size: cover;
             background-position: center 65%;
             background-repeat: no-repeat;
