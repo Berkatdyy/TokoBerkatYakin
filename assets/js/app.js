@@ -1,57 +1,16 @@
+
         // ===== SUPABASE CONFIGURATION =====
-        // NOTE: Jangan ubah flow UI / fitur. Bagian ini hanya hardening untuk production (Vercel + browser tracking prevention).
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
-
-        // Storage fallback untuk kasus Tracking Prevention / Storage blocked (Safari/Firefox/Brave, dll.)
-        function createMemoryStorage() {
-            const store = Object.create(null);
-            return {
-                getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
-                setItem: (key, value) => { store[key] = String(value); },
-                removeItem: (key) => { delete store[key]; }
-            };
-        }
-
-        function getSafeBrowserStorage() {
-            // Default: localStorage
-            try {
-                const k = '__sb_test__';
-                window.localStorage.setItem(k, '1');
-                window.localStorage.removeItem(k);
-                return window.localStorage;
-            } catch (e) {
-                console.warn('[Supabase] localStorage blocked, fallback to in-memory storage (session may not persist across reload).', e);
-                return createMemoryStorage();
-            }
-        }
-
-        // Inisialisasi Supabase client (global + reuse)
-        // CDN v2 exposes global `supabase` with `createClient`.
-        window.createClient = (window.supabase && window.supabase.createClient) ? window.supabase.createClient : undefined;
-
-        const supabaseClient = window.supabaseClient || supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        
+        // Inisialisasi Supabase client
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
-                persistSession: true,
                 autoRefreshToken: true,
-                detectSessionInUrl: true,
-                storage: getSafeBrowserStorage()
+                persistSession: true,
+                detectSessionInUrl: false
             }
         });
-
-        window.supabaseClient = supabaseClient;
-
-        // localStorage wrapper agar tidak crash jika diblokir Tracking Prevention
-        const __memoryKV = Object.create(null);
-        function localStorageSafeGet(key) {
-            try { return window.localStorage.getItem(key); } catch (_) { return Object.prototype.hasOwnProperty.call(__memoryKV, key) ? __memoryKV[key] : null; }
-        }
-        function localStorageSafeSet(key, value) {
-            try { window.localStorage.setItem(key, String(value)); } catch (_) { __memoryKV[key] = String(value); }
-        }
-        function localStorageSafeRemove(key) {
-            try { window.localStorage.removeItem(key); } catch (_) { delete __memoryKV[key]; }
-        }
 
         // ===== PRODUCT DATABASE (DEFAULT) =====
         // HAPUS SEMUA DEFAULT PRODUCTS YANG MENGGUNAKAN FILE LOKAL
@@ -104,27 +63,59 @@
             }, duration);
         }
 
-        // ===== LOADING SYSTEM =====
-        function showLoading(text = 'Memproses...') {
+        // ===== LOADING OVERLAY =====
+        function showLoading(message = 'Menyimpan data...') {
             const overlay = document.getElementById('loadingOverlay');
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = text;
-            overlay.classList.add('show');
+            const text = document.getElementById('loadingText');
+            text.textContent = message;
+            overlay.classList.add('active');
         }
 
         function hideLoading() {
             const overlay = document.getElementById('loadingOverlay');
-            overlay.classList.remove('show');
+            overlay.classList.remove('active');
         }
 
-        // ===== UTILITY FUNCTIONS =====
-        function formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
-        }
-
-        function truncateText(text, maxLength = 100) {
-            if (!text) return '';
-            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        // ===== VALIDATION FUNCTIONS =====
+        function validateProductData(data) {
+            const errors = {};
+            
+            // Nama produk validation
+            if (!data.name || data.name.trim().length < 3) {
+                errors.name = 'Nama produk harus minimal 3 karakter';
+            }
+            
+            // Kategori validation
+            if (!data.category || data.category.trim().length < 2) {
+                errors.category = 'Kategori harus minimal 2 karakter';
+            }
+            
+            // Harga validation
+            if (!data.price || !data.price.includes('Rp')) {
+                errors.price = 'Harga harus dalam format Rp (contoh: Rp 3.000)';
+            }
+            
+            // Deskripsi validation
+            if (!data.desc || data.desc.trim().length < 10) {
+                errors.desc = 'Deskripsi harus minimal 10 karakter';
+            }
+            
+            // Stok validation
+            if (!data.stock || data.stock.trim().length < 2) {
+                errors.stock = 'Status stok harus diisi';
+            }
+            
+            // Rating validation
+            if (data.rating < 1 || data.rating > 5) {
+                errors.rating = 'Rating harus antara 1-5';
+            }
+            
+            // Image validation
+            if (!data.image || !isValidUrl(data.image)) {
+                errors.image = 'URL gambar tidak valid';
+            }
+            
+            return errors;
         }
 
         function isValidUrl(string) {
@@ -164,211 +155,152 @@
 
         // ===== SUPABASE AUTHENTICATION FUNCTIONS =====
         async function loginAdmin() {
-            const identifier = document.getElementById('adminUsername').value.trim();
+            const username = document.getElementById('adminUsername').value.trim();
             const password = document.getElementById('adminPassword').value.trim();
-
+            
             // Validasi input
-            if (!identifier || !password) {
-                document.getElementById('loginError').textContent = 'Username/Email dan password harus diisi';
+            if (!username || !password) {
+                document.getElementById('loginError').textContent = 'Username dan password harus diisi';
                 document.getElementById('loginError').classList.add('show');
                 return;
             }
-
-            // Debug helpers
-            console.groupCollapsed('[Auth] loginAdmin');
-            console.log('identifier:', identifier);
-
+            
             showLoading('Memverifikasi login...');
-
+            
             try {
-                let emailToLogin = null;
-                let username = null;
-
-                // 1) Jika input mengandung "@", anggap email
-                if (identifier.includes('@')) {
-                    emailToLogin = identifier.toLowerCase();
-                    username = emailToLogin.split('@')[0] || null;
-                } else {
-                    // 2) Jika username: lookup ke profiles (tanpa kolom email)
-                    username = identifier.toLowerCase();
-
-                    const { data: profile, error: profileError } = await supabaseClient
-                        .from('profiles')
-                        .select('id, username, role')
-                        .eq('username', username)
-                        .maybeSingle();
-
-                    if (profileError) {
-                        console.warn('[Profiles] lookup username error:', profileError);
-                    }
-
-                    if (!profile) {
-                        document.getElementById('loginError').textContent = 'User tidak ditemukan di profiles';
-                        document.getElementById('loginError').classList.add('show');
-                        throw new Error('Profile not found');
-                    }
-
-                    if (profile.role !== 'admin') {
-                        document.getElementById('loginError').textContent = 'Akses ditolak. Bukan admin.';
-                        document.getElementById('loginError').classList.add('show');
-                        throw new Error('Not admin');
-                    }
-
-                    // Karena tabel profiles tidak menyimpan email, kita pakai mapping email berbasis username (existing flow)
-                    emailToLogin = `${username}@berkatyakin.com`;
+                // VERIFIKASI DENGAN TABEL PROFILES DI SUPABASE
+                // 1. Cari user dengan username yang sesuai
+                const { data: profiles, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('username', username)
+                    .single();
+                
+                if (profileError || !profiles) {
+                    document.getElementById('loginError').textContent = 'Username atau password salah';
+                    document.getElementById('loginError').classList.add('show');
+                    throw new Error('User tidak ditemukan');
                 }
-
-                console.log('emailToLogin:', emailToLogin);
-
-                // 3) Sign in (email/password)
+                
+                // 2. Verifikasi role admin
+                if (profiles.role !== 'admin') {
+                    document.getElementById('loginError').textContent = 'Akses ditolak. Bukan admin.';
+                    document.getElementById('loginError').classList.add('show');
+                    throw new Error('Bukan admin');
+                }
+                
+                // 3. Password bisa diverifikasi dengan cara yang aman
+                // Karena Supabase tidak menyimpan password di profiles, kita bisa:
+                // a. Gunakan Supabase Auth dengan email yang sesuai
+                // b. Atau buat custom auth dengan RLS
+                
+                // SOLUSI: Gunakan Supabase Auth dengan email yang sudah ada
+                // Asumsi: email = username + '@berkatyakin.com
+                const adminEmail = `${username}@berkatyakin.com`;
+                
                 const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
-                    email: emailToLogin,
-                    password
+                    email: adminEmail,
+                    password: password
                 });
-
+                
                 if (authError) {
-                    console.warn('[Auth] signInWithPassword error:', authError);
-
-                    // Optional: auto signUp untuk admin (existing behaviour) - tetap dijaga tapi dibuat aman
-                    if (String(authError.message || '').toLowerCase().includes('invalid login credentials')) {
-                        console.warn('[Auth] Invalid credentials. Attempting signUp (if enabled).');
+                    // Jika user belum ada di auth, buat dulu
+                    if (authError.message.includes('Invalid login credentials')) {
+                        // Buat user baru di auth
                         const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                            email: emailToLogin,
-                            password,
+                            email: adminEmail,
+                            password: password,
                             options: {
-                                data: { username, role: 'admin' }
+                                data: {
+                                    username: username,
+                                    role: 'admin'
+                                }
                             }
                         });
-
-                        if (signUpError) throw signUpError;
-
-                        // Retry login setelah signUp
-                        const { data: retryData, error: retryErr } = await supabaseClient.auth.signInWithPassword({
-                            email: emailToLogin,
-                            password
+                        
+                        if (signUpError) {
+                            throw signUpError;
+                        }
+                        
+                        // Login dengan user yang baru dibuat
+                        const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+                            email: adminEmail,
+                            password: password
                         });
-
-                        if (retryErr) throw retryErr;
-
-                        // Continue with retryData
-                        await afterAdminLoginSuccess(retryData?.session, username);
+                        
+                        if (loginError) throw loginError;
+                        
+                        // Simpan session
+                        localStorage.setItem('supabase.auth.token', JSON.stringify(loginData.session));
+                        localStorage.setItem('admin_logged_in', 'true');
+                        localStorage.setItem('admin_username', username);
+                        
+                        closeLoginModal();
+                        openAdminModal();
+                        updateAdminMenu(true);
+                        showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
                     } else {
                         throw authError;
                     }
                 } else {
-                    await afterAdminLoginSuccess(authData?.session, username);
+                    // Login berhasil
+                    localStorage.setItem('supabase.auth.token', JSON.stringify(authData.session));
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_username', username);
+                    
+                    closeLoginModal();
+                    openAdminModal();
+                    updateAdminMenu(true);
+                    showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
                 }
-
-                closeLoginModal();
-                openAdminModal();
-                updateAdminMenu(true);
-                showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
             } catch (error) {
                 console.error('Login error:', error);
-                if (!document.getElementById('loginError').classList.contains('show')) {
-                    document.getElementById('loginError').textContent = 'Username/email atau password salah';
-                    document.getElementById('loginError').classList.add('show');
-                }
+                document.getElementById('loginError').textContent = 'Username atau password salah';
+                document.getElementById('loginError').classList.add('show');
                 showNotification('error', 'Login Gagal', 'Terjadi kesalahan saat login');
             } finally {
-                console.groupEnd();
                 hideLoading();
             }
         }
 
-        async function afterAdminLoginSuccess(session, username) {
-            // Session persist handled by Supabase, tapi kita simpan flag UI (safe storage)
-            if (session) {
-                try {
-                    // optional legacy token usage (tidak mengubah flow existing)
-                    localStorageSafeSet('supabase.auth.token', JSON.stringify(session));
-                } catch (_) {}
-            }
-
-            localStorageSafeSet('admin_logged_in', 'true');
-            if (username) localStorageSafeSet('admin_username', username);
-
-            // Pastikan role admin terdeteksi dari profiles.id = auth.user.id
-            try {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (user?.id) {
-                    const { data: profile, error } = await supabaseClient
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', user.id)
-                        .maybeSingle();
-
-                    if (error) console.warn('[Profiles] post-login role check error:', error);
-
-                    // Jika profile belum ada tapi username diketahui, coba upsert (aman: kalau ditolak RLS, cuma warn)
-                    if (!profile && username) {
-                        const { error: upsertErr } = await supabaseClient
-                            .from('profiles')
-                            .upsert({ id: user.id, username, role: 'admin' }, { onConflict: 'id' });
-
-                        if (upsertErr) console.warn('[Profiles] upsert skipped/denied:', upsertErr);
-                    }
-                }
-            } catch (e) {
-                console.warn('[Auth] afterAdminLoginSuccess warning:', e);
-            }
-
-            await checkAdminLogin();
-        }
-
         async function checkAdminLogin() {
             try {
-                const { data: { session }, error: sessErr } = await supabaseClient.auth.getSession();
-
-                if (sessErr) {
-                    console.warn('[Auth] getSession error:', sessErr);
+                // Cek session dari Supabase Auth
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                
+                if (session) {
+                    // Cek apakah user ada di tabel profiles dengan role admin
+                    const { data: userData } = await supabaseClient.auth.getUser();
+                    
+                    if (userData.user) {
+                        // Cek username dari user metadata atau email
+                        const email = userData.user.email;
+                        const username = email ? email.split('@')[0] : null;
+                        
+                        if (username) {
+                            // Cek di tabel profiles
+                            const { data: profile } = await supabaseClient
+                                .from('profiles')
+                                .select('role')
+                                .eq('username', username)
+                                .single();
+                            
+                            if (profile && profile.role === 'admin') {
+                                updateAdminMenu(true);
+                                localStorage.setItem('admin_logged_in', 'true');
+                                localStorage.setItem('admin_username', username);
+                                return true;
+                            }
+                        }
+                    }
                 }
-
-                if (!session || !session.user) {
-                    // Tidak ada session aktif
-                    updateAdminMenu(false);
-                    document.body.classList.remove('admin-logged');
-                    localStorageSafeRemove('admin_logged_in');
-                    localStorageSafeRemove('admin_username');
-                    return false;
-                }
-
-                const user = session.user;
-
-                // Ambil role dari profiles berdasarkan id (FK ke auth.users)
-                const { data: profile, error: profErr } = await supabaseClient
-                    .from('profiles')
-                    .select('username, role')
-                    .eq('id', user.id)
-                    .maybeSingle();
-
-                if (profErr) {
-                    console.warn('[Profiles] role check error:', profErr);
-                }
-
-                const role = profile?.role || user.user_metadata?.role || null;
-                const username = profile?.username || user.user_metadata?.username || (user.email ? user.email.split('@')[0] : null);
-
-                if (role === 'admin') {
-                    updateAdminMenu(true);
-                    document.body.classList.add('admin-logged');
-
-                    localStorageSafeSet('admin_logged_in', 'true');
-                    if (username) localStorageSafeSet('admin_username', username);
-
-                    return true;
-                }
-
-                // Bukan admin / profile tidak ditemukan
-                updateAdminMenu(false);
-                document.body.classList.remove('admin-logged');
-                localStorageSafeRemove('admin_logged_in');
-                localStorageSafeRemove('admin_username');
+                
+                // Jika tidak valid, logout
+                logoutAdmin();
                 return false;
             } catch (error) {
-                console.error('[Auth] checkAdminLogin error:', error);
+                console.error('Check login error:', error);
                 updateAdminMenu(false);
-                document.body.classList.remove('admin-logged');
                 return false;
             }
         }
@@ -376,9 +308,9 @@
         async function logoutAdmin() {
             try {
                 await supabaseClient.auth.signOut();
-                localStorageSafeRemove('admin_logged_in');
-                localStorageSafeRemove('admin_username');
-                localStorageSafeRemove('supabase.auth.token');
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_username');
+                localStorage.removeItem('supabase.auth.token');
                 
                 closeAdminModal();
                 updateAdminMenu(false);
@@ -415,7 +347,7 @@
 
         function openAdminModal() {
             // Cek login status
-            const isLoggedIn = localStorageSafeGet('admin_logged_in') === 'true';
+            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
             
             if (isLoggedIn) {
                 closeAllDropdowns();
@@ -431,107 +363,6 @@
             document.getElementById('adminModal').classList.remove('active');
             resetForm();
         }
-
-        // ===== DROPDOWN / NAV LOGIC (existing) =====
-        const dropdownOverlay = document.getElementById('dropdownOverlay');
-        let activeDropdown = null;
-
-        function closeAllDropdowns() {
-            document.querySelectorAll('.dropdown').forEach(dd => dd.classList.remove('active'));
-            activeDropdown = null;
-            dropdownOverlay.classList.remove('active');
-        }
-
-        // Dropdown toggle handlers
-        document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-            const dropdown = toggle.closest('.dropdown');
-            const content = dropdown.querySelector('.dropdown-content');
-
-            toggle.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (window.innerWidth <= 768) {
-                    if (activeDropdown === dropdown) {
-                        closeAllDropdowns();
-                    } else {
-                        closeAllDropdowns();
-                        dropdown.classList.add('active');
-                        activeDropdown = dropdown;
-                        dropdownOverlay.classList.add('active');
-                    }
-                } else {
-                    // Desktop click fallback
-                    if (activeDropdown === dropdown) {
-                        closeAllDropdowns();
-                    } else {
-                        closeAllDropdowns();
-                        dropdown.classList.add('active');
-                        activeDropdown = dropdown;
-                    }
-                }
-            });
-
-            // Close dropdown when clicking on links
-            const links = content.querySelectorAll('a');
-            links.forEach(link => {
-                link.addEventListener('click', () => {
-                    closeAllDropdowns();
-                });
-            });
-        });
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown')) {
-                closeAllDropdowns();
-            }
-        });
-
-        // Close dropdown overlay when clicked
-        dropdownOverlay.addEventListener('click', closeAllDropdowns);
-
-        // ===== IMPROVED SMOOTH SCROLL =====
-        const navbar = document.getElementById('navbar');
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
-                if (href !== '#') {
-                    e.preventDefault();
-                    const target = document.querySelector(href);
-                    if (target) {
-                        // Close any open dropdowns
-                        closeAllDropdowns();
-                        
-                        // Calculate scroll position with offset
-                        const navbarHeight = navbar.offsetHeight;
-                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
-                        const offsetPosition = targetPosition - navbarHeight - 20;
-                        
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-            });
-        });
-
-        // ===== SCROLL ANIMATION =====
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
-
-        document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            scrollObserver.observe(el);
-        });
 
         // ===== SUPABASE DATABASE FUNCTIONS =====
         async function loadProducts() {
@@ -560,12 +391,7 @@
                 const { data: categories, error: categoriesError } = await supabaseClient
                     .from('categories')
                     .select('name');
-
-                if (categoriesError) {
-                    // Categories table bisa saja tidak ada. Jangan bikin console merah di production.
-                    console.warn('[Categories] Table missing / not accessible. Fallback to categories dari products.', categoriesError);
-                }
-
+                
                 if (categoriesError || !categories || categories.length === 0) {
                     // Extract unique categories dari products
                     const uniqueCategories = [...new Set(allProducts.map(p => p.category))].filter(c => c);
@@ -593,283 +419,18 @@
         }
 
         function fixImageUrl(imageUrl) {
-            // Fallback image lokal (production-safe)
-            const fallback = '/assets/img/no-image.png';
-
-            if (!imageUrl) return fallback;
-
-            // Jika URL sudah lengkap / absolute, pakai apa adanya
-            if (typeof imageUrl === 'string' && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
-                return imageUrl;
-            }
-
-            // Jika sudah format Supabase public object, pakai apa adanya
-            if (typeof imageUrl === 'string' && imageUrl.includes('/storage/v1/object/public/')) {
-                return imageUrl;
-            }
-
-            // Jika path absolute lokal
-            if (typeof imageUrl === 'string' && imageUrl.startsWith('/')) {
-                return imageUrl;
-            }
-
-            // Jika hanya nama file (mis: product_123.jpg)
-            if (typeof imageUrl === 'string' && imageUrl.includes('.')) {
-                const fileName = encodeURIComponent(imageUrl);
-                return `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
-            }
-
-            return fallback;
-        }
-
-        function handleImageError(img) {
-            try { img.onerror = null; } catch (_) {}
-            img.src = '/assets/img/no-image.png';
-        }
-
-        // ===== RENDER PRODUCTS (existing) =====
-        function renderProducts() {
-            const productGrid = document.getElementById('productGrid');
-            productGrid.innerHTML = '';
+            if (!imageUrl) return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
             
-            if (!filteredProducts || filteredProducts.length === 0) {
-                productGrid.innerHTML = '<div class="no-results">Tidak ada produk yang ditemukan.</div>';
-                document.getElementById('loadMoreBtn').style.display = 'none';
-                return;
+            // Jika URL sudah lengkap, return as is
+            if (imageUrl.startsWith('http')) return imageUrl;
+            
+            // Jika hanya nama file, tambahkan base URL Supabase Storage
+            if (imageUrl.includes('.')) {
+                return `${SUPABASE_URL}/storage/v1/object/public/product-images/${imageUrl}`;
             }
             
-            const startIndex = 0;
-            const endIndex = currentPage * PRODUCTS_PER_PAGE;
-            const productsToShow = filteredProducts.slice(startIndex, endIndex);
-            
-            productsToShow.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                
-                const badgeClass = product.badge === 'bestseller' ? 'badge-bestseller' :
-                                  product.badge === 'new' ? 'badge-new' :
-                                  product.badge === 'promo' ? 'badge-promo' : '';
-                
-                const badgeHTML = product.badge ? `
-                    <div class="product-badge ${badgeClass}">
-                        ${product.badge_text || ''}
-                    </div>
-                ` : '';
-                
-                const imageUrl = fixImageUrl(product.image);
-
-                card.innerHTML = `
-                    ${badgeHTML}
-                    <div class="product-image">
-                        <img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="handleImageError(this)">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">${(product.category || '').toUpperCase()}</div>
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-desc">${truncateText(product.desc, 80)}</p>
-                        <div class="product-meta">
-                            <div class="product-price">${product.price}</div>
-                            <div class="product-rating">
-                                ⭐ ${product.rating || 4.5}
-                            </div>
-                        </div>
-                        <div class="product-stock ${product.stock && String(product.stock).toLowerCase().includes('habis') ? 'out-of-stock' : 'in-stock'}">
-                            ${product.stock || 'Stok Tersedia'}
-                        </div>
-                        <a class="btn btn-primary btn-buy" href="https://wa.me/6281253680904?text=Saya%20mau%20pesan%20${encodeURIComponent(product.name)}" target="_blank" rel="noopener">
-                            Pesan via WhatsApp
-                        </a>
-                    </div>
-                `;
-                
-                productGrid.appendChild(card);
-            });
-            
-            // Show/hide load more button
-            if (filteredProducts.length > endIndex) {
-                document.getElementById('loadMoreBtn').style.display = 'inline-flex';
-            } else {
-                document.getElementById('loadMoreBtn').style.display = 'none';
-            }
-            
-            // Observe images for lazy loading
-            observeImages();
-        }
-
-        // ===== LAZY LOADING =====
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.onload = () => {
-                        img.classList.add('loaded');
-                    };
-                    observer.unobserve(img);
-                }
-            });
-        }, { threshold: 0.1 });
-
-        function observeImages() {
-            document.querySelectorAll('img[data-src]').forEach(img => {
-                imageObserver.observe(img);
-            });
-        }
-
-        // ===== FILTER + SEARCH =====
-        function filterProducts(category) {
-            currentFilter = category;
-            currentPage = 1;
-            
-            let products = [...allProducts];
-            
-            // Apply category filter
-            if (category !== 'all') {
-                products = products.filter(p => p.category === category);
-            }
-            
-            // Apply search filter
-            if (currentSearch) {
-                const searchLower = currentSearch.toLowerCase();
-                products = products.filter(p =>
-                    (p.name && p.name.toLowerCase().includes(searchLower)) ||
-                    (p.category && p.category.toLowerCase().includes(searchLower)) ||
-                    (p.desc && p.desc.toLowerCase().includes(searchLower))
-                );
-            }
-            
-            filteredProducts = products;
-            renderProducts();
-        }
-
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            const info = document.getElementById('searchResultsInfo');
-
-            if (!searchInput) return;
-
-            searchInput.addEventListener('input', () => {
-                currentSearch = searchInput.value.trim();
-                currentPage = 1;
-                filterProducts(currentFilter);
-
-                if (currentSearch) {
-                    info.textContent = `Hasil pencarian "${currentSearch}" : ${filteredProducts.length} produk`;
-                } else {
-                    info.textContent = '';
-                }
-            });
-        }
-
-        // Load more button
-        document.getElementById('loadMoreBtn').addEventListener('click', () => {
-            currentPage++;
-            renderProducts();
-        });
-
-        // ===== ADMIN PRODUCT MANAGEMENT =====
-        let editingProductId = null;
-
-        function renderAdminProductList() {
-            const container = document.getElementById('productListAdmin');
-            container.innerHTML = '';
-            
-            if (allProducts.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary)">Belum ada produk. Silakan tambah produk baru.</div>';
-                return;
-            }
-            
-            allProducts.forEach(product => {
-                const div = document.createElement('div');
-                div.className = 'admin-product-item';
-                div.innerHTML = `
-                    <img src="${fixImageUrl(product.image)}" class="admin-product-image" alt="${product.name}" onerror="handleImageError(this)">
-                    <div class="admin-product-info">
-                        <div class="admin-product-name">${product.name}</div>
-                        <div class="admin-product-price">${product.price}</div>
-                    </div>
-                    <div class="admin-product-actions">
-                        <button class="action-btn edit-btn" onclick="editProduct('${product.id}')">Edit</button>
-                        <button class="action-btn delete-btn" onclick="confirmDeleteProduct('${product.id}')">Hapus</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function editProduct(id) {
-            const product = allProducts.find(p => p.id === id);
-            if (!product) return;
-            
-            editingProductId = id;
-            
-            document.getElementById('productId').value = id;
-            document.getElementById('productName').value = product.name;
-            document.getElementById('productCategory').value = product.category;
-            document.getElementById('productPrice').value = product.price;
-            document.getElementById('productDesc').value = product.desc;
-            document.getElementById('productStock').value = product.stock;
-            document.getElementById('productRating').value = product.rating || 4.5;
-            document.getElementById('productBadge').value = product.badge || '';
-            
-            // Set image preview
-            const preview = document.getElementById('imagePreview');
-            preview.src = fixImageUrl(product.image);
-            preview.classList.add('show');
-            document.getElementById('productImageData').value = product.image;
-            
-            // Update form title
-            document.getElementById('formTitle').textContent = 'Edit Produk';
-            document.getElementById('saveProductBtn').textContent = 'Update Produk';
-            document.getElementById('deleteProductBtn').style.display = 'block';
-            
-            // Clear validation errors
-            showValidationErrors({});
-            
-            // Scroll to form
-            document.querySelector('.modal-content').scrollTop = 0;
-        }
-
-        function confirmDeleteProduct(id) {
-            if (!id) return;
-            if (confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) {
-                deleteProduct(id);
-            }
-        }
-
-        function resetForm() {
-            editingProductId = null;
-            document.getElementById('productId').value = '';
-            document.getElementById('productName').value = '';
-            document.getElementById('productCategory').value = '';
-            document.getElementById('productPrice').value = '';
-            document.getElementById('productDesc').value = '';
-            document.getElementById('productStock').value = '';
-            document.getElementById('productRating').value = 4.5;
-            document.getElementById('productBadge').value = '';
-            document.getElementById('productImageData').value = '';
-
-            const preview = document.getElementById('imagePreview');
-            preview.src = '';
-            preview.classList.remove('show');
-            
-            document.getElementById('formTitle').textContent = 'Tambah Produk Baru';
-            document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
-            document.getElementById('deleteProductBtn').style.display = 'none';
-            
-            showValidationErrors({});
-        }
-
-        function validateProductData(productData) {
-            const errors = {};
-            if (!productData.name) errors.name = 'Nama produk wajib diisi';
-            if (!productData.category) errors.category = 'Kategori wajib diisi';
-            if (!productData.price) errors.price = 'Harga wajib diisi';
-            if (!productData.desc) errors.desc = 'Deskripsi wajib diisi';
-            if (!productData.stock) errors.stock = 'Status stok wajib diisi';
-            if (!productData.image) errors.image = 'Gambar produk wajib diupload';
-            if (Number.isNaN(productData.rating) || productData.rating < 1 || productData.rating > 5) errors.rating = 'Rating harus antara 1 - 5';
-            return errors;
+            // Default placeholder
+            return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
         }
 
         async function saveProduct() {
@@ -945,7 +506,7 @@
                 resetForm();
             } catch (error) {
                 console.error('Error saving product:', error);
-                showNotification('error', 'Error', 'Gagal menyimpan produk: ' + (error?.message || 'Unknown error'));
+                showNotification('error', 'Error', 'Gagal menyimpan produk: ' + error.message);
             } finally {
                 hideLoading();
             }
@@ -997,7 +558,7 @@
                 return;
             }
             
-            showLoading('Menambahkan kategori.');
+            showLoading('Menambahkan kategori...');
             
             try {
                 // Coba simpan ke tabel categories
@@ -1005,8 +566,8 @@
                     .from('categories')
                     .insert([{ name: categoryName }]);
                 
-                if (error && !String(error.message || '').includes('duplicate key')) {
-                    console.warn('[Categories] table not available, using local array');
+                if (error && !error.message.includes('duplicate key')) {
+                    console.log('Categories table not available, using local array');
                 }
                 
                 allCategories.push(categoryName);
@@ -1014,7 +575,7 @@
                 input.value = '';
                 showNotification('success', 'Berhasil', `Kategori "${categoryName}" berhasil ditambahkan!`);
             } catch (error) {
-                console.warn('Error adding category:', error);
+                console.error('Error adding category:', error);
                 showNotification('error', 'Error', 'Gagal menambahkan kategori');
             } finally {
                 hideLoading();
@@ -1026,7 +587,7 @@
                 return;
             }
             
-            showLoading('Menghapus kategori.');
+            showLoading('Menghapus kategori...');
             
             try {
                 // Hapus dari tabel categories
@@ -1036,75 +597,18 @@
                     .eq('name', categoryName);
                 
                 if (error) {
-                    console.warn('[Categories] table not available, deleting from local array');
+                    console.log('Categories table not available, deleting from local array');
                 }
                 
                 allCategories = allCategories.filter(cat => cat !== categoryName);
                 updateCategoryLists();
                 showNotification('success', 'Berhasil', `Kategori "${categoryName}" berhasil dihapus!`);
             } catch (error) {
-                console.warn('Error deleting category:', error);
+                console.error('Error deleting category:', error);
                 showNotification('error', 'Error', 'Gagal menghapus kategori');
             } finally {
                 hideLoading();
             }
-        }
-
-        function updateCategoryLists() {
-            const categoryList = document.getElementById('categoryList');
-            const categoryOptions = document.getElementById('categoryOptions');
-            
-            if (!categoryList || !categoryOptions) return;
-            
-            categoryList.innerHTML = '';
-            categoryOptions.innerHTML = '';
-            
-            // Add default "all"
-            const allOpt = document.createElement('option');
-            allOpt.value = 'all';
-            categoryOptions.appendChild(allOpt);
-            
-            // Render categories
-            allCategories.forEach(category => {
-                if (!category) return;
-
-                // Admin category tags
-                const tag = document.createElement('div');
-                tag.className = 'category-tag';
-                tag.innerHTML = `
-                    <span>${category}</span>
-                    <button class="delete-category" onclick="deleteCategory('${category}')">×</button>
-                `;
-                categoryList.appendChild(tag);
-
-                // Datalist options
-                const opt = document.createElement('option');
-                opt.value = category;
-                categoryOptions.appendChild(opt);
-            });
-
-            // Keep existing tabs but update based on categories
-            const tabsContainer = document.querySelector('.filter-tabs');
-            if (!tabsContainer) return;
-
-            const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
-            const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
-            
-            // Add new categories as tabs if they don't exist
-            allCategories.forEach(category => {
-                if (!existingFilters.includes(category) && category !== 'all') {
-                    const tab = document.createElement('button');
-                    tab.className = 'filter-tab';
-                    tab.dataset.filter = category;
-                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                    tab.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                        tab.classList.add('active');
-                        filterProducts(category);
-                    });
-                    tabsContainer.appendChild(tab);
-                }
-            });
         }
 
         // ===== IMAGE UPLOAD AND COMPRESSION =====
@@ -1127,7 +631,7 @@
             }
             
             try {
-                showLoading('Mengupload gambar.');
+                showLoading('Mengupload gambar...');
                 
                 // Upload ke Supabase Storage
                 const fileName = `product_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
@@ -1162,6 +666,517 @@
                 hideLoading();
             }
         });
+
+        // ===== LAZY LOADING =====
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const src = img.getAttribute('data-src');
+                    if (src) {
+                        img.src = src;
+                        img.onload = () => {
+                            img.classList.add('loaded');
+                        };
+                        img.onerror = () => {
+                            // Fallback ke placeholder jika gambar error
+                            img.src = `https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(img.alt || 'Produk')}`;
+                            img.classList.add('loaded');
+                        };
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                }
+            });
+        }, {
+            rootMargin: '50px'
+        });
+
+        // ===== GENERATE PRODUCT CARD =====
+        function generateProductCard(product) {
+            const stars = '★'.repeat(Math.floor(product.rating || 4.5));
+            const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badge_text || ''}</div>` : '';
+            
+            // Gunakan data-src untuk lazy loading
+            const imageUrl = fixImageUrl(product.image);
+            
+            return `
+                <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${product.desc.toLowerCase()} ${product.category.toLowerCase()}">
+                    ${badgeHTML}
+                    <div class="product-image">
+                        <img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(product.name)}'">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-desc">${product.desc}</p>
+                        <div class="product-rating">
+                            <div class="stars">
+                                ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
+                            </div>
+                            <span class="rating-text">(${product.rating || 4.5}/5)</span>
+                        </div>
+                        <div class="product-price-wrapper">
+                            <div class="product-price">${product.price}</div>
+                        </div>
+                        <div class="product-stock">
+                            <div class="stock-indicator"></div>
+                            <span class="stock-text">${product.stock}</span>
+                        </div>
+                        <a href="https://wa.me/6281253680904?text=Halo,%20saya%20mau%20pesan%20${encodeURIComponent(product.name)}" class="btn-buy" target="_blank" rel="noopener">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                            </svg>
+                            <span>Pesan Sekarang</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== RENDER PRODUCTS WITH SEARCH =====
+        function renderProducts(append = false) {
+            const productGrid = document.getElementById('productGrid');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            
+            let productsToShow = filteredProducts;
+            
+            // Apply search filter
+            if (currentSearch) {
+                const searchTerm = currentSearch.toLowerCase();
+                productsToShow = productsToShow.filter(product => 
+                    (product.name && product.name.toLowerCase().includes(searchTerm)) ||
+                    (product.desc && product.desc.toLowerCase().includes(searchTerm)) ||
+                    (product.category && product.category.toLowerCase().includes(searchTerm))
+                );
+                
+                // Update search results info
+                searchResultsInfo.textContent = `Menampilkan ${productsToShow.length} hasil untuk "${currentSearch}"`;
+            } else {
+                searchResultsInfo.textContent = '';
+            }
+            
+            const start = 0;
+            const end = currentPage * PRODUCTS_PER_PAGE;
+            const productsToDisplay = productsToShow.slice(start, end);
+            
+            if (!append) {
+                productGrid.innerHTML = '';
+                
+                // Show no results message
+                if (productsToShow.length === 0) {
+                    productGrid.innerHTML = `
+                        <div class="no-results">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+                            <h3 style="margin-bottom: 0.5rem;">Produk tidak ditemukan</h3>
+                            <p>Coba kata kunci lain atau lihat semua produk</p>
+                        </div>
+                    `;
+                    loadMoreBtn.style.display = 'none';
+                    return;
+                }
+            }
+            
+            const newProductsStart = append ? (currentPage - 1) * PRODUCTS_PER_PAGE : 0;
+            const newProducts = productsToShow.slice(newProductsStart, end);
+            
+            newProducts.forEach(product => {
+                productGrid.insertAdjacentHTML('beforeend', generateProductCard(product));
+            });
+            
+            // Apply lazy loading to images
+            const images = productGrid.querySelectorAll('img[data-src]');
+            images.forEach(img => imageObserver.observe(img));
+            
+            if (end >= productsToShow.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'inline-flex';
+            }
+        }
+
+        // ===== SEARCH FUNCTIONALITY =====
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                
+                searchTimeout = setTimeout(() => {
+                    currentSearch = e.target.value.trim();
+                    currentPage = 1;
+                    renderProducts(false);
+                    
+                    // Update filter tabs to show "All" when searching
+                    if (currentSearch) {
+                        document.querySelectorAll('.filter-tab').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        document.querySelector('.filter-tab[data-filter="all"]').classList.add('active');
+                    }
+                }, 300);
+            });
+            
+            // Clear search button
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    currentSearch = '';
+                    renderProducts(false);
+                    searchResultsInfo.textContent = '';
+                }
+            });
+        }
+
+        // ===== FILTER =====
+        function filterProducts(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            if (filter === 'all') {
+                filteredProducts = [...allProducts];
+            } else {
+                filteredProducts = allProducts.filter(p => p.category === filter);
+            }
+            
+            // Clear search when changing filter
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            document.getElementById('searchResultsInfo').textContent = '';
+            
+            renderProducts(false);
+        }
+
+        // ===== LOAD MORE =====
+        document.getElementById('loadMoreBtn').addEventListener('click', () => {
+            currentPage++;
+            renderProducts(true);
+            
+            setTimeout(() => {
+                const firstNewProduct = document.querySelector('.product-grid').children[(currentPage - 1) * PRODUCTS_PER_PAGE];
+                if (firstNewProduct) {
+                    firstNewProduct.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 100);
+        });
+
+        // ===== FILTER TABS =====
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const filterValue = tab.getAttribute('data-filter');
+                filterProducts(filterValue);
+            });
+        });
+
+        // ===== NAVBAR SCROLL EFFECT =====
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ===== IMPROVED DROPDOWN FOR MOBILE =====
+        const dropdowns = document.querySelectorAll('.dropdown');
+        const dropdownOverlay = document.getElementById('dropdownOverlay');
+        let activeDropdown = null;
+
+        function closeAllDropdowns() {
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            dropdownOverlay.classList.remove('active');
+            activeDropdown = null;
+            
+            // Reset dropdown content position for desktop
+            if (window.innerWidth > 768) {
+                dropdowns.forEach(dropdown => {
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        content.style.position = 'absolute';
+                        content.style.bottom = '';
+                        content.style.left = '';
+                        content.style.right = '';
+                        content.style.width = '';
+                        content.style.maxHeight = '';
+                        content.style.borderRadius = '';
+                    }
+                });
+            }
+        }
+
+        dropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            const content = dropdown.querySelector('.dropdown-content');
+            
+            if (toggle && content) {
+                // Desktop hover
+                dropdown.addEventListener('mouseenter', () => {
+                    if (window.innerWidth > 768) {
+                        closeAllDropdowns();
+                        dropdown.classList.add('active');
+                        activeDropdown = dropdown;
+                    }
+                });
+                
+                dropdown.addEventListener('mouseleave', () => {
+                    if (window.innerWidth > 768) {
+                        setTimeout(() => {
+                            if (activeDropdown === dropdown) {
+                                closeAllDropdowns();
+                            }
+                        }, 300);
+                    }
+                });
+                
+                // Mobile click
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    if (window.innerWidth <= 768) {
+                        if (activeDropdown === dropdown) {
+                            closeAllDropdowns();
+                        } else {
+                            closeAllDropdowns();
+                            dropdown.classList.add('active');
+                            activeDropdown = dropdown;
+                            dropdownOverlay.classList.add('active');
+                        }
+                    } else {
+                        // Desktop click fallback
+                        if (activeDropdown === dropdown) {
+                            closeAllDropdowns();
+                        } else {
+                            closeAllDropdowns();
+                            dropdown.classList.add('active');
+                            activeDropdown = dropdown;
+                        }
+                    }
+                });
+                
+                // Close dropdown when clicking on links
+                const links = content.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', () => {
+                        closeAllDropdowns();
+                    });
+                });
+            }
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // Close dropdown overlay when clicked
+        dropdownOverlay.addEventListener('click', closeAllDropdowns);
+
+        // ===== IMPROVED SMOOTH SCROLL =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        // Close any open dropdowns
+                        closeAllDropdowns();
+                        
+                        // Calculate scroll position with offset
+                        const navbarHeight = navbar.offsetHeight;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = targetPosition - navbarHeight - 20;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // ===== SCROLL ANIMATION =====
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            scrollObserver.observe(el);
+        });
+
+        // ===== ADMIN PRODUCT MANAGEMENT =====
+        let editingProductId = null;
+
+        function renderAdminProductList() {
+            const container = document.getElementById('productListAdmin');
+            container.innerHTML = '';
+            
+            if (allProducts.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary)">Belum ada produk. Silakan tambah produk baru.</div>';
+                return;
+            }
+            
+            allProducts.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'admin-product-item';
+                div.innerHTML = `
+                    <img src="${fixImageUrl(product.image)}" class="admin-product-image" alt="${product.name}" onerror="this.src='https://via.placeholder.com/60x60/0071e3/ffffff?text=Img'">
+                    <div class="admin-product-info">
+                        <div class="admin-product-name">${product.name}</div>
+                        <div class="admin-product-price">${product.price}</div>
+                    </div>
+                    <div class="admin-product-actions">
+                        <button class="action-btn edit-btn" onclick="editProduct('${product.id}')">Edit</button>
+                        <button class="action-btn delete-btn" onclick="confirmDeleteProduct('${product.id}')">Hapus</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function editProduct(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            editingProductId = id;
+            
+            document.getElementById('productId').value = id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productDesc').value = product.desc;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productRating').value = product.rating || 4.5;
+            document.getElementById('productBadge').value = product.badge || '';
+            
+            // Set image preview
+            const preview = document.getElementById('imagePreview');
+            preview.src = fixImageUrl(product.image);
+            preview.classList.add('show');
+            document.getElementById('productImageData').value = product.image;
+            
+            // Update form title
+            document.getElementById('formTitle').textContent = 'Edit Produk';
+            document.getElementById('saveProductBtn').textContent = 'Update Produk';
+            document.getElementById('deleteProductBtn').style.display = 'block';
+            
+            // Clear validation errors
+            showValidationErrors({});
+            
+            // Scroll to form
+            document.querySelector('.modal-content').scrollTop = 0;
+        }
+
+        function confirmDeleteProduct(id) {
+            if (confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) {
+                deleteProduct(id);
+            }
+        }
+
+        function resetForm() {
+            editingProductId = null;
+            
+            document.getElementById('productId').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productCategory').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productDesc').value = '';
+            document.getElementById('productStock').value = '';
+            document.getElementById('productRating').value = '4.5';
+            document.getElementById('productBadge').value = '';
+            document.getElementById('productImageData').value = '';
+            
+            const preview = document.getElementById('imagePreview');
+            preview.src = '';
+            preview.classList.remove('show');
+            
+            document.getElementById('productImageInput').value = '';
+            
+            document.getElementById('formTitle').textContent = 'Tambah Produk Baru';
+            document.getElementById('saveProductBtn').textContent = 'Simpan Produk';
+            document.getElementById('deleteProductBtn').style.display = 'none';
+            
+            // Clear validation errors
+            showValidationErrors({});
+        }
+
+        // ===== UPDATE CATEGORY LISTS =====
+        function updateCategoryLists() {
+            // Update datalist in admin form
+            const datalist = document.getElementById('categoryOptions');
+            datalist.innerHTML = '';
+            
+            allCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                datalist.appendChild(option);
+            });
+            
+            // Update category tags in admin panel
+            renderCategoryTags();
+            
+            // Update filter tabs based on categories
+            updateFilterTabs();
+        }
+
+        function renderCategoryTags() {
+            const container = document.getElementById('categoryList');
+            container.innerHTML = '';
+            
+            allCategories.forEach(category => {
+                const tag = document.createElement('div');
+                tag.className = 'category-tag';
+                tag.innerHTML = `
+                    ${category}
+                    <button class="delete-category" onclick="deleteCategory('${category}')">×</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function updateFilterTabs() {
+            const tabsContainer = document.querySelector('.filter-tabs');
+            if (!tabsContainer) return;
+            
+            // Keep existing tabs but update based on categories
+            const existingTabs = tabsContainer.querySelectorAll('.filter-tab');
+            const existingFilters = Array.from(existingTabs).map(tab => tab.dataset.filter);
+            
+            // Add new categories as tabs if they don't exist
+            allCategories.forEach(category => {
+                if (!existingFilters.includes(category) && category !== 'all') {
+                    const tab = document.createElement('button');
+                    tab.className = 'filter-tab';
+                    tab.dataset.filter = category;
+                    tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        filterProducts(category);
+                    });
+                    tabsContainer.appendChild(tab);
+                }
+            });
+        }
 
         // ===== NAVBAR ADMIN MENU CLICK =====
         document.getElementById('navAdmin').addEventListener('click', function(e) {
@@ -1213,18 +1228,4 @@
                 }
             });
         });
-
-        // ===== GLOBAL SCOPE EXPORTS (agar onclick tidak undefined) =====
-        window.loginAdmin = loginAdmin;
-        window.checkAdminLogin = checkAdminLogin;
-        window.logoutAdmin = logoutAdmin;
-        window.openLoginModal = openLoginModal;
-        window.closeLoginModal = closeLoginModal;
-        window.openAdminModal = openAdminModal;
-        window.closeAdminModal = closeAdminModal;
-        window.saveProduct = saveProduct;
-        window.deleteProduct = deleteProduct;
-        window.resetForm = resetForm;
-        window.addNewCategory = addNewCategory;
-        window.deleteCategory = deleteCategory;
-        window.handleImageError = handleImageError;
+    
