@@ -96,7 +96,7 @@
             }
             
             // Deskripsi validation
-            if (!data.desc || data.desc.trim().length < 10) {
+            if (!data.description || data.description.trim().length < 10) {
                 errors.desc = 'Deskripsi harus minimal 10 karakter';
             }
             
@@ -155,107 +155,82 @@
 
         // ===== SUPABASE AUTHENTICATION FUNCTIONS =====
         async function loginAdmin() {
-            const username = document.getElementById('adminUsername').value.trim();
+            const identifier = document.getElementById('adminUsername').value.trim();
             const password = document.getElementById('adminPassword').value.trim();
-            
+            const ADMIN_EMAIL = 'berkatdyy@gmail.com';
+
             // Validasi input
-            if (!username || !password) {
-                document.getElementById('loginError').textContent = 'Username dan password harus diisi';
+            if (!identifier || !password) {
+                document.getElementById('loginError').textContent = 'Email/Username dan password harus diisi';
                 document.getElementById('loginError').classList.add('show');
                 return;
             }
-            
+
             showLoading('Memverifikasi login...');
-            
+
             try {
-                // VERIFIKASI DENGAN TABEL PROFILES DI SUPABASE
-                // 1. Cari user dengan username yang sesuai
-                const { data: profiles, error: profileError } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('username', username)
-                    .single();
-                
-                if (profileError || !profiles) {
-                    document.getElementById('loginError').textContent = 'Username atau password salah';
-                    document.getElementById('loginError').classList.add('show');
-                    throw new Error('User tidak ditemukan');
-                }
-                
-                // 2. Verifikasi role admin
-                if (profiles.role !== 'admin') {
-                    document.getElementById('loginError').textContent = 'Akses ditolak. Bukan admin.';
-                    document.getElementById('loginError').classList.add('show');
-                    throw new Error('Bukan admin');
-                }
-                
-                // 3. Password bisa diverifikasi dengan cara yang aman
-                // Karena Supabase tidak menyimpan password di profiles, kita bisa:
-                // a. Gunakan Supabase Auth dengan email yang sesuai
-                // b. Atau buat custom auth dengan RLS
-                
-                // SOLUSI: Gunakan Supabase Auth dengan email yang sudah ada
-                // Asumsi: email = username + '@berkatyakin.com
-                const adminEmail = `${username}@berkatyakin.com`;
-                
-                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
-                    email: adminEmail,
-                    password: password
-                });
-                
-                if (authError) {
-                    // Jika user belum ada di auth, buat dulu
-                    if (authError.message.includes('Invalid login credentials')) {
-                        // Buat user baru di auth
-                        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                            email: adminEmail,
-                            password: password,
-                            options: {
-                                data: {
-                                    username: username,
-                                    role: 'admin'
-                                }
-                            }
-                        });
-                        
-                        if (signUpError) {
-                            throw signUpError;
-                        }
-                        
-                        // Login dengan user yang baru dibuat
-                        const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
-                            email: adminEmail,
-                            password: password
-                        });
-                        
-                        if (loginError) throw loginError;
-                        
-                        // Simpan session
-                        localStorage.setItem('supabase.auth.token', JSON.stringify(loginData.session));
-                        localStorage.setItem('admin_logged_in', 'true');
-                        localStorage.setItem('admin_username', username);
-                        
-                        closeLoginModal();
-                        openAdminModal();
-                        updateAdminMenu(true);
-                        showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
+                // Supabase Auth butuh email → jika input berupa username, hanya izinkan username admin utama
+                let email = identifier;
+                if (!identifier.includes('@')) {
+                    if (identifier.toLowerCase() === 'berkatdyy') {
+                        email = ADMIN_EMAIL;
                     } else {
-                        throw authError;
+                        document.getElementById('loginError').textContent = 'Masukkan email untuk login (atau username admin: berkatdyy).';
+                        document.getElementById('loginError').classList.add('show');
+                        return;
                     }
-                } else {
-                    // Login berhasil
-                    localStorage.setItem('supabase.auth.token', JSON.stringify(authData.session));
-                    localStorage.setItem('admin_logged_in', 'true');
-                    localStorage.setItem('admin_username', username);
-                    
-                    closeLoginModal();
-                    openAdminModal();
-                    updateAdminMenu(true);
-                    showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
                 }
+
+                // 1) Login dengan Supabase Auth (WAJIB: signInWithPassword)
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                if (authError) throw authError;
+
+                const user = authData?.user;
+                if (!user) throw new Error('User tidak ditemukan setelah login.');
+
+                // 2) Cek admin
+                let isAdmin = false;
+
+                // Email admin utama selalu dianggap admin
+                if ((user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    isAdmin = true;
+                } else {
+                    // Cek role di profiles (id = auth.uid)
+                    const { data: profile, error: profileError } = await supabaseClient
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (!profileError && profile && profile.role === 'admin') {
+                        isAdmin = true;
+                    }
+                }
+
+                if (!isAdmin) {
+                    await supabaseClient.auth.signOut();
+                    updateAdminMenu(false);
+                    closeAdminModal();
+                    document.getElementById('loginError').textContent = 'Akses ditolak. Akun Anda bukan admin.';
+                    document.getElementById('loginError').classList.add('show');
+                    showNotification('error', 'Login Ditolak', 'Akun bukan admin.');
+                    return;
+                }
+
+                // 3) Sukses
+                localStorage.setItem('admin_logged_in', 'true');
+                localStorage.setItem('admin_email', (user.email || '').toLowerCase());
+
+                closeLoginModal();
+                updateAdminMenu(true);
+                openAdminModal();
+                showNotification('success', 'Login Berhasil', 'Selamat datang di panel admin!');
             } catch (error) {
                 console.error('Login error:', error);
-                document.getElementById('loginError').textContent = 'Username atau password salah';
+                document.getElementById('loginError').textContent = 'Email/Username atau password salah';
                 document.getElementById('loginError').classList.add('show');
                 showNotification('error', 'Login Gagal', 'Terjadi kesalahan saat login');
             } finally {
@@ -264,39 +239,48 @@
         }
 
         async function checkAdminLogin() {
+            const ADMIN_EMAIL = 'berkatdyy@gmail.com';
             try {
-                // Cek session dari Supabase Auth
                 const { data: { session } } = await supabaseClient.auth.getSession();
-                
-                if (session) {
-                    // Cek apakah user ada di tabel profiles dengan role admin
-                    const { data: userData } = await supabaseClient.auth.getUser();
-                    
-                    if (userData.user) {
-                        // Cek username dari user metadata atau email
-                        const email = userData.user.email;
-                        const username = email ? email.split('@')[0] : null;
-                        
-                        if (username) {
-                            // Cek di tabel profiles
-                            const { data: profile } = await supabaseClient
-                                .from('profiles')
-                                .select('role')
-                                .eq('username', username)
-                                .single();
-                            
-                            if (profile && profile.role === 'admin') {
-                                updateAdminMenu(true);
-                                localStorage.setItem('admin_logged_in', 'true');
-                                localStorage.setItem('admin_username', username);
-                                return true;
-                            }
-                        }
-                    }
+
+                if (!session || !session.user) {
+                    updateAdminMenu(false);
+                    localStorage.removeItem('admin_logged_in');
+                    localStorage.removeItem('admin_email');
+                    return false;
                 }
-                
-                // Jika tidak valid, logout
-                logoutAdmin();
+
+                const user = session.user;
+
+                // Email admin utama selalu admin
+                if ((user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    updateAdminMenu(true);
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_email', (user.email || '').toLowerCase());
+                    return true;
+                }
+
+                // Cek role di profiles by id
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                const isAdmin = !profileError && profile && profile.role === 'admin';
+
+                if (isAdmin) {
+                    updateAdminMenu(true);
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_email', (user.email || '').toLowerCase());
+                    return true;
+                }
+
+                // bukan admin -> signOut
+                await supabaseClient.auth.signOut();
+                updateAdminMenu(false);
+                localStorage.removeItem('admin_logged_in');
+                localStorage.removeItem('admin_email');
                 return false;
             } catch (error) {
                 console.error('Check login error:', error);
@@ -305,7 +289,7 @@
             }
         }
 
-        async function logoutAdmin() {
+        async function logoutAdmin() {() {
             try {
                 await supabaseClient.auth.signOut();
                 localStorage.removeItem('admin_logged_in');
@@ -345,16 +329,18 @@
             document.getElementById('loginError').classList.remove('show');
         }
 
-        function openAdminModal() {
-            // Cek login status
-            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-            
+        async function openAdminModal() {
+            const isLoggedIn = await checkAdminLogin();
+
             if (isLoggedIn) {
                 closeAllDropdowns();
                 document.getElementById('adminModal').classList.add('active');
                 renderAdminProductList();
                 updateCategoryLists();
             } else {
+                openLoginModal();
+            }
+        } else {
                 openLoginModal();
             }
         }
@@ -383,7 +369,7 @@
                     allProducts = (products || []).map(product => ({
                         ...product,
                         // Fix URL gambar jika masih menggunakan path lokal
-                        image: fixImageUrl(product.image)
+                        image: product.image
                     }));
                 }
                 
@@ -438,7 +424,7 @@
             const name = document.getElementById('productName').value.trim();
             const category = document.getElementById('productCategory').value.trim().toLowerCase();
             const price = document.getElementById('productPrice').value.trim();
-            const desc = document.getElementById('productDesc').value.trim();
+            const description = document.getElementById('productDesc').value.trim();
             const stock = document.getElementById('productStock').value.trim();
             const rating = parseFloat(document.getElementById('productRating').value);
             const badge = document.getElementById('productBadge').value;
@@ -448,13 +434,11 @@
                 name,
                 category,
                 price,
-                desc,
+                description,
                 stock,
                 rating,
                 badge,
-                image: imageData,
-                wa: encodeURIComponent(name)
-            };
+                image: imageData};
             
             // Validasi data
             const errors = validateProductData(productData);
@@ -516,23 +500,48 @@
             if (!id) {
                 id = document.getElementById('productId').value;
             }
-            
+
             if (!id) return;
-            
+
             if (!confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak bisa dibatalkan.')) {
                 return;
             }
-            
+
             showLoading('Menghapus produk...');
-            
+
             try {
+                // Ambil data produk untuk mengetahui filename gambar
+                const { data: product, error: fetchError } = await supabaseClient
+                    .from('products')
+                    .select('image')
+                    .eq('id', id)
+                    .single();
+
+                if (fetchError) {
+                    console.warn('Gagal mengambil data produk sebelum delete:', fetchError);
+                }
+
+                // Hapus row produk
                 const { error } = await supabaseClient
                     .from('products')
                     .delete()
                     .eq('id', id);
-                
+
                 if (error) throw error;
-                
+
+                // Hapus file di storage jika image berupa filename (bukan URL)
+                const imageName = product?.image;
+                if (imageName && !String(imageName).startsWith('http')) {
+                    const { error: storageError } = await supabaseClient
+                        .storage
+                        .from('product-images')
+                        .remove([imageName]);
+
+                    if (storageError) {
+                        console.warn('Gagal hapus gambar di storage:', storageError);
+                    }
+                }
+
                 await loadProducts();
                 resetForm();
                 showNotification('success', 'Berhasil', 'Produk berhasil dihapus!');
@@ -544,7 +553,7 @@
             }
         }
 
-        async function addNewCategory() {
+        async function addNewCategory() {() {
             const input = document.getElementById('newCategoryInput');
             const categoryName = input.value.trim().toLowerCase();
             
@@ -644,15 +653,11 @@
                 
                 if (error) throw error;
                 
-                // Dapatkan URL public
-                const { data: { publicUrl } } = supabaseClient.storage
-                    .from('product-images')
-                    .getPublicUrl(fileName);
-                
-                document.getElementById('productImageData').value = publicUrl;
-                
+                // Simpan hanya filename di database (sesuai struktur saat ini)
+                document.getElementById('productImageData').value = fileName;
+
                 const preview = document.getElementById('imagePreview');
-                preview.src = publicUrl;
+                preview.src = fixImageUrl(fileName);
                 preview.classList.add('show');
                 
                 // Clear image error
@@ -701,7 +706,7 @@
             const imageUrl = fixImageUrl(product.image);
             
             return `
-                <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${product.desc.toLowerCase()} ${product.category.toLowerCase()}">
+                <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${(product.description||'').toLowerCase()} ${product.category.toLowerCase()}">
                     ${badgeHTML}
                     <div class="product-image">
                         <img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(product.name)}'">
@@ -709,7 +714,7 @@
                     <div class="product-info">
                         <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
                         <h3 class="product-name">${product.name}</h3>
-                        <p class="product-desc">${product.desc}</p>
+                        <p class="product-desc">${product.description}</p>
                         <div class="product-rating">
                             <div class="stars">
                                 ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
@@ -747,7 +752,7 @@
                 const searchTerm = currentSearch.toLowerCase();
                 productsToShow = productsToShow.filter(product => 
                     (product.name && product.name.toLowerCase().includes(searchTerm)) ||
-                    (product.desc && product.desc.toLowerCase().includes(searchTerm)) ||
+                    (product.description && product.description.toLowerCase().includes(searchTerm)) ||
                     (product.category && product.category.toLowerCase().includes(searchTerm))
                 );
                 
@@ -1062,7 +1067,7 @@
             document.getElementById('productName').value = product.name;
             document.getElementById('productCategory').value = product.category;
             document.getElementById('productPrice').value = product.price;
-            document.getElementById('productDesc').value = product.desc;
+            document.getElementById('productDesc').value = product.description;
             document.getElementById('productStock').value = product.stock;
             document.getElementById('productRating').value = product.rating || 4.5;
             document.getElementById('productBadge').value = product.badge || '';
@@ -1222,7 +1227,11 @@
             // Check session on page load
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_OUT') {
-                    logoutAdmin();
+                    // Jangan panggil logoutAdmin() lagi (hindari loop). Cukup reset UI.
+                    updateAdminMenu(false);
+                    localStorage.removeItem('admin_logged_in');
+                    localStorage.removeItem('admin_email');
+                    closeAdminModal();
                 } else if (event === 'SIGNED_IN') {
                     checkAdminLogin();
                 }
