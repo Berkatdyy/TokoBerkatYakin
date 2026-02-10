@@ -22,7 +22,7 @@
     <!-- Load Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- NOTIFICATION SYSTEM -->
@@ -45,8 +45,8 @@
                 <button class="btn-close" onclick="closeLoginModal()">×</button>
             </div>
             <div class="form-group">
-                <label for="adminUsername">Username</label>
-                <input type="text" id="adminUsername" placeholder="Masukkan username">
+                <label for="adminUsername">Email / Username</label>
+                <input type="text" id="adminUsername" placeholder="Masukkan email atau username">
                 <div class="validation-error" id="usernameError"></div>
             </div>
             <div class="form-group">
@@ -58,10 +58,6 @@
             <div class="form-actions">
                 <button class="btn btn-primary" onclick="loginAdmin()">Login</button>
                 <button class="btn" onclick="closeLoginModal()">Batal</button>
-            </div>
-            <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-secondary); text-align: center;">
-                Username: berkatdyy<br>
-                Password: 75354e17
             </div>
         </div>
     </div>
@@ -541,6 +537,6 @@
         </div>
     </footer>
 
-    <script src="/assets/js/app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
