@@ -97,7 +97,8 @@
             
             // Deskripsi validation
             if (!data.description || data.description.trim().length < 10) {
-                errors.desc = 'Deskripsi harus minimal 10 karakter';
+               errors.description = 'Deskripsi harus minimal 10 karakter';
+
             }
             
             // Stok validation
