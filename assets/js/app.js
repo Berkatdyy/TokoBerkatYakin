@@ -111,9 +111,10 @@
             }
             
             // Image validation
-            if (!data.image || !isValidUrl(data.image)) {
-                errors.image = 'URL gambar tidak valid';
-            }
+            if (!data.image) {
+    errors.image = 'Gambar produk wajib diupload';
+}
+
             
             return errors;
         }
@@ -289,7 +290,8 @@
             }
         }
 
-        async function logoutAdmin() {() {
+        async function logoutAdmin() {
+
             try {
                 await supabaseClient.auth.signOut();
                 localStorage.removeItem('admin_logged_in');
@@ -330,19 +332,18 @@
         }
 
         async function openAdminModal() {
-            const isLoggedIn = await checkAdminLogin();
+    const isLoggedIn = await checkAdminLogin();
 
-            if (isLoggedIn) {
-                closeAllDropdowns();
-                document.getElementById('adminModal').classList.add('active');
-                renderAdminProductList();
-                updateCategoryLists();
-            } else {
-                openLoginModal();
-            }
-        } else {
-                openLoginModal();
-            }
+    if (isLoggedIn) {
+        closeAllDropdowns();
+        document.getElementById('adminModal').classList.add('active');
+        renderAdminProductList();
+        updateCategoryLists();
+    } else {
+        openLoginModal();
+    }
+
+
         }
 
         function closeAdminModal() {
@@ -553,7 +554,8 @@
             }
         }
 
-        async function addNewCategory() {() {
+        async function addNewCategory() {
+
             const input = document.getElementById('newCategoryInput');
             const categoryName = input.value.trim().toLowerCase();
             
