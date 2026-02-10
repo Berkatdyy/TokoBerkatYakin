@@ -1,5 +1,4 @@
-
-        // ===== SUPABASE CONFIGURATION =====
+// ===== SUPABASE CONFIGURATION =====
         const SUPABASE_URL = 'https://biagisibwjkgpdfxyhxg.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_k_Tjf3ZGz2qsyR6pSfrtdg_FpM3k4qT';
         
@@ -111,11 +110,10 @@
                 errors.rating = 'Rating harus antara 1-5';
             }
             
-            // Image validation
-            if (!data.image) {
-    errors.image = 'Gambar produk wajib diupload';
-}
-
+            // Image validation - FIX BUG #3: Hanya wajib saat tambah produk baru
+            if (!data.image && !document.getElementById('productId').value) {
+                errors.image = 'Gambar produk wajib diupload';
+            }
             
             return errors;
         }
@@ -333,18 +331,16 @@
         }
 
         async function openAdminModal() {
-    const isLoggedIn = await checkAdminLogin();
+            const isLoggedIn = await checkAdminLogin();
 
-    if (isLoggedIn) {
-        closeAllDropdowns();
-        document.getElementById('adminModal').classList.add('active');
-        renderAdminProductList();
-        updateCategoryLists();
-    } else {
-        openLoginModal();
-    }
-
-
+            if (isLoggedIn) {
+                closeAllDropdowns();
+                document.getElementById('adminModal').classList.add('active');
+                renderAdminProductList();
+                updateCategoryLists();
+            } else {
+                openLoginModal();
+            }
         }
 
         function closeAdminModal() {
@@ -369,23 +365,19 @@
                 } else {
                     // FIX: Pastikan URL gambar benar dengan format Supabase Storage
                    allProducts = (products || []).map(product => ({
-    ...product,
-    image: fixImageUrl(product.image)
-}));
-
+                        ...product,
+                        image: fixImageUrl(product.image)
+                    }));
                 }
                 
                 // ===== LOAD CATEGORIES DARI PRODUCTS + DEFAULT =====
-const uniqueCategories = [
-    ...new Set(allProducts.map(p => p.category).filter(c => c))
-];
+                const uniqueCategories = [
+                    ...new Set(allProducts.map(p => p.category).filter(c => c))
+                ];
 
-allCategories = [
-    ...new Set([...defaultCategories, ...uniqueCategories])
-];
-
-                
-                
+                allCategories = [
+                    ...new Set([...defaultCategories, ...uniqueCategories])
+                ];
                 
                 filteredProducts = [...allProducts];
                 renderProducts();
@@ -405,20 +397,22 @@ allCategories = [
             }
         }
 
-        function fixImageUrl(imageUrl) {
-            if (!imageUrl) return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
-            
-            // Jika URL sudah lengkap, return as is
-            if (imageUrl.startsWith('http')) return imageUrl;
-            
-            // Jika hanya nama file, tambahkan base URL Supabase Storage
+       function fixImageUrl(imageUrl) {
+            if (!imageUrl) {
+                return 'https://dummyimage.com/400x400/0071e3/ffffff&text=Produk';
+            }
+
+            if (imageUrl.startsWith('http')) {
+                return imageUrl;
+            }
+
             if (imageUrl.includes('.')) {
                 return `${SUPABASE_URL}/storage/v1/object/public/product-images/${imageUrl}`;
             }
-            
-            // Default placeholder
-            return 'https://via.placeholder.com/400x400/0071e3/ffffff?text=Produk';
+
+            return 'https://dummyimage.com/400x400/0071e3/ffffff&text=Produk';
         }
+
 
         async function saveProduct() {
             const id = document.getElementById('productId').value;
@@ -439,7 +433,8 @@ allCategories = [
                 stock,
                 rating,
                 badge,
-                image: imageData};
+                image: imageData
+            };
             
             // Validasi data
             const errors = validateProductData(productData);
@@ -530,9 +525,12 @@ allCategories = [
 
                 if (error) throw error;
 
-                // Hapus file di storage jika image berupa filename (bukan URL)
-                const imageName = product?.image;
-                if (imageName && !String(imageName).startsWith('http')) {
+                // FIX BUG #2: Hapus file di storage - ekstrak filename dari URL
+                let imageName = product?.image;
+                if (imageName && imageName.includes('/product-images/')) {
+                    imageName = imageName.split('/product-images/')[1];
+                }
+                if (imageName && !imageName.startsWith('http')) {
                     const { error: storageError } = await supabaseClient
                         .storage
                         .from('product-images')
@@ -685,9 +683,9 @@ allCategories = [
                         img.onload = () => {
                             img.classList.add('loaded');
                         };
-                        img.onerror = () => {
+                       img.onerror = () => {
                             // Fallback ke placeholder jika gambar error
-                            img.src = `https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(img.alt || 'Produk')}`;
+                            img.src = `https://dummyimage.com/400x400/0071e3/ffffff&text=${encodeURIComponent(img.alt || 'Produk')}`;
                             img.classList.add('loaded');
                         };
                         img.removeAttribute('data-src');
@@ -701,7 +699,9 @@ allCategories = [
 
         // ===== GENERATE PRODUCT CARD =====
         function generateProductCard(product) {
-            const stars = '★'.repeat(Math.floor(product.rating || 4.5));
+            // FIX BUG #4: Rating star tidak sinkron
+            const ratingValue = product.rating ?? 4.5;
+            const stars = '★'.repeat(Math.round(ratingValue));
             const badgeHTML = product.badge ? `<div class="product-badge badge-${product.badge}">${product.badge_text || ''}</div>` : '';
             
             // Gunakan data-src untuk lazy loading
@@ -711,7 +711,7 @@ allCategories = [
                 <div class="product-card animate-on-scroll visible" data-category="${product.category}" data-search="${product.name.toLowerCase()} ${(product.description||'').toLowerCase()} ${product.category.toLowerCase()}">
                     ${badgeHTML}
                     <div class="product-image">
-                        <img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/0071e3/ffffff?text=${encodeURIComponent(product.name)}'">
+                        <img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.src='https://dummyimage.com/400x400/0071e3/ffffff&text=${encodeURIComponent(product.name)}'">
                     </div>
                     <div class="product-info">
                         <div class="product-category">${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Produk'}</div>
@@ -721,7 +721,7 @@ allCategories = [
                             <div class="stars">
                                 ${stars.split('').map(s => `<span class="star">${s}</span>`).join('')}
                             </div>
-                            <span class="rating-text">(${product.rating || 4.5}/5)</span>
+                            <span class="rating-text">(${ratingValue}/5)</span>
                         </div>
                         <div class="product-price-wrapper">
                             <div class="product-price">${product.price}</div>
@@ -1045,7 +1045,7 @@ allCategories = [
                 const div = document.createElement('div');
                 div.className = 'admin-product-item';
                 div.innerHTML = `
-                    <img src="${fixImageUrl(product.image)}" class="admin-product-image" alt="${product.name}" onerror="this.src='https://via.placeholder.com/60x60/0071e3/ffffff?text=Img'">
+                    <img src="${fixImageUrl(product.image)}" class="admin-product-image" alt="${product.name}" onerror="this.src='https://dummyimage.com/60x60/0071e3/ffffff&text=Img'">
                     <div class="admin-product-info">
                         <div class="admin-product-name">${product.name}</div>
                         <div class="admin-product-price">${product.price}</div>
@@ -1185,12 +1185,6 @@ allCategories = [
             });
         }
 
-        // ===== NAVBAR ADMIN MENU CLICK =====
-        document.getElementById('navAdmin').addEventListener('click', function(e) {
-            e.preventDefault();
-            openAdminModal();
-        });
-
         // ===== RESPONSIVE ADJUSTMENTS =====
         function handleResize() {
             // Close dropdowns when switching between mobile/desktop
@@ -1217,7 +1211,7 @@ allCategories = [
             filterProducts('all');
             setupSearch();
             
-            // Inisialisasi event listener untuk admin
+            // FIX BUG #1: Inisialisasi event listener untuk admin (HANYA DI SINI)
             document.getElementById('navAdmin').addEventListener('click', function(e) {
                 e.preventDefault();
                 openAdminModal();
@@ -1239,4 +1233,3 @@ allCategories = [
                 }
             });
         });
-    
