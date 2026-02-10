@@ -368,25 +368,24 @@
                     allProducts = [...defaultProducts];
                 } else {
                     // FIX: Pastikan URL gambar benar dengan format Supabase Storage
-                    allProducts = (products || []).map(product => ({
-                        ...product,
-                        // Fix URL gambar jika masih menggunakan path lokal
-                        image: product.image
-                    }));
+                   allProducts = (products || []).map(product => ({
+    ...product,
+    image: fixImageUrl(product.image)
+}));
+
                 }
                 
-                // Load categories dari tabel categories atau extract dari products
-                const { data: categories, error: categoriesError } = await supabaseClient
-                    .from('categories')
-                    .select('name');
+                // ===== LOAD CATEGORIES DARI PRODUCTS + DEFAULT =====
+const uniqueCategories = [
+    ...new Set(allProducts.map(p => p.category).filter(c => c))
+];
+
+allCategories = [
+    ...new Set([...defaultCategories, ...uniqueCategories])
+];
+
                 
-                if (categoriesError || !categories || categories.length === 0) {
-                    // Extract unique categories dari products
-                    const uniqueCategories = [...new Set(allProducts.map(p => p.category))].filter(c => c);
-                    allCategories = [...new Set([...defaultCategories, ...uniqueCategories])];
-                } else {
-                    allCategories = categories.map(c => c.name);
-                }
+                
                 
                 filteredProducts = [...allProducts];
                 renderProducts();
