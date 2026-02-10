@@ -22,7 +22,7 @@
     <!-- Load Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- NOTIFICATION SYSTEM -->
@@ -45,9 +45,9 @@
                 <button class="btn-close" onclick="closeLoginModal()">×</button>
             </div>
             <div class="form-group">
-                <label for="adminEmail">Email</label>
-                <input type="email" id="adminEmail" placeholder="Masukkan email">
-                <div class="validation-error" id="emailError"></div>
+                <label for="adminUsername">Email / Username</label>
+                <input type="text" id="adminUsername" placeholder="Masukkan email atau username">
+                <div class="validation-error" id="usernameError"></div>
             </div>
             <div class="form-group">
                 <label for="adminPassword">Password</label>
@@ -115,10 +115,10 @@
                 <div class="validation-error" id="priceError"></div>
             </div>
             
-            <div class="form-group" id="descriptionGroup">
-                <label for="productDescription">Deskripsi *</label>
-                <textarea id="productDescription" placeholder="Deskripsi produk"></textarea>
-                <div class="validation-error" id="descriptionError"></div>
+            <div class="form-group" id="descGroup">
+                <label for="productDesc">Deskripsi *</label>
+                <textarea id="productDesc" placeholder="Deskripsi produk"></textarea>
+                <div class="validation-error" id="descError"></div>
             </div>
             
             <div class="form-group" id="stockGroup">
@@ -152,103 +152,156 @@
                         Max 800px width, format JPG
                     </div>
                 </div>
-                <input type="file" id="productImageInput" accept="image/*" style="display: none;" onchange="previewImage(event)">
-                <input type="hidden" id="productImageData">
-                <img id="imagePreview" class="image-preview">
+                <input type="file" id="productImageInput" accept="image/jpeg,image/jpg,image/png" style="display: none;">
+                <img id="imagePreview" class="image-preview" alt="Preview">
                 <div class="validation-error" id="imageError"></div>
             </div>
             
             <input type="hidden" id="productId">
+            <input type="hidden" id="productImageData">
             
             <div class="form-actions">
                 <button class="btn btn-primary" id="saveProductBtn" onclick="saveProduct()">Simpan Produk</button>
-                <button class="btn btn-danger" id="deleteProductBtn" style="display: none;" onclick="deleteProduct()">Hapus Produk</button>
+                <button class="btn btn-danger" id="deleteProductBtn" onclick="deleteProduct()" style="display: none;">Hapus Produk</button>
                 <button class="btn" onclick="resetForm()">Reset Form</button>
             </div>
         </div>
     </div>
 
-    <!-- NAVIGATION -->
-    <nav class="navbar">
+    <!-- NAVIGATION dengan menu Admin di navbar -->
+    <nav id="navbar">
         <div class="nav-container">
-            <div class="nav-logo">Berkat Yakin</div>
-            <div class="nav-menu">
-                <a href="#produk">Produk</a>
-                <div class="dropdown">
-                    <button class="dropdown-toggle" onclick="toggleDropdown(event)">
-                        Layanan 
-                        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
+            <a href="#" class="logo">Toko Berkat Yakin</a>
+            <div class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#produk">Produk</a></li>
+                <li><a href="#layanan">Layanan</a></li>
+                <li class="dropdown">
+                    <button class="dropdown-toggle" aria-label="Lokasi" data-dropdown="lokasi">
+                        Lokasi
+                        <span class="dropdown-arrow"></span>
                     </button>
                     <div class="dropdown-content">
-                        <a href="#layanan" onclick="closeAllDropdowns()">Layanan Keuangan</a>
-                        <a href="#kontak" onclick="closeAllDropdowns()">Kontak</a>
+                        <a href="https://www.google.com/maps?q=-3.290611,114.568833" target="_blank" rel="noopener">Buka di Google Maps</a>
+                        <a href="https://www.google.com/maps/dir//-3.290611,114.568833" target="_blank" rel="noopener">Petunjuk Arah</a>
                     </div>
-                </div>
-                <a href="#kontak">Kontak</a>
-                <a href="#" id="navAdmin" class="admin-menu">Admin</a>
-            </div>
+                </li>
+                <li class="dropdown">
+                    <button class="dropdown-toggle" aria-label="Kontak" data-dropdown="kontak">
+                        Kontak
+                        <span class="dropdown-arrow"></span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" target="_blank" rel="noopener">WhatsApp</a>
+                        <a href="tel:081253680904">Telepon</a>
+                        <a href="#kontak">Lihat Info Lengkap</a>
+                    </div>
+                </li>
+                <li><a href="#" id="navAdmin" class="admin-menu">🔑 Admin</a></li>
+            </ul>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
     <section class="hero">
-        <div class="hero-content animate-on-scroll">
-            <div class="hero-badge">Toko Terpercaya Sejak 2015</div>
-            <h1>Belanja Praktis, Transaksi Lengkap</h1>
-            <p class="hero-description">
-                Semua kebutuhan harian Anda di satu tempat — sembako berkualitas, snack favorit, minuman segar, 
-                hingga layanan pulsa, token PLN, dan top up e-wallet.
-            </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
-                <a href="#produk" class="btn btn-primary">Lihat Produk</a>
-                <a href="https://wa.me/6281253680904?text=Halo%20Berkat%20Yakin,%20saya%20mau%20pesan" class="btn btn-secondary" target="_blank" rel="noopener">Hubungi Kami</a>
+        <div class="hero-container">
+            <div class="hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Buka Setiap Hari · 08:00 – 22:00 WITA
             </div>
+            <h1>Pusat Belanja Terlengkap di Banjarmasin</h1>
+            <p class="hero-description">Sembako berkualitas, snack favorit, minuman segar, dan layanan keuangan lengkap dalam satu tempat. Harga terjangkau, pelayanan ramah.</p>
         </div>
-        
-        <div class="stats-grid animate-on-scroll">
-            <div class="stat-card">
+    </section>
+
+    <!-- STATS SECTION -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                    </svg>
+                </div>
+                <span class="stat-number">200+</span>
+                <span class="stat-label">Produk Berkualitas</span>
+            </div>
+            <div class="stat-item animate-on-scroll">
                 <div class="stat-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
                 </div>
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Pelanggan Setia</div>
+                <span class="stat-number">29 Tahun</span>
+                <span class="stat-label">Pengalaman Melayani</span>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
-                </div>
-                <div class="stat-number">200+</div>
-                <div class="stat-label">Produk Tersedia</div>
-            </div>
-            
-            <div class="stat-card">
+            <div class="stat-item animate-on-scroll">
                 <div class="stat-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
                 </div>
-                <div class="stat-number">14 Jam</div>
-                <div class="stat-label">Buka Setiap Hari</div>
+                <span class="stat-number">14 Jam</span>
+                <span class="stat-label">Buka Setiap Hari</span>
             </div>
-            
-            <div class="stat-card">
+            <div class="stat-item animate-on-scroll">
                 <div class="stat-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
                 </div>
-                <div class="stat-number">4.8</div>
-                <div class="stat-label">Rating Pelanggan</div>
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Kepuasan Pelanggan</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- BEST SELLER SECTION -->
+    <section class="section" style="background: white;">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-subtitle">⭐ Paling Laris</div>
+                <h2 class="section-title">Best Seller Produk Pilihan</h2>
+                <p class="section-description">Produk-produk favorit pelanggan dengan kualitas terbaik dan harga terjangkau</p>
+            </div>
+
+            <!-- SEARCH BOX -->
+            <div class="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari produk berdasarkan nama, kategori, atau deskripsi...">
+                </div>
+                <div class="search-results-info" id="searchResultsInfo"></div>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">Semua Produk</button>
+                <button class="filter-tab" data-filter="mie">Mie Instan</button>
+                <button class="filter-tab" data-filter="rokok">Rokok</button>
+            </div>
+
+            <div class="product-grid" id="productGrid"></div>
+
+            <div class="load-more-container">
+                <button class="btn-load-more" id="loadMoreBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    <span>Muat Lebih Banyak</span>
+                </button>
             </div>
         </div>
     </section>
@@ -257,53 +310,77 @@
     <section id="produk" class="section">
         <div class="section-container">
             <div class="section-header">
-                <div class="section-subtitle">Katalog Produk</div>
-                <h2 class="section-title">Produk Pilihan Kami</h2>
-                <p class="section-description">
-                    Dari mie instan hingga rokok, semua produk berkualitas dengan harga terjangkau
-                </p>
+                <div class="section-subtitle">Produk Kami</div>
+                <h2 class="section-title">Pilihan Berkualitas</h2>
             </div>
-            
-            <!-- SEARCH BOX -->
-            <div class="search-container">
-                <div class="search-box">
-                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.35-4.35"/>
-                    </svg>
-                    <input 
-                        type="text" 
-                        class="search-input" 
-                        id="searchInput"
-                        placeholder="Cari produk (contoh: indomie, rokok, minuman)..."
-                    >
+            <div class="card-grid">
+                <div class="card animate-on-scroll">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Sembako Lengkap</h3>
+                    <p class="card-description">Beras premium, minyak goreng, gula pasir, tepung terigu, dan kebutuhan pokok pilihan.</p>
+                    <div class="card-tags">
+                        <span class="tag">Beras Premium</span>
+                        <span class="tag">Minyak Goreng</span>
+                        <span class="tag">Gula & Tepung</span>
+                    </div>
                 </div>
-                <div class="search-results-info" id="searchResultsInfo"></div>
-            </div>
-            
-            <!-- FILTER TABS -->
-            <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all" onclick="filterProducts('all')">Semua</button>
-                <button class="filter-tab" data-filter="mie" onclick="filterProducts('mie')">Mie</button>
-                <button class="filter-tab" data-filter="rokok" onclick="filterProducts('rokok')">Rokok</button>
-                <button class="filter-tab" data-filter="sembako" onclick="filterProducts('sembako')">Sembako</button>
-                <button class="filter-tab" data-filter="minuman" onclick="filterProducts('minuman')">Minuman</button>
-                <button class="filter-tab" data-filter="snack" onclick="filterProducts('snack')">Snack</button>
-            </div>
-            
-            <!-- PRODUCT GRID -->
-            <div class="product-grid" id="productGrid">
-                <!-- Produk akan dimuat dari JavaScript -->
-            </div>
-            
-            <!-- LOAD MORE BUTTON -->
-            <div class="text-center mt-3" id="loadMoreContainer" style="display: none;">
-                <button class="btn btn-load-more" onclick="loadMore()">
-                    Muat Lebih Banyak
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                </button>
+
+                <div class="card animate-on-scroll">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Aneka Snack</h3>
+                    <p class="card-description">Camilan favorit untuk semua usia — keripik tradisional hingga cokelat.</p>
+                    <div class="card-tags">
+                        <span class="tag">Keripik</span>
+                        <span class="tag">Biskuit</span>
+                        <span class="tag">Cokelat</span>
+                    </div>
+                </div>
+
+                <div class="card animate-on-scroll">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                            <line x1="6" y1="1" x2="6" y2="4"/>
+                            <line x1="10" y1="1" x2="10" y2="4"/>
+                            <line x1="14" y1="1" x2="14" y2="4"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Minuman Kemasan</h3>
+                    <p class="card-description">Air mineral, soft drink, teh botol, kopi, susu — selalu dingin & segar.</p>
+                    <div class="card-tags">
+                        <span class="tag">Air Mineral</span>
+                        <span class="tag">Soft Drink</span>
+                        <span class="tag">Susu</span>
+                    </div>
+                </div>
+
+                <div class="card animate-on-scroll">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                            <path d="M7 2v20"/>
+                            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Makanan Instan</h3>
+                    <p class="card-description">Mie instan berbagai rasa, bumbu masak, saus, kecap, dan makanan siap saji.</p>
+                    <div class="card-tags">
+                        <span class="tag">Mie Instan</span>
+                        <span class="tag">Bumbu Masak</span>
+                        <span class="tag">Saus & Kecap</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -460,6 +537,6 @@
         </div>
     </footer>
 
-    <script src="/assets/js/app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
