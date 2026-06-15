@@ -1,1 +1,28 @@
+name: Keep Supabase Alive
 
+on:
+  schedule:
+    # Jalan setiap Senin & Kamis jam 08.00 WITA (00:00 UTC)
+    - cron: '0 0 * * 1,4'
+  workflow_dispatch: # Bisa juga dijalankan manual dari GitHub
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Supabase Database
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/products?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "Response code: $RESPONSE"
+
+          if [ "$RESPONSE" -eq 200 ] || [ "$RESPONSE" -eq 206 ]; then
+            echo "✅ Supabase aktif! Database Berkat Yakin aman."
+          else
+            echo "❌ Ping gagal. Response code: $RESPONSE"
+            exit 1
+          fi
